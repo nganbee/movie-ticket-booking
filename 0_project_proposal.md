@@ -77,9 +77,7 @@ Hệ thống giao tiếp thông qua **RESTful API** giữa frontend và backend.
 
 ## 5. Human Resources & Costing Plan
 
-# **5. Cơ cấu nhân sự và chi phí dự kiến**
-
-## **5.1. Cơ cấu nhân sự**
+### **5.1. Cơ cấu nhân sự**
 
 Dự án được thực hiện bởi **nhóm 4 sinh viên (Team 3)**, với các vai trò được phân chia rõ ràng nhằm đảm bảo tiến độ và chất lượng sản phẩm:
 
@@ -104,7 +102,7 @@ Dự án được thực hiện bởi **nhóm 4 sinh viên (Team 3)**, với cá
 | Nguyễn Gia Huy | Backend Developer 2|
 ---
 
-## **5.2. Phân chia theo giai đoạn phát triển**
+### **5.2. Phân chia theo giai đoạn phát triển**
 
 - **Giai đoạn 1 – Phân tích & Thiết kế:**  
   Tất cả thành viên tham gia thu thập yêu cầu, phân tích hệ thống và thiết kế kiến trúc.
@@ -117,7 +115,7 @@ Dự án được thực hiện bởi **nhóm 4 sinh viên (Team 3)**, với cá
 
 ---
 
-## **5.3. Chi phí dự kiến**
+### **5.3. Chi phí dự kiến**
 
 Vì đây là **dự án học tập**, chi phí chủ yếu đến từ hạ tầng và công cụ:
 
