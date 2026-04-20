@@ -28,7 +28,7 @@
 - Thiết kế kiến trúc phần mềm và xác định yêu cầu phần cứng.
 
 **23120060 - Trần Kim Ngân - Contribution (100%)**
-- Lập kế hoạch phát triển cho dự án: phân tích yêu cầu, đề xuất hệ thống 3-Tier, lựa chọn các công nghệ cho từng vị trí.
+- Lập kế hoạch phát triển cho dự án: phân tích yêu cầu, đề xuất hệ thống 3-Tier, lựa chọn các công nghệ cho từng vị trí, đề xuất, chia Sprint.
 - Tổng hợp các phần của báo cáo
 
 
@@ -122,7 +122,7 @@ Reviewed by: [StudentID - Fullname]
 
 
 ## 4. Development Plan
-> Written by: 23120060 - Trần Kim Ngân
+> Written by: 23120060 - Trần Kim Ngân  
 Edited by: [StudentID - Fullname]   
 Reviewed by: [StudentID - Fullname] 
 
