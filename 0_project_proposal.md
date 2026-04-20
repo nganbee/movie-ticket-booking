@@ -366,3 +366,35 @@ cinebook/
 
 
 ## 9. Reflective Report
+
+> **Câu hỏi phản ánh:** *Which sections of this template are most helpful for implementation, and which are unnecessary? Provide specific examples to support your reasoning.*
+
+---
+
+### 9.1 Các phần hữu ích nhất cho việc triển khai
+
+**Phần 2 – Preliminary Problem Statement** là nền tảng quan trọng nhất của toàn bộ tài liệu. Việc phải mô tả rõ bài toán ngay từ đầu — bao gồm môi trường hoạt động (React, FastAPI, PostgreSQL) và các ràng buộc thiết kế (bảo mật, hiệu năng, mở rộng) — buộc nhóm thống nhất phạm vi dự án trước khi bắt tay viết code. Nếu không có phần này, nhóm dễ bị phân tán khi mỗi thành viên hiểu khác nhau về "hệ thống đặt vé rạp chiếu phim". Ví dụ cụ thể: chính nhờ ràng buộc *"tránh trùng ghế khi nhiều người đặt đồng thời"* được nêu ở đây mà nhóm đã sớm xác định cần xử lý concurrency ở tầng Backend, tránh phát sinh vấn đề này muộn trong giai đoạn kiểm thử.
+
+**Phần 3 – Proposed Solution (đặc biệt 3.1.1 Features và 3.1.2 Software Architecture)** rất thiết thực. Bảng user story mapping giúp mỗi thành viên biết chính xác tính năng nào mình phụ trách có giá trị gì cho người dùng, thay vì chỉ thấy một danh sách chức năng trừu tượng. Ví dụ: yêu cầu *"Trợ lý AI tư vấn phim dựa trên sở thích cá nhân"* được ánh xạ rõ thành quyết định kiến trúc RAG + Ollama, tạo cơ sở thống nhất giữa Frontend (hiển thị chatbox) và AI Developer (xây pipeline retrieval).
+
+**Phần 4 – Development Plan** buộc nhóm phải nghĩ đến cả chu kỳ sống của phần mềm — từ phân tích, thiết kế, lập trình, kiểm thử đến triển khai — ngay từ giai đoạn đề xuất. Việc định nghĩa các milestone theo sprint (Sprint 1: Docker + Auth, Sprint 2: Core Logic,...) giúp nhóm phát hiện sớm nếu một sprint bị chậm, thay vì nhận ra toàn bộ dự án trễ hạn vào tuần cuối.
+
+**Phần 6 – Tools Setup** giúp nhóm duy trì kỷ luật làm việc nhóm. Quy tắc đặt tên branch (`feature/CB-12-seat-selection`), commit convention (`feat:`, `fix:`) và quy trình Pull Request đã ngăn tình trạng conflict code và mất kiểm soát lịch sử thay đổi — điều rất dễ xảy ra trong nhóm 4 người cùng phát triển song song Frontend và Backend.
+
+---
+
+### 9.2 Các phần ít cần thiết hoặc cần điều chỉnh
+
+**Phần 1 – Member Contribution Assessment** theo cấu trúc hiện tại đòi hỏi bằng chứng chi tiết (ảnh chụp Jira, trạng thái task, ngày hoàn thành) ngay trong tài liệu đề xuất — tức là *trước khi dự án thực sự bắt đầu*. Điều này tạo ra một mâu thuẫn thực tế: tại thời điểm nộp PA1, nhóm chưa có công việc nào để chứng minh. Phần này sẽ phù hợp hơn nếu được đặt vào tài liệu tổng kết cuối giai đoạn, thay vì trong Proposal.
+
+**Phần 5 – Human Resources & Costing Plan** có giá trị giáo dục (giúp sinh viên nhận thức về chi phí thực tế trong dự án phần mềm), nhưng trong bối cảnh đây là dự án học tập với ngân sách bằng 0 và nhân lực cố định 4 sinh viên, phần này có xu hướng trở thành phần mang tính hình thức. Nhóm đề xuất template nên bổ sung thêm yêu cầu ước tính chi phí *nếu triển khai thực tế* (ví dụ: chi phí cloud, chi phí API thương mại) để phần này có chiều sâu hơn.
+
+---
+
+### 9.3 Nhận xét tổng thể
+
+Nhìn chung, template Project Proposal được thiết kế tốt cho việc giúp nhóm sinh viên hình thành tư duy hệ thống từ sớm. Các phần về bài toán, giải pháp và kế hoạch phát triển là cốt lõi và không thể thiếu. Để template hoàn thiện hơn, nhóm kiến nghị:
+
+1. Tách phần đánh giá đóng góp thành tài liệu riêng, cập nhật theo từng giai đoạn thay vì đặt trong Proposal.
+2. Bổ sung hướng dẫn cụ thể hơn cho phần thuyết trình (dàn ý, thời lượng từng mục).
+3. Thêm câu hỏi phản ánh về rủi ro kỹ thuật để nhóm chủ động nhận diện thách thức ngay từ đầu dự án.
