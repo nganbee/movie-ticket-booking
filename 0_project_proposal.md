@@ -20,7 +20,7 @@
 - Lập kế hoạch Nhân sự và Dự toán chi phí cho dự án.
 
 **23120047 - Nguyễn Gia Huy - Contribution (100%)**
-- Thiết lập và hướng dẫn sử dụng các công cụ: Moodle, Discord, JIRA, GitHub và các quy tắt commit, đặt tên branch/
+- Thiết lập và hướng dẫn sử dụng các công cụ: Moodle, Discord, JIRA, GitHub và các quy tắc commit, đặt tên branch/
 - Viết Reflective Report sau quá trình viết báo cáo.
 
 **23120049 - Nguyễn Thanh Huyền - Contribution (100%)**
