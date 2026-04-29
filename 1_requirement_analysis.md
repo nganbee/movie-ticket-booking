@@ -87,7 +87,7 @@ Reviewed by:
 ---
 
 **2. Prototype & Mockups**  
-- Link figma: [Profile and Booking History Management](https://www.figma.com/make/TyfblB8AsyicccnM4SzNDb/SE_4.2.5_v1?t=ASFJ0rAdWIlo7pkW-1)
+- Link figma: [Profile and Booking History Management](https://www.figma.com/make/TyfblB8AsyicccnM4SzNDb/SE_4.2.5-6?t=zCgvVZksUYXShR4e-20&fullscreen=1)
 
 **2.1 Giao diện chính (Interface)**
 
@@ -120,7 +120,7 @@ Hiển thị khi người dùng chọn **"Thanh toán ngay"**. Hệ thống tạ
 </p>
 <p align="center"><em>Hình 4.2.5.3: Thanh toán vé bằng mã VietQR</em></p>
 
-**Kết quả sau khi thanh toán:**  
+Kết quả sau khi thanh toán:
   
 
 <p align="center">
@@ -150,27 +150,71 @@ Giao diện thân thiện dành cho người dùng chưa có giao dịch, kèm n
 </p>
 <p align="center"><em>Hình 4.2.5.5: Giao diện khi chưa có lịch sử giao dịch</em></p>
 
-
-
 #### 4.2.6 AI-Powered Movie Recommendation (Chatbot)
 > Written by: Lê Hoàng Mỹ Hạ  
 Reviewed by:
 
+**1. Đặc tả Use Case**  
 | Mục                            | Nội dung                                                                                                                                                                                                                                                                                                                                                                                          |
 | :----------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Use case ID**                | **UC006**                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Use Case**                   | **Trợ lý AI tư vấn phim và suất chiếu**                                                                                                                                                                                                                                                                                                                                                           |
+| **Use case ID**                | UC006                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Use Case**                   | Trợ lý AI tư vấn phim và suất chiếu                                                                                                                                                                                                                                                                                                                                                               |
 | **Brief Description**          | Người dùng tương tác với chatbot để nhận gợi ý phim dựa trên sở thích cá nhân và dữ liệu thực tế của rạp.                                                                                                                                                                                                                                                                                         |
 | **Actor**                      | Người dùng (User / Guest)                                                                                                                                                                                                                                                                                                                                                                         |
 | **Pre-Condition**              | Người dùng truy cập vào hệ thống (không bắt buộc đăng nhập).                                                                                                                                                                                                                                                                                                                                      |
 | **Result**                     | Chatbot trả lời bằng ngôn ngữ tự nhiên kèm theo các gợi ý phim/suất chiếu phù hợp.                                                                                                                                                                                                                                                                                                                |
-| **Main Scenario**              | 1. Người dùng nhập nội dung cần tư vấn vào khung chat *(ví dụ: "Tìm phim hành động chiếu tối nay")*.<br>2. Backend (FastAPI) nhận request và kích hoạt pipeline RAG.<br>3. Hệ thống truy vấn Vector DB (ChromaDB) để lấy ngữ cảnh phim và lịch chiếu.<br>4. Ollama (LLM) tổng hợp dữ liệu và sinh câu trả lời.<br>5. Hệ thống hiển thị phản hồi + các **movie cards** để người dùng đặt vé nhanh. |
-| **Alternative Scenarios**      | **A1. Không tìm thấy phim phù hợp:** AI xin lỗi và gợi ý các phim đang hot.<br>**A2. Lỗi kết nối AI:** Nếu Ollama không phản hồi, hệ thống chuyển sang fallback hoặc thông báo *"Chatbot đang bảo trì"*.                                                                                                                                                                                          |
-| **Non-Functional Constraints** | - Đảm bảo tính chính xác (không "hallucinate" lịch chiếu).<br>- UI chat thân thiện, hỗ trợ tiếng Việt tốt.                                                                                                                                                                                                                                                                                        |
+| **Main Scenario**              | 1. Người dùng nhập nội dung cần tư vấn *(ví dụ: "Tìm phim hành động chiếu tối nay")*.<br>2. Backend (FastAPI) nhận request và kích hoạt pipeline **RAG**.<br>3. Hệ thống truy vấn **Vector DB (ChromaDB)** để lấy dữ liệu phim và lịch chiếu.<br>4. **Ollama (LLM)** tổng hợp thông tin và sinh câu trả lời.<br>5. Hệ thống hiển thị phản hồi kèm các **movie cards** để người dùng đặt vé nhanh. |
+| **Alternative Scenarios**      | **A1. Không tìm thấy phim phù hợp:** AI xin lỗi và gợi ý phim đang hot.<br>**A2. Lỗi hệ thống AI:** Nếu Ollama không phản hồi, hệ thống chuyển sang fallback hoặc hiển thị thông báo *"Chatbot đang bảo trì"*.                                                                                                                                                                                    |
+| **Non-Functional Constraints** | - Đảm bảo tính chính xác (không hallucinate dữ liệu lịch chiếu).<br>- Thời gian phản hồi < 3 giây.<br>- Giao diện chat thân thiện, hỗ trợ tiếng Việt tốt.                                                                                                                                                                                                                                         |
 
-**Prototype/Mockup:**
-`[Link Figma / Ảnh giao diện chatbot]`
+---
 
+**2. Prototype & Mockups**
+- Link figma: [AI-Powered Movie Recommendation (Chatbot)](https://www.figma.com/make/TyfblB8AsyicccnM4SzNDb/SE_4.2.5-6?t=zCgvVZksUYXShR4e-20&fullscreen=1)  
+
+**2.1 Giao diện chatbot mặc định (Default Chat Interface)**
+
+Giao diện ban đầu khi người dùng mở chatbot, hiển thị các gợi ý truy vấn nhanh giúp tăng trải nghiệm.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_6/default_chatbot.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.6.1: Giao diện chatbot mặc định với các gợi ý nhanh</em></p>
+
+---
+
+**2.2 Biểu tượng chatbot (Chatbot Icon)**
+
+Biểu tượng nổi (floating button) giúp người dùng truy cập nhanh vào chức năng tư vấn AI từ bất kỳ trang nào.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_6/icon_chatbot.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.6.2: Biểu tượng chatbot trên giao diện hệ thống</em></p>
+
+---
+
+**2.3 Kịch bản A1: Không tìm thấy phim phù hợp**
+
+Trường hợp người dùng nhập yêu cầu không phù hợp với dữ liệu hiện có, hệ thống sẽ phản hồi thân thiện và đề xuất nội dung thay thế.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_6/invalid_information.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.6.3: Chatbot phản hồi khi không tìm thấy kết quả phù hợp</em></p>
+
+---
+
+**2.4 Kịch bản A2: Lỗi hệ thống AI**
+
+Khi hệ thống AI (Ollama) không phản hồi, chatbot chuyển sang chế độ fallback và thông báo cho người dùng.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_6/error_system.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.6.4: Thông báo lỗi khi hệ thống AI không khả dụng</em></p>
+
+---
 
 #### 4.2.7 Movie and Showtime Management (Admin)
 > Written by:  
