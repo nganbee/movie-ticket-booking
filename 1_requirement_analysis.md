@@ -135,12 +135,49 @@ Reviewed by:
 Reviewed by:
 
 #### 4.2.3 Seat Selection and Booking
-> Written by:  
+> Written by: Nguyễn Thanh Huyền  
 Reviewed by:
+---
+**1. Đặc tả Use Case**
+
+| Use Case ID | UC003 |  
+| :--- | :--- |  
+| Use Case | Chọn Ghế và Đặt Vé |  
+| Brief Description | Cho phép người dùng chọn các ghế còn trống trên sơ đồ phòng chiếu trực quan theo thời gian thực cho một suất chiếu đã chọn và bắt đầu quá trình đặt vé. |  
+| Actor | User |  
+| Pre-Condition | **1**. Người dùng đã chọn một bộ phim và suất chiếu cụ thể. <br> **2**. Người dùng đã đăng nhập vào hệ thống. |  
+| Result | Các ghế đã chọn được chuyển sang trạng thái tạm giữ, và người dùng được chuyển đến bước thanh toán. |  
+| Main Scenario | **1**. Hệ thống hiển thị sơ đồ ghế ngồi trực quan (ghế trống, ghế đã bán, ghế đang chọn). <br> **2**. Người dùng nhấn chọn một hoặc nhiều ghế có trạng thái "Trống". <br> **3**. Hệ thống kiểm tra tính khả dụng của ghế theo thời gian thực. <br> **4**. Người dùng nhấn nút "Xác nhận đặt vé". <br> **5**. Hệ thống khóa các ghế đã chọn trong một khoảng thời gian quy định (ví dụ: 5–10 phút) và tạo mã đặt vé tạm thời |  
+| Alternative Scenarios | **A1. Ghế vừa có người chọn**: Nếu người khác vừa chọn đúng ghế đó cùng lúc, hệ thống hiển thị thông báo lỗi "Ghế đã được chọn" và cập nhật lại sơ đồ. <br> **A2. Vượt quá số lượng ghế**: Nếu người dùng chọn quá số ghế quy định (ví dụ: > 8 ghế), hệ thống sẽ yêu cầu giảm số lượng. |  
+| Non-Functional Constraints | **Đồng bộ hóa**: Phải ngăn chặn việc đặt trùng ghế (double-booking) bằng cơ chế Optimistic Locking ở mức cơ sở dữ liệu. <br> **Hiệu năng**: Sơ đồ ghế phải tải và phản hồi hành động chọn trong vòng 2 giây. |
+
+---
+
+**2. Prototype & Mockups**  
+- Link figma: [Seat Selection and Booking](https://stash-fix-82365242.figma.site/)
 
 #### 4.2.4 Online Payment Processing
-> Written by:  
+> Written by: Nguyễn Thanh Huyền  
 Reviewed by:
+---
+**1. Đặc tả Use Case**
+
+| Use Case ID | UC004 |  
+| :--- | :--- |  
+| Use Case | Thanh toán Trực tuyến |  
+| Brief Description | Thực hiện giao dịch tài chính an toàn cho các ghế đã chọn thông qua dịch vụ thanh toán bên thứ ba (VietQR). | 
+| Actor | Người dùng (User), Cổng thanh toán (Payment Gateway - Tác nhân phụ) |  
+| Pre-Condition| **1**. Người dùng đã hoàn thành bước chọn ghế (UC003). <br> **2**. Hệ thống đã tạo đơn hàng tạm thời với tổng số tiền cần thanh toán. |  
+| Result | Trạng thái đặt vé được cập nhật thành "Đã bán", ghế được giữ vĩnh viễn, và vé điện tử được tạo. |
+| Main Scenario | **1**. Hệ thống hiển thị tổng tiền và tạo mã VietQR duy nhất cho giao dịch. <br> **2**. Người dùng quét mã QR bằng ứng dụng ngân hàng và hoàn tất chuyển khoản. <br> **3**. Cổng thanh toán gửi thông báo (callback/webhook) về cho hệ thống. <br> **4**. Hệ thống xác thực chữ ký giao dịch và số tiền nhận được. <br> **5**. Hệ thống cập nhật trạng thái đơn hàng thành "Thành công" và hiển thị thông báo cho người dùng. |  
+| Alternative Scenarios | **A1. Hết thời gian thanh toán**: Nếu người dùng không thanh toán trong thời gian giữ ghế, hệ thống tự động giải phóng ghế và hủy đơn hàng. <br> **A2. Thanh toán thất bại**: Nếu cổng thanh toán báo lỗi, hệ thống thông báo cho người dùng và cho phép thử lại. |  
+| Non-Functional Constraints | **Bảo mật**: Mọi giao dịch phải được mã hóa; không lưu trữ dữ liệu ngân hàng nhạy cảm (mã PIN/Mật khẩu) trên máy chủ CineBook. <br> **Độ tin cậy**: Hệ thống phải xử lý được các phản hồi bất đồng bộ từ ngân hàng để đảm bảo cập nhật trạng thái ngay cả khi người dùng đóng trình duyệt. |
+
+---
+
+**2. Prototype & Mockups**  
+- Link figma: [Online Payment Processing](https://weight-serifs-23181036.figma.site/)
+
 
 #### 4.2.5 Profile and Booking History Management
 > Written by: Lê Hoàng Mỹ Hạ  
