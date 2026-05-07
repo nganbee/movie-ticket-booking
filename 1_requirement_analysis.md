@@ -121,8 +121,10 @@ Reviewed by:
 
 ## 4. Requirements Analysis
 ### 4.1 Use Case Model
-> Written by:  
-Reviewed by:
+> Written by: 23120049 - Nguyễn Thanh Huyền    
+Reviewed by:  
+
+<img width="1514" height="1311" alt="uml (1)" src="https://github.com/user-attachments/assets/a8f6a972-3712-473d-91c8-d80476041d25" />  
 
 ### 4.2 Use Case Specification
 
@@ -135,10 +137,10 @@ Reviewed by:
 Reviewed by:
 
 #### 4.2.3 Seat Selection and Booking
-> Written by: Nguyễn Thanh Huyền  
-Reviewed by:
----
-**1. Đặc tả Use Case**
+> Written by: 23120049 - Nguyễn Thanh Huyền    
+Reviewed by:  
+
+**1. Đặc tả Use Case**  
 
 | Use Case ID | UC003 |  
 | :--- | :--- |  
@@ -149,18 +151,23 @@ Reviewed by:
 | Result | Các ghế đã chọn được chuyển sang trạng thái tạm giữ, và người dùng được chuyển đến bước thanh toán. |  
 | Main Scenario | **1**. Hệ thống hiển thị sơ đồ ghế ngồi trực quan (ghế trống, ghế đã bán, ghế đang chọn). <br> **2**. Người dùng nhấn chọn một hoặc nhiều ghế có trạng thái "Trống". <br> **3**. Hệ thống kiểm tra tính khả dụng của ghế theo thời gian thực. <br> **4**. Người dùng nhấn nút "Xác nhận đặt vé". <br> **5**. Hệ thống khóa các ghế đã chọn trong một khoảng thời gian quy định (ví dụ: 5–10 phút) và tạo mã đặt vé tạm thời |  
 | Alternative Scenarios | **A1. Ghế vừa có người chọn**: Nếu người khác vừa chọn đúng ghế đó cùng lúc, hệ thống hiển thị thông báo lỗi "Ghế đã được chọn" và cập nhật lại sơ đồ. <br> **A2. Vượt quá số lượng ghế**: Nếu người dùng chọn quá số ghế quy định (ví dụ: > 8 ghế), hệ thống sẽ yêu cầu giảm số lượng. |  
-| Non-Functional Constraints | **Đồng bộ hóa**: Phải ngăn chặn việc đặt trùng ghế (double-booking) bằng cơ chế Optimistic Locking ở mức cơ sở dữ liệu. <br> **Hiệu năng**: Sơ đồ ghế phải tải và phản hồi hành động chọn trong vòng 2 giây. |
-
----
+| Non-Functional Constraints | **Đồng bộ hóa**: Phải ngăn chặn việc đặt trùng ghế (double-booking) bằng cơ chế Optimistic Locking ở mức cơ sở dữ liệu. <br> **Hiệu năng**: Sơ đồ ghế phải tải và phản hồi hành động chọn trong vòng 2 giây. |  
 
 **2. Prototype & Mockups**  
-- Link figma: [Seat Selection and Booking](https://stash-fix-82365242.figma.site/)
+- Link figma: [Seat Selection and Booking](https://stash-fix-82365242.figma.site/)    
+
+Màn hình bấm chọn ghế và hiển thị tổng giá tiền  
+<img width="1805" height="915" alt="image" src="https://github.com/user-attachments/assets/7bf521c6-3581-451c-8197-fd2b953b6b30" />  
+
+Nhấn vào Confirm Booking, hiển thị màn hình loading chuyển user tới giao diện thanh toán  
+<img width="1789" height="843" alt="image" src="https://github.com/user-attachments/assets/41e8d8f9-a7ce-4d85-a31b-b85ad63f43af" />  
+
 
 #### 4.2.4 Online Payment Processing
-> Written by: Nguyễn Thanh Huyền  
-Reviewed by:
----
-**1. Đặc tả Use Case**
+> Written by: 23120049 - Nguyễn Thanh Huyền    
+Reviewed by:    
+
+**1. Đặc tả Use Case**  
 
 | Use Case ID | UC004 |  
 | :--- | :--- |  
@@ -171,13 +178,16 @@ Reviewed by:
 | Result | Trạng thái đặt vé được cập nhật thành "Đã bán", ghế được giữ vĩnh viễn, và vé điện tử được tạo. |
 | Main Scenario | **1**. Hệ thống hiển thị tổng tiền và tạo mã VietQR duy nhất cho giao dịch. <br> **2**. Người dùng quét mã QR bằng ứng dụng ngân hàng và hoàn tất chuyển khoản. <br> **3**. Cổng thanh toán gửi thông báo (callback/webhook) về cho hệ thống. <br> **4**. Hệ thống xác thực chữ ký giao dịch và số tiền nhận được. <br> **5**. Hệ thống cập nhật trạng thái đơn hàng thành "Thành công" và hiển thị thông báo cho người dùng. |  
 | Alternative Scenarios | **A1. Hết thời gian thanh toán**: Nếu người dùng không thanh toán trong thời gian giữ ghế, hệ thống tự động giải phóng ghế và hủy đơn hàng. <br> **A2. Thanh toán thất bại**: Nếu cổng thanh toán báo lỗi, hệ thống thông báo cho người dùng và cho phép thử lại. |  
-| Non-Functional Constraints | **Bảo mật**: Mọi giao dịch phải được mã hóa; không lưu trữ dữ liệu ngân hàng nhạy cảm (mã PIN/Mật khẩu) trên máy chủ CineBook. <br> **Độ tin cậy**: Hệ thống phải xử lý được các phản hồi bất đồng bộ từ ngân hàng để đảm bảo cập nhật trạng thái ngay cả khi người dùng đóng trình duyệt. |
+| Non-Functional Constraints | **Bảo mật**: Mọi giao dịch phải được mã hóa; không lưu trữ dữ liệu ngân hàng nhạy cảm (mã PIN/Mật khẩu) trên máy chủ CineBook. <br> **Độ tin cậy**: Hệ thống phải xử lý được các phản hồi bất đồng bộ từ ngân hàng để đảm bảo cập nhật trạng thái ngay cả khi người dùng đóng trình duyệt. |  
 
----
+**2. Prototype & Mockups**    
+- Link figma: [Online Payment Processing](https://weight-serifs-23181036.figma.site/)  
 
-**2. Prototype & Mockups**  
-- Link figma: [Online Payment Processing](https://weight-serifs-23181036.figma.site/)
+Màn hình hiển thị mã QR thanh toán    
+<img width="1739" height="891" alt="image" src="https://github.com/user-attachments/assets/e91e2049-4e01-474e-9148-ac82bb144946" />    
 
+Màn hình xác nhận thanh toán thành công    
+<img width="1762" height="859" alt="image" src="https://github.com/user-attachments/assets/5331cd00-9538-459e-8199-a3cd639fb342" />    
 
 #### 4.2.5 Profile and Booking History Management
 > Written by: Lê Hoàng Mỹ Hạ  
