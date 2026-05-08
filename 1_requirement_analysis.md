@@ -112,12 +112,58 @@ Reviewed by:
 
 ### 3.2 Requirements
 #### 3.2.1 Functional Requirements Specification
-> Written by:  
+> Written by: 23120047 - Nguyễn Gia Huy  
 Reviewed by:
 
+Bảng dưới đây liệt kê các yêu cầu chức năng của hệ thống CineBook, được phân nhóm theo actor và nhóm nghiệp vụ. Mỗi yêu cầu được gán một mã định danh duy nhất phục vụ truy xuất trong tài liệu thiết kế và kiểm thử.
+
+| ID | Nhóm chức năng | Mô tả yêu cầu | Actor |
+| :--- | :--- | :--- | :--- |
+| FR-01 | Xác thực & Tài khoản | Hệ thống cho phép người dùng đăng ký tài khoản mới bằng email và mật khẩu. | User |
+| FR-02 | Xác thực & Tài khoản | Hệ thống cho phép người dùng đăng nhập bằng email và mật khẩu; phiên làm việc được duy trì qua JWT token. | User |
+| FR-03 | Xác thực & Tài khoản | Hệ thống cho phép người dùng đăng xuất, huỷ token hiện tại. | User |
+| FR-04 | Xác thực & Tài khoản | Hệ thống cho phép người dùng xem và chỉnh sửa thông tin cá nhân (họ tên, số điện thoại, mật khẩu). | User |
+| FR-05 | Duyệt phim & Tìm kiếm | Hệ thống hiển thị danh sách phim đang chiếu và sắp chiếu kèm thông tin chi tiết (tên, thể loại, đạo diễn, diễn viên, mô tả, poster, đánh giá, thời lượng). | User / Guest |
+| FR-06 | Duyệt phim & Tìm kiếm | Hệ thống cho phép tìm kiếm phim theo tên, thể loại hoặc từ khoá. | User / Guest |
+| FR-07 | Duyệt phim & Tìm kiếm | Hệ thống cho phép lọc phim theo trạng thái (đang chiếu / sắp chiếu) và thể loại. | User / Guest |
+| FR-08 | Duyệt phim & Tìm kiếm | Hệ thống hiển thị lịch chiếu chi tiết của từng phim theo ngày và phòng chiếu. | User / Guest |
+| FR-09 | Đặt vé & Chọn ghế | Hệ thống hiển thị sơ đồ ghế ngồi theo thời gian thực khi người dùng chọn suất chiếu. | User |
+| FR-10 | Đặt vé & Chọn ghế | Hệ thống cho phép người dùng chọn ghế (tối đa theo quy định), khoá ghế tạm thời trong phiên đặt vé để tránh xung đột đồng thời. | User |
+| FR-11 | Đặt vé & Chọn ghế | Hệ thống cho phép người dùng thêm bắp nước vào đơn hàng trước khi xác nhận. | User |
+| FR-12 | Thanh toán | Hệ thống tạo mã VietQR tương ứng với tổng tiền đơn hàng và hiển thị cho người dùng quét. | User |
+| FR-13 | Thanh toán | Hệ thống xác nhận thanh toán thành công và cấp vé điện tử (e-ticket) kèm mã QR nhận vé. | User |
+| FR-14 | Lịch sử & Tài khoản | Hệ thống cho phép người dùng xem toàn bộ lịch sử đặt vé, trạng thái thanh toán và mã QR của từng vé. | User |
+| FR-15 | Lịch sử & Tài khoản | Hệ thống cho phép người dùng thực hiện thanh toán cho các đơn vé chưa hoàn tất trực tiếp từ màn hình lịch sử. | User |
+| FR-16 | Trợ lý AI | Hệ thống tích hợp chatbot AI (kiến trúc RAG + Ollama) cho phép người dùng hỏi và nhận gợi ý phim, suất chiếu phù hợp. | User / Guest |
+| FR-17 | Quản trị - Phim | Admin có thể thêm, sửa, xoá thông tin phim trong hệ thống. | Admin |
+| FR-18 | Quản trị - Lịch chiếu | Admin có thể tạo, chỉnh sửa và xoá suất chiếu; hệ thống kiểm tra và cảnh báo nếu trùng phòng/giờ. | Admin |
+| FR-19 | Quản trị - Báo cáo | Admin có thể xem báo cáo doanh thu và số vé bán theo ngày/tuần/tháng, theo từng phim; xuất file Excel/CSV. | Admin |
+| FR-20 | Quản trị - Báo cáo | Hệ thống hiển thị Dashboard tổng quan doanh thu, top phim bán chạy khi Admin đăng nhập. | Admin |
+
+---
+
 #### 3.2.2 Non-Functional Requirements Specification
-> Written by:  
+> Written by: 23120047 - Nguyễn Gia Huy  
 Reviewed by:
+
+Các yêu cầu phi chức năng xác định những tiêu chí chất lượng mà hệ thống CineBook phải đáp ứng trong quá trình vận hành.
+
+| ID | Thuộc tính | Mô tả yêu cầu | Tiêu chí đo lường |
+| :--- | :--- | :--- | :--- |
+| NFR-01 | Hiệu năng (Performance) | Thời gian phản hồi của các API truy vấn dữ liệu thông thường (danh sách phim, lịch chiếu, tài khoản) phải dưới 2 giây trong điều kiện tải bình thường. | Thời gian phản hồi API ≤ 2 giây (P95) với 100 người dùng đồng thời. |
+| NFR-02 | Hiệu năng (Performance) | Chatbot AI phải trả lời trong vòng 3 giây kể từ khi nhận câu hỏi. | Thời gian sinh phản hồi LLM ≤ 3 giây (P95). |
+| NFR-03 | Hiệu năng (Performance) | Tải trang Dashboard doanh thu (Admin) không vượt quá 5 giây kể cả khi truy vấn dữ liệu lớn. | Thời gian load Dashboard ≤ 5 giây. |
+| NFR-04 | Tính khả dụng (Availability) | Hệ thống phải đảm bảo uptime tối thiểu 99% trong môi trường production. | Tỷ lệ uptime ≥ 99% (theo dõi bằng monitoring service). |
+| NFR-05 | Tính toàn vẹn dữ liệu (Integrity) | Không được phép hai người dùng đặt cùng một ghế trong cùng suất chiếu. Cơ chế khoá ghế (optimistic locking hoặc DB-level transaction) phải được áp dụng. | Zero case trùng ghế trong kiểm thử đồng thời (concurrent booking tests). |
+| NFR-06 | Bảo mật (Security) | Xác thực người dùng phải sử dụng JWT token. Mật khẩu phải được băm bằng bcrypt trước khi lưu vào cơ sở dữ liệu. Toàn bộ giao tiếp client–server qua HTTPS. | Kiểm thử penetration test: không tìm thấy lỗ hổng xác thực cơ bản; mật khẩu không lưu plaintext. |
+| NFR-07 | Bảo mật (Security) | Dữ liệu thanh toán và lịch sử giao dịch chỉ được truy cập bởi chính chủ tài khoản hoặc Admin. | Kiểm thử phân quyền: không truy cập trái phép dữ liệu người dùng khác. |
+| NFR-08 | Khả năng bảo trì (Maintainability) | Hệ thống phải được thiết kế theo kiến trúc 3 tầng (Presentation – Logic – Data), module hóa để cho phép thay thế hoặc nâng cấp từng thành phần độc lập. | Kiến trúc được tài liệu hóa đầy đủ; thay đổi một module không yêu cầu refactor module khác. |
+| NFR-09 | Khả năng mở rộng (Scalability) | Backend FastAPI phải hỗ trợ xử lý đồng thời (ASGI) và có thể scale ngang khi tải tăng. | Không có bottleneck đơn điểm tại API layer trong kiểm thử tải 500 req/s. |
+| NFR-10 | Tính dễ sử dụng (Usability) | Giao diện người dùng phải responsive và hiển thị đúng trên các trình duyệt hiện đại (Chrome, Edge, Firefox) và các thiết bị có màn hình từ 360px trở lên. | Kiểm thử cross-browser trên 3 trình duyệt; responsive test trên mobile (360px) và desktop (1920px). |
+| NFR-11 | Chuẩn tài liệu (Documentability) | Toàn bộ API endpoint phải được mô tả đầy đủ và kiểm thử được qua Swagger UI (tự động sinh bởi FastAPI). | 100% endpoint có schema request/response, mã lỗi và yêu cầu xác thực trong Swagger. |
+| NFR-12 | Tính riêng tư AI (AI Privacy) | Dữ liệu nghiệp vụ nội bộ (lịch chiếu, thông tin phim, dữ liệu người dùng) không được gửi ra các dịch vụ AI bên ngoài. LLM phải chạy cục bộ qua Ollama. | Kiểm tra network traffic: không có request đến external AI API trong quá trình chatbot hoạt động. |
+
+---
 
 ## 4. Requirements Analysis
 ### 4.1 Use Case Model
@@ -129,12 +175,138 @@ Reviewed by:
 ### 4.2 Use Case Specification
 
 #### 4.2.1 User Authentication
-> Written by:  
+> Written by: 23120047 - Nguyễn Gia Huy  
 Reviewed by:
 
+**1. Đặc tả Use Case**
+
+| Mục | Nội dung |
+| :--- | :--- |
+| **Use case ID** | UC001 |
+| **Use Case** | Xác thực người dùng (Đăng ký / Đăng nhập / Đăng xuất) |
+| **Brief Description** | Cho phép người dùng tạo tài khoản mới, đăng nhập vào hệ thống để truy cập các chức năng yêu cầu xác thực (đặt vé, xem lịch sử), và đăng xuất để kết thúc phiên làm việc. |
+| **Actor** | Người dùng (User), Khách vãng lai (Guest) |
+| **Pre-Condition** | Với đăng ký: email chưa tồn tại trong hệ thống.<br>Với đăng nhập: người dùng chưa có phiên hợp lệ.<br>Với đăng xuất: người dùng đang có phiên đăng nhập hợp lệ. |
+| **Result** | Đăng ký thành công → tài khoản được tạo, người dùng được chuyển đến trang đăng nhập.<br>Đăng nhập thành công → JWT token được cấp, người dùng truy cập được các chức năng yêu cầu xác thực.<br>Đăng xuất thành công → token bị huỷ, phiên kết thúc. |
+| **Main Scenario** | **[Đăng ký]**<br>1. Người dùng chọn **"Đăng ký"** trên trang chủ.<br>2. Hệ thống hiển thị form đăng ký (họ tên, email, mật khẩu, xác nhận mật khẩu).<br>3. Người dùng điền thông tin và nhấn **"Tạo tài khoản"**.<br>4. Hệ thống kiểm tra định dạng và tính duy nhất của email.<br>5. Hệ thống băm mật khẩu (bcrypt) và lưu tài khoản vào database.<br>6. Hệ thống thông báo **"Đăng ký thành công"** và chuyển sang trang đăng nhập.<br><br>**[Đăng nhập]**<br>1. Người dùng chọn **"Đăng nhập"** và nhập email, mật khẩu.<br>2. Hệ thống xác thực thông tin đăng nhập với database.<br>3. Hệ thống cấp JWT access token và lưu vào bộ nhớ phiên của client.<br>4. Người dùng được chuyển về trang chủ với trạng thái đã đăng nhập.<br><br>**[Đăng xuất]**<br>1. Người dùng nhấn **"Đăng xuất"** trên menu tài khoản.<br>2. Hệ thống huỷ token phía client.<br>3. Người dùng được chuyển về trang chủ ở trạng thái Guest. |
+| **Alternative Scenarios** | **A1. Email đã tồn tại (khi đăng ký):** Hệ thống hiển thị thông báo *"Email này đã được sử dụng"* và yêu cầu dùng email khác hoặc đăng nhập.<br>**A2. Thông tin không hợp lệ (khi đăng ký):** Nếu email sai định dạng, mật khẩu quá ngắn (< 8 ký tự), hoặc hai mật khẩu không khớp, hệ thống bôi đỏ trường lỗi và hiển thị thông báo tương ứng.<br>**A3. Sai thông tin đăng nhập:** Nếu email không tồn tại hoặc mật khẩu không đúng, hệ thống hiển thị *"Email hoặc mật khẩu không chính xác"* mà không tiết lộ trường nào sai (bảo mật). Sau 5 lần thất bại liên tiếp, tài khoản bị khoá tạm thời 15 phút. |
+| **Non-Functional Constraints** | - Mật khẩu phải được băm bằng bcrypt trước khi lưu; không lưu plaintext dưới bất kỳ hình thức nào.<br>- Token JWT có thời hạn (expiry) để tự động hết hạn phiên.<br>- Toàn bộ giao tiếp qua HTTPS để bảo vệ thông tin xác thực trên đường truyền.<br>- Thời gian phản hồi đăng nhập/đăng ký < 2 giây. |
+
+---
+
+**2. Prototype & Mockups**
+- Link figma: [User Authentication](https://www.figma.com/make/8LhctmXMLSqwJT4hfQUYfd/User-Authentication-Flow-UI?t=QXBmYQxDDrEqlH7q-1&preview-route=%2Fmovie%2F4)
+
+**2.1 Giao diện Đăng ký (Register)**
+
+Màn hình cho phép người dùng tạo tài khoản mới với các trường họ tên, email, mật khẩu và xác nhận mật khẩu.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_1/register.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.1.1: Giao diện Đăng ký tài khoản</em></p>
+
+---
+
+**2.2 Giao diện Đăng nhập (Login)**
+
+Màn hình đăng nhập yêu cầu người dùng nhập email và mật khẩu để truy cập hệ thống.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_1/login.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.1.2: Giao diện Đăng nhập</em></p>
+
+---
+
+**2.3 Kịch bản A2: Thông tin không hợp lệ (Validation Error)**
+
+Các trường không hợp lệ được highlight viền đỏ kèm thông báo lỗi cụ thể giúp người dùng sửa nhanh.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_1/validation_error.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.1.3: Hiển thị lỗi khi thông tin nhập vào không hợp lệ</em></p>
+
+---
+
+**2.4 Kịch bản A3: Sai thông tin đăng nhập (Login Failed)**
+
+Thông báo lỗi chung không tiết lộ trường nào sai nhằm ngăn chặn tấn công brute-force.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_1/login_failed.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.1.4: Thông báo khi thông tin đăng nhập không chính xác</em></p>
+
+---
+
 #### 4.2.2 Movie Browsing and Search
-> Written by:  
+> Written by: 23120047 - Nguyễn Gia Huy  c
 Reviewed by:
+
+**1. Đặc tả Use Case**
+
+| Mục | Nội dung |
+| :--- | :--- |
+| **Use case ID** | UC002 |
+| **Use Case** | Duyệt phim và Tìm kiếm |
+| **Brief Description** | Cho phép người dùng (kể cả khách vãng lai chưa đăng nhập) xem danh sách phim đang chiếu và sắp chiếu, xem chi tiết từng phim, tìm kiếm theo tên/từ khoá, và lọc theo thể loại hoặc trạng thái chiếu; từ đó chọn xem lịch chiếu để tiến hành đặt vé. |
+| **Actor** | Người dùng (User), Khách vãng lai (Guest) |
+| **Pre-Condition** | Hệ thống có ít nhất một phim trong database. Người dùng không bắt buộc phải đăng nhập để thực hiện use case này. |
+| **Result** | Người dùng xem được thông tin chi tiết phim và danh sách suất chiếu theo ngày/phòng, có thể chọn suất chiếu để tiếp tục quy trình đặt vé (UC003). |
+| **Main Scenario** | 1. Người dùng truy cập trang chủ hoặc trang **"Phim"**.<br>2. Hệ thống hiển thị danh sách phim chia thành hai tab: **"Đang chiếu"** và **"Sắp chiếu"**, mỗi phim hiển thị poster, tên, thể loại và rating.<br>3. Người dùng nhập từ khoá vào thanh tìm kiếm hoặc chọn bộ lọc thể loại.<br>4. Hệ thống trả về danh sách phim khớp với tiêu chí tìm kiếm/lọc theo thời gian thực.<br>5. Người dùng nhấn vào poster/tên phim để xem trang chi tiết.<br>6. Hệ thống hiển thị trang chi tiết phim: mô tả, diễn viên, đạo diễn, thời lượng, đánh giá, trailer (nếu có) và lịch chiếu theo ngày.<br>7. Người dùng chọn ngày và suất chiếu mong muốn.<br>8. Hệ thống chuyển người dùng đến màn hình chọn ghế (UC003) nếu đã đăng nhập, hoặc yêu cầu đăng nhập nếu chưa. |
+| **Alternative Scenarios** | **A1. Không tìm thấy kết quả:** Nếu không có phim nào khớp với từ khoá/bộ lọc, hệ thống hiển thị thông báo *"Không tìm thấy phim phù hợp"* và gợi ý xoá bộ lọc hoặc thử từ khoá khác.<br>**A2. Phim sắp chiếu chưa có suất chiếu:** Trang chi tiết hiển thị thông báo *"Lịch chiếu chưa được cập nhật"* và nút **"Nhận thông báo"** (nếu đã đăng nhập).<br>**A3. Người dùng chưa đăng nhập chọn suất chiếu:** Hệ thống hiển thị popup yêu cầu đăng nhập và cung cấp liên kết đến trang đăng nhập/đăng ký, sau đó tiếp tục flow đặt vé. |
+| **Non-Functional Constraints** | - Thời gian tải danh sách phim và trả về kết quả tìm kiếm < 2 giây.<br>- Hệ thống tìm kiếm hỗ trợ tìm kiếm không phân biệt hoa thường và không dấu (ví dụ: "phim hanh dong" tìm được "Phim Hành Động").<br>- Giao diện responsive, hiển thị đúng trên cả mobile và desktop.<br>- Poster phim phải được tối ưu hoá (nén) để tải nhanh trên đường truyền chậm. |
+
+---
+
+**2. Prototype & Mockups**
+- Link figma: [Movie Browsing and Search](https://www.figma.com/design/q0s1MHPJKqY6eAHnGhwmVZ/CineBook---User-Authentication?node-id=0-1)
+
+**2.1 Giao diện trang chủ / Danh sách phim (Movie List)**
+
+Trang chủ hiển thị banner phim nổi bật, danh sách phim đang chiếu và sắp chiếu với poster và thông tin cơ bản.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_2/movie_list.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.2.1: Giao diện danh sách phim đang chiếu và sắp chiếu</em></p>
+
+---
+
+**2.2 Giao diện Tìm kiếm & Lọc (Search & Filter)**
+
+Người dùng có thể tìm kiếm theo tên phim và lọc theo thể loại; kết quả cập nhật theo thời gian thực.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_2/search_filter.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.2.2: Giao diện tìm kiếm và lọc phim</em></p>
+
+---
+
+**2.3 Giao diện Chi tiết phim (Movie Detail)**
+
+Trang chi tiết cung cấp đầy đủ thông tin về phim, trailer nhúng và lịch chiếu theo ngày để người dùng chọn suất.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_2/movie_detail.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.2.3: Giao diện chi tiết phim và lịch chiếu</em></p>
+
+---
+
+**2.4 Kịch bản A1: Không tìm thấy kết quả (No Results)**
+
+Giao diện thân thiện thông báo không có kết quả phù hợp và gợi ý hành động tiếp theo.
+
+<p align="center">
+  <img src="data/image_template_1/4_2_2/no_results.png" width="100%"/>
+</p>
+<p align="center"><em>Hình 4.2.2.4: Giao diện khi không tìm thấy phim phù hợp</em></p>
+
+---
 
 #### 4.2.3 Seat Selection and Booking
 > Written by: 23120049 - Nguyễn Thanh Huyền    
