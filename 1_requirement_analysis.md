@@ -265,7 +265,7 @@ Reviewed by: 23120038 - Lê Hoàng Mỹ Hạ
 ---
 
 **2. Prototype & Mockups**
-- Link figma: [Movie Browsing and Search](https://www.figma.com/design/q0s1MHPJKqY6eAHnGhwmVZ/CineBook---User-Authentication?node-id=0-1)
+- Link figma: [Movie Browsing and Search](https://www.figma.com/make/8LhctmXMLSqwJT4hfQUYfd/User-Authentication-Flow-UI?p=f&t=aIshMLjyGibnWvT0-0)
 
 **2.1 Giao diện trang chủ / Danh sách phim (Movie List)**
 
