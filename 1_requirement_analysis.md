@@ -107,7 +107,7 @@ Reviewed by: 23120047 - Nguyễn Gia Huy
 | End-User | Những người sử dụng web để tìm kiếm thông tin phim, xem lịch chiếu, tương tác với trợ lý AI để được tư vấn chọn phim và thực hiện các giao dịch như đặt vé và thanh toán vé. | 
 | System Administrator | Quản trị viên hệ thống có trách nhiệm quản lý dữ liệu về kho phim (thêm, xoá, sửa phim), suất chiếu và phòng chiếu. Theo dõi báo cáo doanh thu người dùng. |
 | Development team | Nhóm kỹ sư phần mềm (bao gồm phụ trách Frontend, Backend và AI) chịu trách nhiệm phân tích yêu cầu, thiết kế kiến trúc, lập trình, kiểm thử và triển khai ứng dụng. |
-| Third-party providers | Các hệ thống và dịch vụ ngoại vi được tích hợp vào ứng dụng như cổng thanh toán điện tử ví MôM, VNPay hay thẻ ngân hàng và hoặc các API cho LLM để hỗ trợ tính năng chatbot. |
+| Third-party providers | Các hệ thống và dịch vụ ngoại vi được tích hợp vào ứng dụng như cổng thanh toán điện tử ví MoMo, VNPay hay thẻ ngân hàng và các API cho LLM để hỗ trợ tính năng chatbot. |
 | Film Distributors | Các đơn vị cung cấp bản quyền phim, trailer, hình ảnh quảng bá và lịch khởi chiếu chính thức để hệ thống cập nhật dữ liệu. |
 | Project Manager | Người điều phối tiến độ, phân chia công việc giữa các mảng Frontend, Backend, AI. |
 | Infrastructure Provider | Các đơn vị cung cấp dịch vụ lưu trữ dữ liệu và máy chủ, giúp hệ thống vận hành ổn định và bảo mật. |
