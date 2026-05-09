@@ -651,7 +651,7 @@ Reviewed by: 23120049 - Nguyễn Thanh Huyền
 
 ## 6. Presentation
 
-Video thuyết trình: [LINK](https://youtu.be/AqJ8dXVRyVs)
+Video thuyết trình: [LINK](https://youtu.be/Uy-zH3M1cjA)
 
 ## 7. Reflective Report
 
