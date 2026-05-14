@@ -13,16 +13,16 @@
 
 ## 1. Member Contribution Assessment
 
-**23120038 - Lê Hoàng Mỹ Hạ - Contribution (100%)**
+**23120038 - Lê Hoàng Mỹ Hạ - Contribution (25%)**
   - Viết mô tả nghiệp vụ (Problem Statement), đặc tả Use Case quản lý thông tin cá nhân/lịch sử đặt vé và đặc tả trợ lý AI (Chatbot).
 
-**23120047 - Nguyễn Gia Huy - Contribution (100%)**
+**23120047 - Nguyễn Gia Huy - Contribution (25%)**
   - Viết đặc tả yêu cầu chức năng và phi chức năng, đặc tả Use Case xác thực người dùng và duyệt phim/tìm kiếm.
 
-**23120049 - Nguyễn Thanh Huyền - Contribution (100%)**
+**23120049 - Nguyễn Thanh Huyền - Contribution (25%)**
   - Xây dựng sơ đồ Use Case (Use Case Model), đặc tả Use Case chọn ghế/đặt vé và thanh toán trực tuyến.
 
-**23120060 - Trần Kim Ngân - Contribution (100%)**
+**23120060 - Trần Kim Ngân - Contribution (25%)**
   - Xác định các Stakeholders, đặc tả Use Case quản lý phim/suất chiếu và thống kê/báo cáo doanh thu.
 
 ## 2. Problem Statement

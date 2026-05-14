@@ -15,19 +15,19 @@
 
 ## 1. Member Contribution Assessment
 
-**23120038 - Lê Hoàng Mỹ Hạ - Contribution (100%)**
+**23120038 - Lê Hoàng Mỹ Hạ - Contribution (25%)**
 - Xây dựng nội dung vấn đề và xác định phạm vi hệ thống và môi trường hoạt động.
 - Lập kế hoạch Nhân sự và Dự toán chi phí cho dự án.
 
-**23120047 - Nguyễn Gia Huy - Contribution (100%)**
+**23120047 - Nguyễn Gia Huy - Contribution (25%)**
 - Thiết lập và hướng dẫn sử dụng các công cụ: Moodle, Discord, JIRA, GitHub và các quy tắc commit, đặt tên branch/
 - Viết Reflective Report sau quá trình viết báo cáo.
 
-**23120049 - Nguyễn Thanh Huyền - Contribution (100%)**
+**23120049 - Nguyễn Thanh Huyền - Contribution (25%)**
 - Đề xuất giải pháp: Liệt kê các tính năng chi tiết cho Admin/User.
 - Thiết kế kiến trúc phần mềm và xác định yêu cầu phần cứng.
 
-**23120060 - Trần Kim Ngân - Contribution (100%)**
+**23120060 - Trần Kim Ngân - Contribution (25%)**
 - Lập kế hoạch phát triển cho dự án: phân tích yêu cầu, đề xuất hệ thống 3-Tier, lựa chọn các công nghệ cho từng vị trí, đề xuất, chia Sprint.
 - Tổng hợp các phần của báo cáo
 
