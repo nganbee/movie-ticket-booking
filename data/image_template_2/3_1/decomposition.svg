@@ -1,0 +1,308 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="762pt" height="1451pt" viewBox="0.00 0.00 762.39 1451.00">
+<g id="graph0" class="graph" transform="translate(44.78100062556656,1272.838891814426) scale(0.8312378961427878)" data-name="CineBookDecomposition">
+
+<polygon fill="white" stroke="none" points="-43.2,43.2 -43.2,-1407.8 719.19,-1407.8 719.19,43.2 -43.2,43.2" style=""/>
+<text text-anchor="middle" x="337.99" y="-1348.9" font-family="Arial" font-size="13.00" style="">CineBook System Decomposition Tree</text>
+<!-- System -->
+<g id="node1" class="node" pointer-events="visible" data-name="System">
+
+<path fill="#dbeafe" stroke="#2563eb" stroke-width="1.8" d="M178.61,-669.9C178.61,-669.9 12.13,-669.9 12.13,-669.9 6.13,-669.9 0.13,-663.9 0.13,-657.9 0.13,-657.9 0.13,-632.5 0.13,-632.5 0.13,-626.5 6.13,-620.5 12.13,-620.5 12.13,-620.5 178.61,-620.5 178.61,-620.5 184.61,-620.5 190.61,-626.5 190.61,-632.5 190.61,-632.5 190.61,-657.9 190.61,-657.9 190.61,-663.9 184.61,-669.9 178.61,-669.9" style=""/>
+<text text-anchor="middle" x="95.37" y="-649.1" font-family="Arial" font-size="13.00" style="">CineBook System</text>
+<text text-anchor="middle" x="95.37" y="-633.5" font-family="Arial" font-size="13.00" style="">Online Movie Ticket Booking</text>
+</g>
+<!-- Presentation -->
+<g id="node2" class="node" pointer-events="visible" data-name="Presentation">
+
+<path fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" d="M385.89,-781.6C385.89,-781.6 265.31,-781.6 265.31,-781.6 259.31,-781.6 253.31,-775.6 253.31,-769.6 253.31,-769.6 253.31,-748.8 253.31,-748.8 253.31,-742.8 259.31,-736.8 265.31,-736.8 265.31,-736.8 385.89,-736.8 385.89,-736.8 391.89,-736.8 397.89,-742.8 397.89,-748.8 397.89,-748.8 397.89,-769.6 397.89,-769.6 397.89,-775.6 391.89,-781.6 385.89,-781.6" style=""/>
+<text text-anchor="middle" x="325.6" y="-762.5" font-family="Arial" font-size="11.00" style="">Presentation Tier</text>
+<text text-anchor="middle" x="325.6" y="-749.3" font-family="Arial" font-size="11.00" style="">React.js + Tailwind CSS</text>
+</g>
+<!-- System&#45;&gt;Presentation -->
+<g id="edge1" class="edge" data-name="System-&gt;Presentation">
+
+<path fill="none" stroke="#64748b" d="M190.75,-666.87C227.57,-666.87 260.99,-666.87 260.99,-666.87 260.99,-666.87 260.99,-728.36 260.99,-728.36" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="258.71,-728.36 260.99,-734.86 263.26,-728.36 258.71,-728.36" style=""/>
+</g>
+<!-- Logic -->
+<g id="node3" class="node" pointer-events="visible" data-name="Logic">
+
+<path fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" d="M369.09,-705.6C369.09,-705.6 282.11,-705.6 282.11,-705.6 276.11,-705.6 270.11,-699.6 270.11,-693.6 270.11,-693.6 270.11,-672.8 270.11,-672.8 270.11,-666.8 276.11,-660.8 282.11,-660.8 282.11,-660.8 369.09,-660.8 369.09,-660.8 375.09,-660.8 381.09,-666.8 381.09,-672.8 381.09,-672.8 381.09,-693.6 381.09,-693.6 381.09,-699.6 375.09,-705.6 369.09,-705.6" style=""/>
+<text text-anchor="middle" x="325.6" y="-686.5" font-family="Arial" font-size="11.00" style="">Application Layer</text>
+<text text-anchor="middle" x="325.6" y="-673.3" font-family="Arial" font-size="11.00" style="">FastAPI Backend</text>
+</g>
+<!-- System&#45;&gt;Logic -->
+<g id="edge2" class="edge" data-name="System-&gt;Logic">
+
+<path fill="none" stroke="#64748b" d="M191.01,-663.93C191.01,-663.93 261.73,-663.93 261.73,-663.93" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="261.73,-666.21 268.23,-663.93 261.73,-661.66 261.73,-666.21" style=""/>
+</g>
+<!-- Data -->
+<g id="node4" class="node" pointer-events="visible" data-name="Data">
+
+<path fill="#ffedd5" stroke="#ea580c" stroke-width="1.5" d="M372.09,-629.6C372.09,-629.6 279.11,-629.6 279.11,-629.6 273.11,-629.6 267.11,-623.6 267.11,-617.6 267.11,-617.6 267.11,-596.8 267.11,-596.8 267.11,-590.8 273.11,-584.8 279.11,-584.8 279.11,-584.8 372.09,-584.8 372.09,-584.8 378.09,-584.8 384.09,-590.8 384.09,-596.8 384.09,-596.8 384.09,-617.6 384.09,-617.6 384.09,-623.6 378.09,-629.6 372.09,-629.6" style=""/>
+<text text-anchor="middle" x="325.6" y="-610.5" font-family="Arial" font-size="11.00" style="">Data Tier</text>
+<text text-anchor="middle" x="325.6" y="-597.3" font-family="Arial" font-size="11.00" style="">Persistent Storage</text>
+</g>
+<!-- System&#45;&gt;Data -->
+<g id="edge3" class="edge" data-name="System-&gt;Data">
+
+<path fill="none" stroke="#64748b" d="M191.01,-626.47C191.01,-626.47 258.76,-626.47 258.76,-626.47" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="258.76,-628.74 265.26,-626.47 258.76,-624.19 258.76,-628.74" style=""/>
+</g>
+<!-- External -->
+<g id="node5" class="node" pointer-events="visible" data-name="External">
+
+<path fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" d="M394.32,-553.2C394.32,-553.2 256.88,-553.2 256.88,-553.2 250.88,-553.2 244.88,-547.2 244.88,-541.2 244.88,-541.2 244.88,-529.2 244.88,-529.2 244.88,-523.2 250.88,-517.2 256.88,-517.2 256.88,-517.2 394.32,-517.2 394.32,-517.2 400.32,-517.2 406.32,-523.2 406.32,-529.2 406.32,-529.2 406.32,-541.2 406.32,-541.2 406.32,-547.2 400.32,-553.2 394.32,-553.2" style=""/>
+<text text-anchor="middle" x="325.6" y="-531.9" font-family="Arial" font-size="11.00" style="">External / Runtime Services</text>
+</g>
+<!-- System&#45;&gt;External -->
+<g id="edge4" class="edge" data-name="System-&gt;External">
+
+<path fill="none" stroke="#64748b" d="M191.09,-623.53C222.72,-623.53 249.99,-623.53 249.99,-623.53 249.99,-623.53 249.99,-561.52 249.99,-561.52" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="252.26,-561.52 249.99,-555.02 247.71,-561.52 252.26,-561.52" style=""/>
+</g>
+<!-- Presentation&#45;&gt;Logic -->
+<!-- CustomerUI -->
+<g id="node6" class="node" pointer-events="visible" data-name="CustomerUI">
+
+<path fill="#bae6fd" stroke="#0284c7" d="M663.75,-1340.8C663.75,-1340.8 472.69,-1340.8 472.69,-1340.8 466.69,-1340.8 460.69,-1334.8 460.69,-1328.8 460.69,-1328.8 460.69,-1295.6 460.69,-1295.6 460.69,-1289.6 466.69,-1283.6 472.69,-1283.6 472.69,-1283.6 663.75,-1283.6 663.75,-1283.6 669.75,-1283.6 675.75,-1289.6 675.75,-1295.6 675.75,-1295.6 675.75,-1328.8 675.75,-1328.8 675.75,-1334.8 669.75,-1340.8 663.75,-1340.8" style=""/>
+<text text-anchor="middle" x="568.22" y="-1322.1" font-family="Arial" font-size="11.00" style="">Customer Web UI</text>
+<text text-anchor="middle" x="568.22" y="-1308.9" font-family="Arial" font-size="11.00" style="">Home · Movie List · Movie Detail</text>
+<text text-anchor="middle" x="568.22" y="-1295.7" font-family="Arial" font-size="11.00" style="">Seat Selection · QR Payment · Profile</text>
+</g>
+<!-- Presentation&#45;&gt;CustomerUI -->
+<g id="edge5" class="edge" data-name="Presentation-&gt;CustomerUI">
+
+<path fill="none" stroke="#64748b" d="M289.99,-781.91C289.99,-885.97 289.99,-1312.2 289.99,-1312.2 289.99,-1312.2 452.24,-1312.2 452.24,-1312.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="452.24,-1314.48 458.74,-1312.2 452.24,-1309.93 452.24,-1314.48" style=""/>
+</g>
+<!-- AdminUI -->
+<g id="node7" class="node" pointer-events="visible" data-name="AdminUI">
+
+<path fill="#e0f2fe" stroke="#38bdf8" d="M644.83,-1251.6C644.83,-1251.6 491.62,-1251.6 491.62,-1251.6 485.62,-1251.6 479.62,-1245.6 479.62,-1239.6 479.62,-1239.6 479.62,-1218.8 479.62,-1218.8 479.62,-1212.8 485.62,-1206.8 491.62,-1206.8 491.62,-1206.8 644.83,-1206.8 644.83,-1206.8 650.83,-1206.8 656.83,-1212.8 656.83,-1218.8 656.83,-1218.8 656.83,-1239.6 656.83,-1239.6 656.83,-1245.6 650.83,-1251.6 644.83,-1251.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-1232.5" font-family="Arial" font-size="11.00" style="">Admin Dashboard UI</text>
+<text text-anchor="middle" x="568.22" y="-1219.3" font-family="Arial" font-size="11.00" style="">Movies · Showtimes · Reports</text>
+</g>
+<!-- Presentation&#45;&gt;AdminUI -->
+<g id="edge6" class="edge" data-name="Presentation-&gt;AdminUI">
+
+<path fill="none" stroke="#64748b" d="M325.99,-781.87C325.99,-875.75 325.99,-1229.2 325.99,-1229.2 325.99,-1229.2 471.38,-1229.2 471.38,-1229.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="471.38,-1231.48 477.88,-1229.2 471.38,-1226.93 471.38,-1231.48" style=""/>
+</g>
+<!-- ChatbotUI -->
+<g id="node8" class="node" pointer-events="visible" data-name="ChatbotUI">
+
+<path fill="#e0f2fe" stroke="#38bdf8" d="M628.33,-1175.6C628.33,-1175.6 508.11,-1175.6 508.11,-1175.6 502.11,-1175.6 496.11,-1169.6 496.11,-1163.6 496.11,-1163.6 496.11,-1142.8 496.11,-1142.8 496.11,-1136.8 502.11,-1130.8 508.11,-1130.8 508.11,-1130.8 628.33,-1130.8 628.33,-1130.8 634.33,-1130.8 640.33,-1136.8 640.33,-1142.8 640.33,-1142.8 640.33,-1163.6 640.33,-1163.6 640.33,-1169.6 634.33,-1175.6 628.33,-1175.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-1156.5" font-family="Arial" font-size="11.00" style="">Chatbot UI</text>
+<text text-anchor="middle" x="568.22" y="-1143.3" font-family="Arial" font-size="11.00" style="">Movie Recommendation</text>
+</g>
+<!-- Presentation&#45;&gt;ChatbotUI -->
+<g id="edge7" class="edge" data-name="Presentation-&gt;ChatbotUI">
+
+<path fill="none" stroke="#64748b" d="M361.99,-782.09C361.99,-866.18 361.99,-1153.2 361.99,-1153.2 361.99,-1153.2 487.79,-1153.2 487.79,-1153.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="487.79,-1155.48 494.29,-1153.2 487.79,-1150.93 487.79,-1155.48" style=""/>
+</g>
+<!-- Logic&#45;&gt;Data -->
+<!-- AuthModule -->
+<g id="node9" class="node" pointer-events="visible" data-name="AuthModule">
+
+<path fill="#ede9fe" stroke="#a78bfa" d="M640.05,-1099.6C640.05,-1099.6 496.4,-1099.6 496.4,-1099.6 490.4,-1099.6 484.4,-1093.6 484.4,-1087.6 484.4,-1087.6 484.4,-1066.8 484.4,-1066.8 484.4,-1060.8 490.4,-1054.8 496.4,-1054.8 496.4,-1054.8 640.05,-1054.8 640.05,-1054.8 646.05,-1054.8 652.05,-1060.8 652.05,-1066.8 652.05,-1066.8 652.05,-1087.6 652.05,-1087.6 652.05,-1093.6 646.05,-1099.6 640.05,-1099.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-1080.5" font-family="Arial" font-size="11.00" style="">Authentication Module</text>
+<text text-anchor="middle" x="568.22" y="-1067.3" font-family="Arial" font-size="11.00" style="">JWT Token · bcrypt Hashing</text>
+</g>
+<!-- Logic&#45;&gt;AuthModule -->
+<g id="edge8" class="edge" data-name="Logic-&gt;AuthModule">
+
+<path fill="none" stroke="#64748b" d="M381.54,-696.52C401.43,-696.52 418.99,-696.52 418.99,-696.52 418.99,-696.52 418.99,-1077.2 418.99,-1077.2 418.99,-1077.2 476,-1077.2 476,-1077.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="476,-1079.48 482.5,-1077.2 476,-1074.93 476,-1079.48" style=""/>
+</g>
+<!-- MovieModule -->
+<g id="node10" class="node" pointer-events="visible" data-name="MovieModule">
+
+<path fill="#ede9fe" stroke="#a78bfa" d="M644.64,-1023.6C644.64,-1023.6 491.81,-1023.6 491.81,-1023.6 485.81,-1023.6 479.81,-1017.6 479.81,-1011.6 479.81,-1011.6 479.81,-990.8 479.81,-990.8 479.81,-984.8 485.81,-978.8 491.81,-978.8 491.81,-978.8 644.64,-978.8 644.64,-978.8 650.64,-978.8 656.64,-984.8 656.64,-990.8 656.64,-990.8 656.64,-1011.6 656.64,-1011.6 656.64,-1017.6 650.64,-1023.6 644.64,-1023.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-1004.5" font-family="Arial" font-size="11.00" style="">Movie &amp; Showtime Module</text>
+<text text-anchor="middle" x="568.22" y="-991.3" font-family="Arial" font-size="11.00" style="">Browsing · Search · Schedule</text>
+</g>
+<!-- Logic&#45;&gt;MovieModule -->
+<g id="edge9" class="edge" data-name="Logic-&gt;MovieModule">
+
+<path fill="none" stroke="#64748b" d="M381.38,-692.08C406.66,-692.08 430.99,-692.08 430.99,-692.08 430.99,-692.08 430.99,-1001.2 430.99,-1001.2 430.99,-1001.2 471.36,-1001.2 471.36,-1001.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="471.36,-1003.48 477.86,-1001.2 471.36,-998.93 471.36,-1003.48" style=""/>
+</g>
+<!-- BookingModule -->
+<g id="node11" class="node" pointer-events="visible" data-name="BookingModule">
+
+<path fill="#ede9fe" stroke="#a78bfa" d="M650.36,-946.8C650.36,-946.8 486.08,-946.8 486.08,-946.8 480.08,-946.8 474.08,-940.8 474.08,-934.8 474.08,-934.8 474.08,-901.6 474.08,-901.6 474.08,-895.6 480.08,-889.6 486.08,-889.6 486.08,-889.6 650.36,-889.6 650.36,-889.6 656.36,-889.6 662.36,-895.6 662.36,-901.6 662.36,-901.6 662.36,-934.8 662.36,-934.8 662.36,-940.8 656.36,-946.8 650.36,-946.8" style=""/>
+<text text-anchor="middle" x="568.22" y="-928.1" font-family="Arial" font-size="11.00" style="">Booking Module</text>
+<text text-anchor="middle" x="568.22" y="-914.9" font-family="Arial" font-size="11.00" style="">Seat Locking · Ticket Generation</text>
+<text text-anchor="middle" x="568.22" y="-901.7" font-family="Arial" font-size="11.00" style="">Optimistic Locking</text>
+</g>
+<!-- Logic&#45;&gt;BookingModule -->
+<g id="edge10" class="edge" data-name="Logic-&gt;BookingModule">
+
+<path fill="none" stroke="#64748b" d="M381.54,-687.64C411.78,-687.64 442.99,-687.64 442.99,-687.64 442.99,-687.64 442.99,-918.2 442.99,-918.2 442.99,-918.2 465.61,-918.2 465.61,-918.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="465.61,-920.48 472.11,-918.2 465.61,-915.93 465.61,-920.48" style=""/>
+</g>
+<!-- PaymentModule -->
+<g id="node12" class="node" pointer-events="visible" data-name="PaymentModule">
+
+<path fill="#ede9fe" stroke="#a78bfa" d="M660.53,-857.6C660.53,-857.6 475.91,-857.6 475.91,-857.6 469.91,-857.6 463.91,-851.6 463.91,-845.6 463.91,-845.6 463.91,-824.8 463.91,-824.8 463.91,-818.8 469.91,-812.8 475.91,-812.8 475.91,-812.8 660.53,-812.8 660.53,-812.8 666.53,-812.8 672.53,-818.8 672.53,-824.8 672.53,-824.8 672.53,-845.6 672.53,-845.6 672.53,-851.6 666.53,-857.6 660.53,-857.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-838.5" font-family="Arial" font-size="11.00" style="">Payment Module</text>
+<text text-anchor="middle" x="568.22" y="-825.3" font-family="Arial" font-size="11.00" style="">VietQR Generation · Payment Status</text>
+</g>
+<!-- Logic&#45;&gt;PaymentModule -->
+<g id="edge11" class="edge" data-name="Logic-&gt;PaymentModule">
+
+<path fill="none" stroke="#64748b" d="M381.42,-683.2C422.05,-683.2 469.99,-683.2 469.99,-683.2 469.99,-683.2 469.99,-804.43 469.99,-804.43" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="467.71,-804.43 469.99,-810.93 472.26,-804.43 467.71,-804.43" style=""/>
+</g>
+<!-- UserModule -->
+<g id="node13" class="node" pointer-events="visible" data-name="UserModule">
+
+<path fill="#ede9fe" stroke="#a78bfa" d="M629.66,-781.6C629.66,-781.6 506.79,-781.6 506.79,-781.6 500.79,-781.6 494.79,-775.6 494.79,-769.6 494.79,-769.6 494.79,-748.8 494.79,-748.8 494.79,-742.8 500.79,-736.8 506.79,-736.8 506.79,-736.8 629.66,-736.8 629.66,-736.8 635.66,-736.8 641.66,-742.8 641.66,-748.8 641.66,-748.8 641.66,-769.6 641.66,-769.6 641.66,-775.6 635.66,-781.6 629.66,-781.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-762.5" font-family="Arial" font-size="11.00" style="">User Profile Module</text>
+<text text-anchor="middle" x="568.22" y="-749.3" font-family="Arial" font-size="11.00" style="">Profile · Booking History</text>
+</g>
+<!-- Logic&#45;&gt;UserModule -->
+<g id="edge12" class="edge" data-name="Logic-&gt;UserModule">
+
+<path fill="none" stroke="#64748b" d="M381.31,-700.96C394.08,-700.96 403.99,-700.96 403.99,-700.96 403.99,-700.96 403.99,-759.2 403.99,-759.2 403.99,-759.2 486.74,-759.2 486.74,-759.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="486.74,-761.48 493.24,-759.2 486.74,-756.93 486.74,-761.48" style=""/>
+</g>
+<!-- AdminModule -->
+<g id="node14" class="node" pointer-events="visible" data-name="AdminModule">
+
+<path fill="#ede9fe" stroke="#a78bfa" d="M648.75,-705.6C648.75,-705.6 487.69,-705.6 487.69,-705.6 481.69,-705.6 475.69,-699.6 475.69,-693.6 475.69,-693.6 475.69,-672.8 475.69,-672.8 475.69,-666.8 481.69,-660.8 487.69,-660.8 487.69,-660.8 648.75,-660.8 648.75,-660.8 654.75,-660.8 660.75,-666.8 660.75,-672.8 660.75,-672.8 660.75,-693.6 660.75,-693.6 660.75,-699.6 654.75,-705.6 648.75,-705.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-686.5" font-family="Arial" font-size="11.00" style="">Admin Management Module</text>
+<text text-anchor="middle" x="568.22" y="-673.3" font-family="Arial" font-size="11.00" style="">Movie CRUD · Showtime CRUD</text>
+</g>
+<!-- Logic&#45;&gt;AdminModule -->
+<g id="edge13" class="edge" data-name="Logic-&gt;AdminModule">
+
+<path fill="none" stroke="#64748b" d="M381.57,-678.76C381.57,-678.76 467.45,-678.76 467.45,-678.76" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="467.45,-681.04 473.95,-678.76 467.45,-676.49 467.45,-681.04" style=""/>
+</g>
+<!-- ReportModule -->
+<g id="node15" class="node" pointer-events="visible" data-name="ReportModule">
+
+<path fill="#ede9fe" stroke="#a78bfa" d="M646.18,-629.6C646.18,-629.6 490.26,-629.6 490.26,-629.6 484.26,-629.6 478.26,-623.6 478.26,-617.6 478.26,-617.6 478.26,-596.8 478.26,-596.8 478.26,-590.8 484.26,-584.8 490.26,-584.8 490.26,-584.8 646.18,-584.8 646.18,-584.8 652.18,-584.8 658.18,-590.8 658.18,-596.8 658.18,-596.8 658.18,-617.6 658.18,-617.6 658.18,-623.6 652.18,-629.6 646.18,-629.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-610.5" font-family="Arial" font-size="11.00" style="">Revenue Report Module</text>
+<text text-anchor="middle" x="568.22" y="-597.3" font-family="Arial" font-size="11.00" style="">Dashboard · CSV/Excel Export</text>
+</g>
+<!-- Logic&#45;&gt;ReportModule -->
+<g id="edge14" class="edge" data-name="Logic-&gt;ReportModule">
+
+<path fill="none" stroke="#64748b" d="M381.57,-665.44C392.68,-665.44 400.99,-665.44 400.99,-665.44 400.99,-665.44 400.99,-620.52 400.99,-620.52 400.99,-620.52 470.23,-620.52 470.23,-620.52" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="470.23,-622.8 476.73,-620.52 470.23,-618.25 470.23,-622.8" style=""/>
+</g>
+<!-- AIModule -->
+<g id="node16" class="node" pointer-events="visible" data-name="AIModule">
+
+<path fill="#d1fae5" stroke="#059669" stroke-width="1.5" d="M638.52,-553.6C638.52,-553.6 497.93,-553.6 497.93,-553.6 491.93,-553.6 485.93,-547.6 485.93,-541.6 485.93,-541.6 485.93,-520.8 485.93,-520.8 485.93,-514.8 491.93,-508.8 497.93,-508.8 497.93,-508.8 638.52,-508.8 638.52,-508.8 644.52,-508.8 650.52,-514.8 650.52,-520.8 650.52,-520.8 650.52,-541.6 650.52,-541.6 650.52,-547.6 644.52,-553.6 638.52,-553.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-534.5" font-family="Arial" font-size="11.00" style="">AI Recommendation Module</text>
+<text text-anchor="middle" x="568.22" y="-521.3" font-family="Arial" font-size="11.00" style="">RAG Pipeline</text>
+</g>
+<!-- Logic&#45;&gt;AIModule -->
+<g id="edge15" class="edge" data-name="Logic-&gt;AIModule">
+
+<path fill="none" stroke="#64748b" d="M381.22,-674.32C416.29,-674.32 454.99,-674.32 454.99,-674.32 454.99,-674.32 454.99,-535.2 454.99,-535.2 454.99,-535.2 477.62,-535.2 477.62,-535.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="477.62,-537.48 484.12,-535.2 477.62,-532.93 477.62,-537.48" style=""/>
+</g>
+<!-- APIDocs -->
+<g id="node17" class="node" pointer-events="visible" data-name="APIDocs">
+
+<path fill="#f5f3ff" stroke="#c4b5fd" d="M616.5,-477.6C616.5,-477.6 519.95,-477.6 519.95,-477.6 513.95,-477.6 507.95,-471.6 507.95,-465.6 507.95,-465.6 507.95,-444.8 507.95,-444.8 507.95,-438.8 513.95,-432.8 519.95,-432.8 519.95,-432.8 616.5,-432.8 616.5,-432.8 622.5,-432.8 628.5,-438.8 628.5,-444.8 628.5,-444.8 628.5,-465.6 628.5,-465.6 628.5,-471.6 622.5,-477.6 616.5,-477.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-458.5" font-family="Arial" font-size="11.00" style="">API Documentation</text>
+<text text-anchor="middle" x="568.22" y="-445.3" font-family="Arial" font-size="11.00" style="">Swagger UI</text>
+</g>
+<!-- Logic&#45;&gt;APIDocs -->
+<g id="edge16" class="edge" data-name="Logic-&gt;APIDocs">
+
+<path fill="none" stroke="#64748b" d="M381.52,-669.88C414.16,-669.88 448.99,-669.88 448.99,-669.88 448.99,-669.88 448.99,-455.2 448.99,-455.2 448.99,-455.2 499.54,-455.2 499.54,-455.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="499.54,-457.48 506.04,-455.2 499.54,-452.93 499.54,-457.48" style=""/>
+</g>
+<!-- Data&#45;&gt;External -->
+<!-- PostgreSQL -->
+<g id="node18" class="node" pointer-events="visible" data-name="PostgreSQL">
+
+<path fill="#ffedd5" stroke="#ea580c" stroke-width="1.5" d="M654.46,-393.68C654.46,-397.66 615.81,-400.9 568.22,-400.9 520.64,-400.9 481.98,-397.66 481.98,-393.68 481.98,-393.68 481.98,-328.72 481.98,-328.72 481.98,-324.74 520.64,-321.5 568.22,-321.5 615.81,-321.5 654.46,-324.74 654.46,-328.72 654.46,-328.72 654.46,-393.68 654.46,-393.68" style=""/>
+<path fill="none" stroke="#ea580c" stroke-width="1.5" d="M654.46,-393.68C654.46,-389.7 615.81,-386.46 568.22,-386.46 520.64,-386.46 481.98,-389.7 481.98,-393.68" style=""/>
+<text text-anchor="middle" x="568.22" y="-371.1" font-family="Arial" font-size="11.00" style="">PostgreSQL Database</text>
+<text text-anchor="middle" x="568.22" y="-357.9" font-family="Arial" font-size="11.00" style="">Users · Movies · Showtimes</text>
+<text text-anchor="middle" x="568.22" y="-344.7" font-family="Arial" font-size="11.00" style="">Seats · Bookings · Payments</text>
+</g>
+<!-- Data&#45;&gt;PostgreSQL -->
+<g id="edge17" class="edge" data-name="Data-&gt;PostgreSQL">
+
+<path fill="none" stroke="#64748b" d="M384.55,-611.64C411.27,-611.64 436.99,-611.64 436.99,-611.64 436.99,-611.64 436.99,-361.2 436.99,-361.2 436.99,-361.2 473.77,-361.2 473.77,-361.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="473.77,-363.48 480.27,-361.2 473.77,-358.93 473.77,-363.48" style=""/>
+</g>
+<!-- ChromaDB -->
+<g id="node19" class="node" pointer-events="visible" data-name="ChromaDB">
+
+<path fill="#d1fae5" stroke="#059669" stroke-width="1.5" d="M647.18,-284.2C647.18,-287.26 611.79,-289.75 568.22,-289.75 524.65,-289.75 489.26,-287.26 489.26,-284.2 489.26,-284.2 489.26,-234.2 489.26,-234.2 489.26,-231.14 524.65,-228.65 568.22,-228.65 611.79,-228.65 647.18,-231.14 647.18,-234.2 647.18,-234.2 647.18,-284.2 647.18,-284.2" style=""/>
+<path fill="none" stroke="#059669" stroke-width="1.5" d="M647.18,-284.2C647.18,-281.13 611.79,-278.64 568.22,-278.64 524.65,-278.64 489.26,-281.13 489.26,-284.2" style=""/>
+<text text-anchor="middle" x="568.22" y="-262.5" font-family="Arial" font-size="11.00" style="">ChromaDB</text>
+<text text-anchor="middle" x="568.22" y="-249.3" font-family="Arial" font-size="11.00" style="">Vector Store / Embeddings</text>
+</g>
+<!-- Data&#45;&gt;ChromaDB -->
+<g id="edge18" class="edge" data-name="Data-&gt;ChromaDB">
+
+<path fill="none" stroke="#64748b" d="M384.56,-602.76C405.96,-602.76 424.99,-602.76 424.99,-602.76 424.99,-602.76 424.99,-259.2 424.99,-259.2 424.99,-259.2 481.05,-259.2 481.05,-259.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="481.05,-261.48 487.55,-259.2 481.05,-256.93 481.05,-261.48" style=""/>
+</g>
+<!-- MediaStorage -->
+<g id="node20" class="node" pointer-events="visible" data-name="MediaStorage">
+
+<path fill="#f8fafc" stroke="#94a3b8" d="M612.41,-196.6C612.41,-196.6 524.04,-196.6 524.04,-196.6 518.04,-196.6 512.04,-190.6 512.04,-184.6 512.04,-184.6 512.04,-163.8 512.04,-163.8 512.04,-157.8 518.04,-151.8 524.04,-151.8 524.04,-151.8 612.41,-151.8 612.41,-151.8 618.41,-151.8 624.41,-157.8 624.41,-163.8 624.41,-163.8 624.41,-184.6 624.41,-184.6 624.41,-190.6 618.41,-196.6 612.41,-196.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-177.5" font-family="Arial" font-size="11.00" style="">Media Storage</text>
+<text text-anchor="middle" x="568.22" y="-164.3" font-family="Arial" font-size="11.00" style="">Posters · Trailers</text>
+</g>
+<!-- Data&#45;&gt;MediaStorage -->
+<g id="edge19" class="edge" data-name="Data-&gt;MediaStorage">
+
+<path fill="none" stroke="#64748b" d="M384.37,-593.88C400.18,-593.88 412.99,-593.88 412.99,-593.88 412.99,-593.88 412.99,-174.2 412.99,-174.2 412.99,-174.2 503.73,-174.2 503.73,-174.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="503.73,-176.48 510.23,-174.2 503.73,-171.93 503.73,-176.48" style=""/>
+</g>
+<!-- VietQR -->
+<g id="node21" class="node" pointer-events="visible" data-name="VietQR">
+
+<path fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" d="M622.73,-120.6C622.73,-120.6 513.72,-120.6 513.72,-120.6 507.72,-120.6 501.72,-114.6 501.72,-108.6 501.72,-108.6 501.72,-87.8 501.72,-87.8 501.72,-81.8 507.72,-75.8 513.72,-75.8 513.72,-75.8 622.73,-75.8 622.73,-75.8 628.73,-75.8 634.73,-81.8 634.73,-87.8 634.73,-87.8 634.73,-108.6 634.73,-108.6 634.73,-114.6 628.73,-120.6 622.73,-120.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-101.5" font-family="Arial" font-size="11.00" style="">Banking App / VietQR</text>
+<text text-anchor="middle" x="568.22" y="-88.3" font-family="Arial" font-size="11.00" style="">Payment Callback</text>
+</g>
+<!-- External&#45;&gt;VietQR -->
+<g id="edge20" class="edge" data-name="External-&gt;VietQR">
+
+<path fill="none" stroke="#64748b" d="M352.99,-516.7C352.99,-433.53 352.99,-98.2 352.99,-98.2 352.99,-98.2 493.29,-98.2 493.29,-98.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="493.29,-100.48 499.79,-98.2 493.29,-95.93 493.29,-100.48" style=""/>
+</g>
+<!-- Ollama -->
+<g id="node22" class="node" pointer-events="visible" data-name="Ollama">
+
+<path fill="#d1fae5" stroke="#16a34a" stroke-width="1.4" d="M641.66,-44.6C641.66,-44.6 494.78,-44.6 494.78,-44.6 488.78,-44.6 482.78,-38.6 482.78,-32.6 482.78,-32.6 482.78,-11.8 482.78,-11.8 482.78,-5.8 488.78,0.2 494.78,0.2 494.78,0.2 641.66,0.2 641.66,0.2 647.66,0.2 653.66,-5.8 653.66,-11.8 653.66,-11.8 653.66,-32.6 653.66,-32.6 653.66,-38.6 647.66,-44.6 641.66,-44.6" style=""/>
+<text text-anchor="middle" x="568.22" y="-25.5" font-family="Arial" font-size="11.00" style="">Ollama Local LLM</text>
+<text text-anchor="middle" x="568.22" y="-12.3" font-family="Arial" font-size="11.00" style="">Natural Language Generation</text>
+</g>
+<!-- External&#45;&gt;Ollama -->
+<g id="edge21" class="edge" data-name="External-&gt;Ollama">
+
+<path fill="none" stroke="#64748b" d="M298.99,-516.94C298.99,-425.56 298.99,-22.2 298.99,-22.2 298.99,-22.2 474.28,-22.2 474.28,-22.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="474.28,-24.48 480.78,-22.2 474.28,-19.93 474.28,-24.48" style=""/>
+</g>
+<!-- CustomerUI&#45;&gt;AdminUI -->
+<!-- AdminUI&#45;&gt;ChatbotUI -->
+<!-- AuthModule&#45;&gt;MovieModule -->
+<!-- MovieModule&#45;&gt;BookingModule -->
+<!-- BookingModule&#45;&gt;PaymentModule -->
+<!-- PaymentModule&#45;&gt;UserModule -->
+<!-- UserModule&#45;&gt;AdminModule -->
+<!-- AdminModule&#45;&gt;ReportModule -->
+<!-- ReportModule&#45;&gt;AIModule -->
+<!-- AIModule&#45;&gt;APIDocs -->
+<!-- PostgreSQL&#45;&gt;ChromaDB -->
+<!-- ChromaDB&#45;&gt;MediaStorage -->
+<!-- VietQR&#45;&gt;Ollama -->
+</g>
+</svg>
