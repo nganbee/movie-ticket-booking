@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bgLight text-textMain antialiased selection:bg-brand selection:text-white;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-bgSubtle;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-brand;
+}
+
+/* Gradient text utility */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-brand to-red-500;
+}

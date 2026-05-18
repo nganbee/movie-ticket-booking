@@ -1,0 +1,289 @@
+<div id="authModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeAuthModal()"></div>
+    
+    <!-- Modal Content -->
+    <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform transition-all scale-95 opacity-0" id="authModalContent">
+        <!-- Close Button -->
+        <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <div class="p-8 sm:p-10 relative">
+            <div class="absolute top-0 right-0 w-full h-48 bg-blue-500/5 -skew-y-6 transform origin-top-right -z-10"></div>
+            
+            <div class="text-center mb-8">
+                <div class="text-3xl font-extrabold tracking-tighter flex items-center justify-center gap-2 mb-2">
+                    <i class="fas fa-film text-brand"></i>
+                    <span class="text-brand">Cine</span><span class="text-slate-800">Book</span>
+                </div>
+                <h2 id="authModalTitle" class="text-2xl font-bold text-slate-800">Chào mừng trở lại</h2>
+                <p id="authModalSubtitle" class="text-slate-500 text-sm mt-2">Vui lòng đăng nhập để tiếp tục</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="modalLoginForm" novalidate class="space-y-5 transition-opacity duration-300">
+                <div id="loginErrorAlert" class="hidden mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded shadow-sm text-sm flex items-start">
+                    <i class="fas fa-exclamation-circle mt-0.5 mr-2"></i>
+                    <span>Email hoặc mật khẩu không chính xác.</span>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="email" id="loginEmail" required placeholder="nhapemail@gmail.com" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+                    </div>
+                    <p id="loginEmailError" class="text-red-500 text-xs mt-1.5 hidden font-medium">Định dạng email không hợp lệ.</p>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-semibold text-slate-700">Mật khẩu</label>
+                        <a href="#" class="text-xs font-medium text-brand hover:text-brandHover transition">Quên mật khẩu?</a>
+                    </div>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-11 py-3 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+                        <button type="button" onclick="togglePasswordVisibility('loginPassword')" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition">
+                            <i class="fas fa-eye" id="eye-loginPassword"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-3.5 px-4 rounded-xl shadow-md text-sm font-bold text-white bg-brand hover:bg-brandHover transition duration-300">
+                    Đăng Nhập
+                </button>
+
+                <p class="mt-6 text-center text-sm text-slate-600">
+                    Chưa có tài khoản? <button type="button" onclick="switchAuthMode('register')" class="font-bold text-brand hover:text-brandHover transition">Đăng ký ngay</button>
+                </p>
+            </form>
+
+            <!-- Register Form (Hidden by default) -->
+            <form id="modalRegisterForm" novalidate class="hidden space-y-4 transition-opacity duration-300">
+                <div id="registerSuccessAlert" class="hidden mb-4 bg-green-50 border-l-4 border-green-500 text-green-700 p-3 rounded shadow-sm text-sm flex items-start">
+                    <i class="fas fa-check-circle mt-0.5 mr-2"></i>
+                    <span>Đăng ký thành công! Đang chuyển sang đăng nhập...</span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Họ và tên</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="regFullname" required placeholder="Nguyễn Văn A" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:border-brand transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="email" id="regEmail" required placeholder="nhapemail@gmail.com" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:border-brand transition">
+                    </div>
+                    <p id="regEmailError" class="text-red-500 text-xs mt-1.5 hidden font-medium">Định dạng email không hợp lệ.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Mật khẩu</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="password" id="regPassword" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-11 py-3 focus:outline-none focus:border-brand transition">
+                        <button type="button" onclick="togglePasswordVisibility('regPassword')" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition">
+                            <i class="fas fa-eye" id="eye-regPassword"></i>
+                        </button>
+                    </div>
+                    <p id="regPasswordError" class="text-red-500 text-xs mt-1.5 hidden font-medium">Mật khẩu phải chứa ít nhất 8 ký tự.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Xác nhận mật khẩu</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="password" id="regConfirmPassword" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-11 py-3 focus:outline-none focus:border-brand transition">
+                        <button type="button" onclick="togglePasswordVisibility('regConfirmPassword')" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition">
+                            <i class="fas fa-eye" id="eye-regConfirmPassword"></i>
+                        </button>
+                    </div>
+                    <p id="regConfirmError" class="text-red-500 text-xs mt-1.5 hidden font-medium">Mật khẩu xác nhận không trùng khớp.</p>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-3.5 px-4 rounded-xl shadow-md text-sm font-bold text-white bg-brand hover:bg-brandHover transition duration-300 mt-2">
+                    Tạo Tài Khoản
+                </button>
+
+                <p class="mt-4 text-center text-sm text-slate-600">
+                    Đã có tài khoản? <button type="button" onclick="switchAuthMode('login')" class="font-bold text-brand hover:text-brandHover transition">Đăng nhập</button>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const authModal = document.getElementById('authModal');
+    const authModalContent = document.getElementById('authModalContent');
+    const modalLoginForm = document.getElementById('modalLoginForm');
+    const modalRegisterForm = document.getElementById('modalRegisterForm');
+    const modalTitle = document.getElementById('authModalTitle');
+    const modalSubtitle = document.getElementById('authModalSubtitle');
+
+    function openAuthModal(mode) {
+        authModal.classList.remove('hidden');
+        authModal.classList.add('flex');
+        
+        // Small delay for CSS transition
+        setTimeout(() => {
+            authModalContent.classList.remove('scale-95', 'opacity-0');
+            authModalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+        
+        switchAuthMode(mode);
+    }
+
+    function closeAuthModal() {
+        authModalContent.classList.remove('scale-100', 'opacity-100');
+        authModalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            authModal.classList.add('hidden');
+            authModal.classList.remove('flex');
+        }, 300);
+    }
+
+    function switchAuthMode(mode) {
+        if (mode === 'login') {
+            modalRegisterForm.classList.add('hidden');
+            modalLoginForm.classList.remove('hidden');
+            modalTitle.textContent = 'Chào mừng trở lại';
+            modalSubtitle.textContent = 'Vui lòng đăng nhập để tiếp tục';
+        } else {
+            modalLoginForm.classList.add('hidden');
+            modalRegisterForm.classList.remove('hidden');
+            modalTitle.textContent = 'Tạo tài khoản mới';
+            modalSubtitle.textContent = 'Gia nhập cộng đồng CineBook ngay hôm nay';
+        }
+    }
+
+    // Login Validation
+    modalLoginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const emailRegex = /^[^\s@]+@gmail\.com$/;
+        
+        if (!emailRegex.test(email)) {
+            document.getElementById('loginEmailError').classList.remove('hidden');
+        } else {
+            document.getElementById('loginEmailError').classList.add('hidden');
+            // Mock login failure for demo
+            document.getElementById('loginErrorAlert').classList.remove('hidden');
+        }
+    });
+
+    // Register Validation
+    modalRegisterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const confirm = document.getElementById('regConfirmPassword').value;
+        const emailRegex = /^[^\s@]+@gmail\.com$/;
+        let isValid = true;
+
+        if (!emailRegex.test(email)) {
+            document.getElementById('regEmailError').classList.remove('hidden');
+            isValid = false;
+        } else {
+            document.getElementById('regEmailError').classList.add('hidden');
+        }
+
+        if (password.length < 8) {
+            document.getElementById('regPasswordError').classList.remove('hidden');
+            isValid = false;
+        } else {
+            document.getElementById('regPasswordError').classList.add('hidden');
+        }
+
+        if (password !== confirm) {
+            document.getElementById('regConfirmError').classList.remove('hidden');
+            isValid = false;
+        } else {
+            document.getElementById('regConfirmError').classList.add('hidden');
+        }
+
+        if (isValid) {
+            document.getElementById('registerSuccessAlert').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('registerSuccessAlert').classList.add('hidden');
+                switchAuthMode('login');
+            }, 1500);
+        }
+    });
+
+    // Password Visibility Toggle
+    function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const eyeIcon = document.getElementById(`eye-${inputId}`);
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Real-time validation (On Input)
+    const emailRegex = /^[^\s@]+@gmail\.com$/;
+
+    // Login Email
+    document.getElementById('loginEmail').addEventListener('input', function() {
+        if (this.value.length > 0 && !emailRegex.test(this.value)) {
+            document.getElementById('loginEmailError').classList.remove('hidden');
+        } else {
+            document.getElementById('loginEmailError').classList.add('hidden');
+        }
+    });
+
+    // Register Email
+    document.getElementById('regEmail').addEventListener('input', function() {
+        if (this.value.length > 0 && !emailRegex.test(this.value)) {
+            document.getElementById('regEmailError').classList.remove('hidden');
+        } else {
+            document.getElementById('regEmailError').classList.add('hidden');
+        }
+    });
+
+    // Register Password
+    document.getElementById('regPassword').addEventListener('input', function() {
+        const password = this.value;
+        if (password.length > 0 && password.length < 8) {
+            document.getElementById('regPasswordError').classList.remove('hidden');
+        } else {
+            document.getElementById('regPasswordError').classList.add('hidden');
+        }
+        
+        // Re-check confirm password if it's already filled
+        const confirm = document.getElementById('regConfirmPassword').value;
+        if (confirm.length > 0) {
+            if (password !== confirm) {
+                document.getElementById('regConfirmError').classList.remove('hidden');
+            } else {
+                document.getElementById('regConfirmError').classList.add('hidden');
+            }
+        }
+    });
+
+    // Register Confirm Password
+    document.getElementById('regConfirmPassword').addEventListener('input', function() {
+        const confirm = this.value;
+        const password = document.getElementById('regPassword').value;
+        if (confirm.length > 0 && password !== confirm) {
+            document.getElementById('regConfirmError').classList.remove('hidden');
+        } else {
+            document.getElementById('regConfirmError').classList.add('hidden');
+        }
+    });
+</script>

@@ -1,0 +1,261 @@
+<!-- Hero Banner -->
+<div class="relative min-h-[85vh] w-full bg-slate-900 pb-20">
+    <!-- Banner Background Image with Gradient Overlay -->
+    <div class="absolute inset-0">
+        <img src="https://image.tmdb.org/t/p/original/kDp1vUBnMpe8ak4rjgl3cLELqjU.jpg" alt="Banner"
+            class="w-full h-full object-cover object-top opacity-50" />
+        <div class="absolute inset-0 bg-gradient-to-t from-bgLight via-bgLight/20 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-bgLight via-bgLight/40 to-transparent"></div>
+    </div>
+
+    <!-- Banner Content -->
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[85vh] flex items-center pt-24 pb-20">
+        <!-- Left: Text Content -->
+        <div class="flex-1 pr-0 md:pr-12 z-10">
+            <div class="flex items-center gap-3 mb-6">
+                <span
+                    class="inline-flex items-center px-3 py-1 rounded-full bg-brand/10 text-brand text-xs font-bold uppercase tracking-wider border border-brand/20">
+                    <span class="w-2 h-2 rounded-full bg-brand mr-2 animate-pulse"></span> Phim Đang Chiếu
+                </span>
+                <span
+                    class="text-sm font-medium text-textMain border border-borderSubtle bg-white/50 backdrop-blur-sm rounded px-2 py-0.5">Hoạt
+                    Hình</span>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 leading-[1.1] tracking-tight">
+                Kung Fu Panda 4
+            </h1>
+
+            <div class="flex flex-wrap items-center gap-4 text-sm md:text-base font-medium text-slate-700 mb-6">
+                <span
+                    class="flex items-center bg-yellow-50 text-yellow-600 px-3 py-1 rounded-md border border-yellow-200">
+                    <i class="fas fa-star mr-1.5"></i> 7.5
+                </span>
+                <span class="flex items-center"><i class="far fa-clock mr-2 text-slate-400"></i> 1h 34m</span>
+                <span class="flex items-center"><i class="fas fa-film mr-2 text-slate-400"></i> Hoạt Hình, Hài
+                    Hước</span>
+                <span class="flex items-center"><i class="fas fa-calendar-alt mr-2 text-slate-400"></i>
+                    22/03/2024</span>
+            </div>
+
+            <p class="text-slate-600 max-w-xl text-base md:text-lg mb-10 line-clamp-3 leading-relaxed">
+                Po phải huấn luyện một chiến binh mới đảm nhận vai trò Thần Long Đại Hiệp, trong khi một phù thủy độc ác
+                tên là Tắc Kè Hoa nhắm đến việc đánh cắp những kỹ năng kung fu của tất cả các bậc thầy độc ác trước đây.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="#now-showing"
+                    class="bg-brand text-white px-8 py-4 rounded-xl font-bold hover:bg-brandHover transition duration-300 shadow-lg shadow-brand/30 flex items-center justify-center group">
+                    <i class="fas fa-ticket-alt mr-3 group-hover:scale-110 transition-transform"></i> Đặt Vé Ngay
+                </a>
+                <a href="/movie/2"
+                    class="bg-white/80 backdrop-blur-md border border-slate-200 text-slate-800 px-8 py-4 rounded-xl font-bold hover:bg-white transition duration-300 flex items-center justify-center group shadow-sm">
+                    <i class="fas fa-play mr-3 text-brand group-hover:scale-110 transition-transform"></i> Xem Trailer
+                </a>
+            </div>
+        </div>
+
+        <!-- Right: Movie Poster -->
+        <div class="hidden md:flex flex-shrink-0 items-center justify-end w-72 lg:w-80 z-10">
+            <div class="relative group">
+                <!-- Glow Effect -->
+                <div
+                    class="absolute -inset-3 bg-brand/20 rounded-3xl blur-2xl opacity-60 group-hover:opacity-90 transition-opacity duration-500">
+                </div>
+                <!-- Poster Image -->
+                <img src="https://image.tmdb.org/t/p/w500/kDp1vUBnMpe8ak4rjgl3cLELqjU.jpg" alt="Kung Fu Panda 4 Poster"
+                    class="relative w-64 lg:w-72 rounded-2xl shadow-2xl border-4 border-white/80 transform -rotate-2 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500 ease-out">
+                <!-- Rating Badge on Poster -->
+                <div
+                    class="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl px-4 py-2 flex items-center gap-2 border border-slate-100">
+                    <i class="fas fa-star text-yellow-500 text-lg"></i>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium leading-none">IMDb</p>
+                        <p class="text-slate-800 font-extrabold text-lg leading-none">7.5</p>
+                    </div>
+                </div>
+                <!-- Now Showing Badge -->
+                <div
+                    class="absolute -top-3 -right-3 bg-brand text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-brand/40">
+                    <i class="fas fa-circle text-[6px] mr-1 animate-pulse"></i>Đang Chiếu
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filter Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10 mb-16">
+    <div class="bg-white border border-borderSubtle rounded-2xl p-4 shadow-xl shadow-slate-200/50">
+        <div class="flex flex-col md:flex-row gap-4 items-center">
+            <div class="flex-grow relative w-full">
+                <i class="fas fa-search absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                <input type="text" placeholder="Tìm kiếm phim, rạp chiếu..."
+                    class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-brand transition focus:ring-1 focus:ring-brand">
+            </div>
+            <div class="w-full md:w-48">
+                <div class="relative">
+                    <i class="fas fa-layer-group absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <select
+                        class="w-full bg-slate-50 border border-slate-200 text-slate-600 rounded-xl pl-10 pr-10 py-4 focus:outline-none focus:border-brand transition appearance-none cursor-pointer">
+                        <option value="">Tất cả thể loại</option>
+                        <option value="action">Hành Động</option>
+                        <option value="comedy">Hài Hước</option>
+                        <option value="drama">Tâm Lý</option>
+                        <option value="scifi">Viễn Tưởng</option>
+                    </select>
+                    <i
+                        class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none text-sm"></i>
+                </div>
+            </div>
+            <div class="w-full md:w-auto">
+                <button
+                    class="w-full bg-slate-800 text-white font-semibold rounded-xl px-8 py-4 hover:bg-slate-700 transition duration-300 flex items-center justify-center shadow-md">
+                    <i class="fas fa-sliders-h mr-2"></i> Lọc
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Movie Lists -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
+
+    <!-- Now Showing -->
+    <div id="now-showing" class="mb-20 pt-10">
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-2 flex items-center">
+                    <span class="w-1.5 h-8 bg-brand rounded-full mr-3"></span> Đang Chiếu
+                </h2>
+                <p class="text-slate-500 text-sm ml-4">Đặt vé ngay cho các bộ phim đang làm mưa làm gió</p>
+            </div>
+            <a href="#"
+                class="text-brand hover:text-brandHover transition text-sm font-semibold flex items-center group">
+                Xem tất cả <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
+            <% nowShowing.forEach(movie=> { %>
+                <a href="/movie/<%= movie.id %>" class="group cursor-pointer block">
+                    <!-- Poster -->
+                    <div
+                        class="relative rounded-2xl overflow-hidden aspect-[2/3] mb-4 shadow-md border border-slate-100 group-hover:shadow-xl transition-shadow duration-300">
+                        <img src="<%= movie.poster %>" alt="<%= movie.title %>"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+
+                        <!-- Overlay -->
+                        <div
+                            class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center backdrop-blur-sm p-4">
+                            <button
+                                class="bg-brand text-white w-full py-3 rounded-xl font-bold hover:bg-brandHover transition shadow-lg transform translate-y-4 group-hover:translate-y-0 duration-300">
+                                Đặt Vé
+                            </button>
+                        </div>
+
+                        <!-- Rating Badge -->
+                        <div
+                            class="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-slate-800 text-xs font-bold px-2 py-1.5 rounded-lg shadow-sm flex items-center">
+                            <i class="fas fa-star text-yellow-500 mr-1"></i>
+                            <%= movie.rating %>
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <div>
+                        <h3
+                            class="font-bold text-lg text-slate-800 mb-1 truncate group-hover:text-brand transition-colors">
+                            <%= movie.title %>
+                        </h3>
+                        <p class="text-slate-500 text-sm">
+                            <%= movie.genre %>
+                        </p>
+                    </div>
+                </a>
+                <% }) %>
+        </div>
+    </div>
+
+    <!-- Coming Soon -->
+    <div>
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-2 flex items-center">
+                    <span class="w-1.5 h-8 bg-blue-500 rounded-full mr-3"></span> Sắp Chiếu
+                </h2>
+                <p class="text-slate-500 text-sm ml-4">Những siêu phẩm sắp đổ bộ rạp chiếu</p>
+            </div>
+            <a href="#"
+                class="text-blue-600 hover:text-blue-700 transition text-sm font-semibold flex items-center group">
+                Xem tất cả <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
+            <% comingSoon.forEach(movie=> { %>
+                <a href="/movie/<%= movie.id %>" class="group cursor-pointer block">
+                    <!-- Poster -->
+                    <div
+                        class="relative rounded-2xl overflow-hidden aspect-[2/3] mb-4 shadow-md border border-slate-100 group-hover:shadow-xl transition-shadow duration-300">
+                        <img src="<%= movie.poster %>" alt="<%= movie.title %>"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out grayscale-[20%] group-hover:grayscale-0">
+
+                        <!-- Overlay -->
+                        <div
+                            class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center backdrop-blur-sm p-4">
+                            <button
+                                class="bg-white/90 text-slate-800 w-full py-3 rounded-xl font-bold hover:bg-white transition transform translate-y-4 group-hover:translate-y-0 duration-300 flex items-center justify-center shadow-md">
+                                <i class="fas fa-bell mr-2 text-brand"></i> Nhận Thông Báo
+                            </button>
+                        </div>
+
+                        <!-- Release Date Badge -->
+                        <div
+                            class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-slate-900/80 to-transparent pt-12 pb-3 px-4">
+                            <span
+                                class="text-white text-xs font-bold uppercase tracking-wider bg-brand px-2 py-1 rounded shadow-sm">
+                                <%= movie.releaseDate %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <div>
+                        <h3
+                            class="font-bold text-lg text-slate-800 mb-1 truncate group-hover:text-blue-600 transition-colors">
+                            <%= movie.title %>
+                        </h3>
+                        <p class="text-slate-500 text-sm">
+                            <%= movie.genre %>
+                        </p>
+                    </div>
+                </a>
+                <% }) %>
+        </div>
+    </div>
+
+</div>
+
+<!-- AI Chatbot FAB -->
+<button
+    class="fixed bottom-8 right-8 w-16 h-16 bg-white border border-slate-200 rounded-full shadow-xl flex items-center justify-center text-brand text-2xl hover:scale-110 hover:border-brand transition-all duration-300 z-50 group">
+    <i class="fas fa-robot group-hover:animate-bounce"></i>
+    <span class="absolute -top-1 -right-1 flex h-4 w-4">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-4 w-4 bg-brand shadow-sm"></span>
+    </span>
+</button>
+
+<script>
+    // Mock Filter logic
+    document.querySelector('button:has(.fa-sliders-h)').addEventListener('click', function () {
+        const keyword = document.querySelector('input[type="text"]').value;
+        const genre = document.querySelector('select').value;
+        if (keyword || genre) {
+            alert(`Đang lọc phim với từ khóa: "${keyword}" và thể loại: "${genre}"`);
+        } else {
+            alert('Vui lòng nhập từ khóa hoặc chọn thể loại để lọc.');
+        }
+    });
+</script>
