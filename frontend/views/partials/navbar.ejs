@@ -1,0 +1,30 @@
+<nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 top-0 border-b border-borderSubtle transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-20 items-center">
+            <!-- Logo -->
+            <div class="flex-shrink-0 flex items-center">
+                <a href="/" class="text-3xl font-extrabold tracking-tighter flex items-center gap-2">
+                    <i class="fas fa-film text-brand"></i>
+                    <span class="text-brand">Cine</span><span class="text-textMain">Book</span>
+                </a>
+            </div>
+            
+            <!-- Navigation Links -->
+            <div class="hidden md:flex space-x-10 items-center">
+                <a href="/" class="text-brand font-semibold border-b-2 border-brand pb-1 transition duration-300">Trang chủ</a>
+                <a href="#" class="text-textMuted font-medium hover:text-brand transition duration-300">Phim</a>
+                <a href="#" class="text-textMuted font-medium hover:text-brand transition duration-300">Rạp chiếu</a>
+                <a href="#" class="text-textMuted font-medium hover:text-brand transition duration-300">Khuyến mãi</a>
+            </div>
+            
+            <!-- Actions -->
+            <div class="hidden md:flex items-center space-x-6">
+                <button class="text-textMuted hover:text-brand transition"><i class="fas fa-search text-lg"></i></button>
+                <div class="h-6 w-px bg-borderSubtle"></div>
+                <!-- Auth Buttons -->
+                <button onclick="openAuthModal('login')" class="text-slate-600 hover:text-brand font-semibold transition">Đăng nhập</button>
+                <button onclick="openAuthModal('register')" class="bg-brand text-white px-5 py-2.5 rounded-full font-bold hover:bg-brandHover transition shadow-md shadow-brand/20">Đăng ký</button>
+            </div>
+        </div>
+    </div>
+</nav>

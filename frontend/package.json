@@ -1,0 +1,25 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Cinema-hub frontend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "npm-run-all --parallel dev:*",
+    "dev:server": "nodemon server.js",
+    "dev:css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./public/css/style.css --watch",
+    "build:css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./public/css/style.css"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.19",
+    "nodemon": "^3.1.0",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3"
+  }
+}

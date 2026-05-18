@@ -1,0 +1,364 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1577pt" height="1081pt" viewBox="0.00 0.00 1577.45 1081.00">
+<g id="graph0" class="graph" transform="translate(57.599998474121094,1023.4000244140625) scale(1)" data-name="CineBookArchitecture">
+
+<polygon fill="white" stroke="none" points="-57.6,57.6 -57.6,-1023.4 1519.85,-1023.4 1519.85,57.6 -57.6,57.6" style=""/>
+<text text-anchor="middle" x="731.13" y="-950.1" font-family="Arial" font-size="13.00" style="">CineBook Overall System Architecture</text>
+<g id="clust6" class="cluster" data-name="cluster_notes">
+
+<path fill="#fafafa" stroke="#cbd5e1" d="M20,-848.2C20,-848.2 1436.25,-848.2 1436.25,-848.2 1442.25,-848.2 1448.25,-854.2 1448.25,-860.2 1448.25,-860.2 1448.25,-922.2 1448.25,-922.2 1448.25,-928.2 1442.25,-934.2 1436.25,-934.2 1436.25,-934.2 20,-934.2 20,-934.2 14,-934.2 8,-928.2 8,-922.2 8,-922.2 8,-860.2 8,-860.2 8,-854.2 14,-848.2 20,-848.2" style=""/>
+<text text-anchor="middle" x="728.13" y="-918.5" font-family="Arial" font-size="13.00" fill="#334155" style="">Architecture Notes</text>
+</g>
+<!-- User -->
+<g id="node1" class="node" pointer-events="visible" data-name="User">
+
+<ellipse fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2" cx="102.93" cy="-420.2" rx="66.07" ry="32.62" style=""/>
+<text text-anchor="middle" x="102.93" y="-423.5" font-family="Arial" font-size="11.00" style="">User / Guest</text>
+<text text-anchor="middle" x="102.93" y="-410.3" font-family="Arial" font-size="11.00" style="">Browser</text>
+</g>
+<!-- Admin -->
+<g id="node2" class="node" pointer-events="visible" data-name="Admin">
+
+<ellipse fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2" cx="102.93" cy="-275.2" rx="51.31" ry="32.62" style=""/>
+<text text-anchor="middle" x="102.93" y="-278.5" font-family="Arial" font-size="11.00" style="">Admin</text>
+<text text-anchor="middle" x="102.93" y="-265.3" font-family="Arial" font-size="11.00" style="">Browser</text>
+</g>
+<!-- User&#45;&gt;Admin -->
+<!-- CustomerUI -->
+<g id="node3" class="node" pointer-events="visible" data-name="CustomerUI">
+
+<path fill="#bae6fd" stroke="#0284c7" stroke-width="1.6" d="M531.42,-550.6C531.42,-550.6 350.38,-550.6 350.38,-550.6 344.38,-550.6 338.38,-544.6 338.38,-538.6 338.38,-538.6 338.38,-515.8 338.38,-515.8 338.38,-509.8 344.38,-503.8 350.38,-503.8 350.38,-503.8 531.42,-503.8 531.42,-503.8 537.42,-503.8 543.42,-509.8 543.42,-515.8 543.42,-515.8 543.42,-538.6 543.42,-538.6 543.42,-544.6 537.42,-550.6 531.42,-550.6" style=""/>
+<text text-anchor="middle" x="440.9" y="-530.5" font-family="Arial" font-size="11.00" style="">Customer Web UI</text>
+<text text-anchor="middle" x="440.9" y="-517.3" font-family="Arial" font-size="11.00" style="">Movie Browsing · Booking · Profile</text>
+</g>
+<!-- User&#45;&gt;CustomerUI -->
+<g id="edge1" class="edge" data-name="User-&gt;CustomerUI">
+
+<path fill="none" stroke="#64748b" d="M146.63,-445.09C216.17,-445.09 344.25,-445.09 344.25,-445.09 344.25,-445.09 344.25,-494.94 344.25,-494.94" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="341.8,-494.94 344.25,-501.94 346.7,-494.94 341.8,-494.94" style=""/>
+<text text-anchor="middle" x="246.25" y="-451.11" font-family="Arial" font-size="9.00" style="">Access web app</text>
+</g>
+<!-- ChatUI -->
+<g id="node4" class="node" pointer-events="visible" data-name="ChatUI">
+
+<path fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.2" d="M504.01,-424.6C504.01,-424.6 377.79,-424.6 377.79,-424.6 371.79,-424.6 365.79,-418.6 365.79,-412.6 365.79,-412.6 365.79,-389.8 365.79,-389.8 365.79,-383.8 371.79,-377.8 377.79,-377.8 377.79,-377.8 504.01,-377.8 504.01,-377.8 510.01,-377.8 516.01,-383.8 516.01,-389.8 516.01,-389.8 516.01,-412.6 516.01,-412.6 516.01,-418.6 510.01,-424.6 504.01,-424.6" style=""/>
+<text text-anchor="middle" x="440.9" y="-404.5" font-family="Arial" font-size="11.00" style="">Chatbot UI</text>
+<text text-anchor="middle" x="440.9" y="-391.3" font-family="Arial" font-size="11.00" style="">Movie Recommendation</text>
+</g>
+<!-- User&#45;&gt;ChatUI -->
+<g id="edge2" class="edge" data-name="User-&gt;ChatUI">
+
+<path fill="none" stroke="#64748b" d="M162.96,-405.9C162.96,-405.9 356.94,-405.9 356.94,-405.9" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="356.94,-408.35 363.94,-405.9 356.94,-403.45 356.94,-408.35" style=""/>
+<text text-anchor="middle" x="264.12" y="-412.9" font-family="Arial" font-size="9.00" style="">Ask movie questions</text>
+</g>
+<!-- AdminUI -->
+<g id="node5" class="node" pointer-events="visible" data-name="AdminUI">
+
+<path fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.2" d="M520.51,-298.6C520.51,-298.6 361.3,-298.6 361.3,-298.6 355.3,-298.6 349.3,-292.6 349.3,-286.6 349.3,-286.6 349.3,-263.8 349.3,-263.8 349.3,-257.8 355.3,-251.8 361.3,-251.8 361.3,-251.8 520.51,-251.8 520.51,-251.8 526.51,-251.8 532.51,-257.8 532.51,-263.8 532.51,-263.8 532.51,-286.6 532.51,-286.6 532.51,-292.6 526.51,-298.6 520.51,-298.6" style=""/>
+<text text-anchor="middle" x="440.9" y="-278.5" font-family="Arial" font-size="11.00" style="">Admin Dashboard UI</text>
+<text text-anchor="middle" x="440.9" y="-265.3" font-family="Arial" font-size="11.00" style="">Movies · Showtimes · Reports</text>
+</g>
+<!-- Admin&#45;&gt;AdminUI -->
+<g id="edge3" class="edge" data-name="Admin-&gt;AdminUI">
+
+<path fill="none" stroke="#64748b" d="M154.63,-275.2C154.63,-275.2 340.54,-275.2 340.54,-275.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="340.54,-277.65 347.54,-275.2 340.54,-272.75 340.54,-277.65" style=""/>
+<text text-anchor="middle" x="264.12" y="-277.9" font-family="Arial" font-size="9.00" style="">Manage system</text>
+</g>
+<!-- CustomerUI&#45;&gt;ChatUI -->
+<!-- Backend -->
+<g id="node6" class="node" pointer-events="visible" data-name="Backend">
+
+<path fill="#ddd6fe" stroke="#7c3aed" stroke-width="2" d="M890.92,-428.2C890.92,-428.2 676.92,-428.2 676.92,-428.2 670.92,-428.2 664.92,-422.2 664.92,-416.2 664.92,-416.2 664.92,-386.2 664.92,-386.2 664.92,-380.2 670.92,-374.2 676.92,-374.2 676.92,-374.2 890.92,-374.2 890.92,-374.2 896.92,-374.2 902.92,-380.2 902.92,-386.2 902.92,-386.2 902.92,-416.2 902.92,-416.2 902.92,-422.2 896.92,-428.2 890.92,-428.2" style=""/>
+<text text-anchor="middle" x="783.92" y="-404.5" font-family="Arial" font-size="11.00" style="">FastAPI Backend</text>
+<text text-anchor="middle" x="783.92" y="-391.3" font-family="Arial" font-size="11.00" style="">API Gateway / Controller</text>
+</g>
+<!-- CustomerUI&#45;&gt;Backend -->
+<g id="edge4" class="edge" data-name="CustomerUI-&gt;Backend">
+
+<path fill="none" stroke="#64748b" d="M543.83,-519.47C605.98,-519.47 673.25,-519.47 673.25,-519.47 673.25,-519.47 673.25,-437.44 673.25,-437.44" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="675.7,-437.44 673.25,-430.44 670.8,-437.44 675.7,-437.44" style=""/>
+<text text-anchor="middle" x="604.17" y="-499.9" font-family="Arial" font-size="9.00" style="">REST / JSON</text>
+</g>
+<!-- ChatUI&#45;&gt;AdminUI -->
+<!-- ChatUI&#45;&gt;Backend -->
+<g id="edge5" class="edge" data-name="ChatUI-&gt;Backend">
+
+<path fill="none" stroke="#64748b" d="M516.18,-408.93C516.18,-408.93 655.48,-408.93 655.48,-408.93" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="655.48,-411.38 662.48,-408.93 655.48,-406.48 655.48,-411.38" style=""/>
+<text text-anchor="middle" x="564.38" y="-414.95" font-family="Arial" font-size="9.00" style="">Chat request</text>
+</g>
+<!-- AdminUI&#45;&gt;Backend -->
+<g id="edge6" class="edge" data-name="AdminUI-&gt;Backend">
+
+<path fill="none" stroke="#64748b" d="M525.25,-298.85C525.25,-333.36 525.25,-393.47 525.25,-393.47 525.25,-393.47 655.54,-393.47 655.54,-393.47" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="655.54,-395.92 662.54,-393.47 655.54,-391.02 655.54,-395.92" style=""/>
+<text text-anchor="middle" x="564.43" y="-382.05" font-family="Arial" font-size="9.00" style="">Admin REST API</text>
+</g>
+<!-- Auth -->
+<g id="node7" class="node" pointer-events="visible" data-name="Auth">
+
+<path fill="#ede9fe" stroke="#a78bfa" stroke-width="1.2" d="M1109.33,-816.6C1109.33,-816.6 1036.15,-816.6 1036.15,-816.6 1030.15,-816.6 1024.15,-810.6 1024.15,-804.6 1024.15,-804.6 1024.15,-781.8 1024.15,-781.8 1024.15,-775.8 1030.15,-769.8 1036.15,-769.8 1036.15,-769.8 1109.33,-769.8 1109.33,-769.8 1115.33,-769.8 1121.33,-775.8 1121.33,-781.8 1121.33,-781.8 1121.33,-804.6 1121.33,-804.6 1121.33,-810.6 1115.33,-816.6 1109.33,-816.6" style=""/>
+<text text-anchor="middle" x="1072.74" y="-796.5" font-family="Arial" font-size="11.00" style="">Auth Module</text>
+<text text-anchor="middle" x="1072.74" y="-783.3" font-family="Arial" font-size="11.00" style="">JWT + bcrypt</text>
+</g>
+<!-- Backend&#45;&gt;Auth -->
+<g id="edge7" class="edge" data-name="Backend-&gt;Auth">
+
+<path fill="none" stroke="#64748b" d="M891.25,-429.08C891.25,-518.63 891.25,-793.2 891.25,-793.2 891.25,-793.2 1015.59,-793.2 1015.59,-793.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1015.59,-795.65 1022.59,-793.2 1015.59,-790.75 1015.59,-795.65" style=""/>
+<text text-anchor="middle" x="924.48" y="-781.78" font-family="Arial" font-size="9.00" style="">Login / Register</text>
+</g>
+<!-- Booking -->
+<g id="node8" class="node" pointer-events="visible" data-name="Booking">
+
+<path fill="#ede9fe" stroke="#a78bfa" stroke-width="1.2" d="M1122.22,-689.8C1122.22,-689.8 1023.26,-689.8 1023.26,-689.8 1017.26,-689.8 1011.26,-683.8 1011.26,-677.8 1011.26,-677.8 1011.26,-642.6 1011.26,-642.6 1011.26,-636.6 1017.26,-630.6 1023.26,-630.6 1023.26,-630.6 1122.22,-630.6 1122.22,-630.6 1128.22,-630.6 1134.22,-636.6 1134.22,-642.6 1134.22,-642.6 1134.22,-677.8 1134.22,-677.8 1134.22,-683.8 1128.22,-689.8 1122.22,-689.8" style=""/>
+<text text-anchor="middle" x="1072.74" y="-670.1" font-family="Arial" font-size="11.00" style="">Booking Module</text>
+<text text-anchor="middle" x="1072.74" y="-656.9" font-family="Arial" font-size="11.00" style="">Seat Lock · Ticket</text>
+<text text-anchor="middle" x="1072.74" y="-643.7" font-family="Arial" font-size="11.00" style="">Optimistic Locking</text>
+</g>
+<!-- Backend&#45;&gt;Booking -->
+<g id="edge8" class="edge" data-name="Backend-&gt;Booking">
+
+<path fill="none" stroke="#64748b" d="M895.25,-428.92C895.25,-495.73 895.25,-660.2 895.25,-660.2 895.25,-660.2 1002.65,-660.2 1002.65,-660.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1002.65,-662.65 1009.65,-660.2 1002.65,-657.75 1002.65,-662.65" style=""/>
+<text text-anchor="middle" x="961.65" y="-650.54" font-family="Arial" font-size="9.00" style="">Booking flow</text>
+</g>
+<!-- Payment -->
+<g id="node9" class="node" pointer-events="visible" data-name="Payment">
+
+<path fill="#ede9fe" stroke="#a78bfa" stroke-width="1.2" d="M1146.63,-550.6C1146.63,-550.6 998.85,-550.6 998.85,-550.6 992.85,-550.6 986.85,-544.6 986.85,-538.6 986.85,-538.6 986.85,-515.8 986.85,-515.8 986.85,-509.8 992.85,-503.8 998.85,-503.8 998.85,-503.8 1146.63,-503.8 1146.63,-503.8 1152.63,-503.8 1158.63,-509.8 1158.63,-515.8 1158.63,-515.8 1158.63,-538.6 1158.63,-538.6 1158.63,-544.6 1152.63,-550.6 1146.63,-550.6" style=""/>
+<text text-anchor="middle" x="1072.74" y="-530.5" font-family="Arial" font-size="11.00" style="">Payment Module</text>
+<text text-anchor="middle" x="1072.74" y="-517.3" font-family="Arial" font-size="11.00" style="">VietQR · Webhook Callback</text>
+</g>
+<!-- Backend&#45;&gt;Payment -->
+<g id="edge9" class="edge" data-name="Backend-&gt;Payment">
+
+<path fill="none" stroke="#64748b" d="M899.25,-428.91C899.25,-468.08 899.25,-534.93 899.25,-534.93 899.25,-534.93 977.99,-534.93 977.99,-534.93" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="977.99,-537.38 984.99,-534.93 977.99,-532.48 977.99,-537.38" style=""/>
+<text text-anchor="middle" x="936.99" y="-525.27" font-family="Arial" font-size="9.00" style="">Create payment</text>
+</g>
+<!-- AdminService -->
+<g id="node10" class="node" pointer-events="visible" data-name="AdminService">
+
+<path fill="#ede9fe" stroke="#a78bfa" stroke-width="1.2" d="M1139.66,-424.6C1139.66,-424.6 1005.82,-424.6 1005.82,-424.6 999.82,-424.6 993.82,-418.6 993.82,-412.6 993.82,-412.6 993.82,-389.8 993.82,-389.8 993.82,-383.8 999.82,-377.8 1005.82,-377.8 1005.82,-377.8 1139.66,-377.8 1139.66,-377.8 1145.66,-377.8 1151.66,-383.8 1151.66,-389.8 1151.66,-389.8 1151.66,-412.6 1151.66,-412.6 1151.66,-418.6 1145.66,-424.6 1139.66,-424.6" style=""/>
+<text text-anchor="middle" x="1072.74" y="-404.5" font-family="Arial" font-size="11.00" style="">Admin Module</text>
+<text text-anchor="middle" x="1072.74" y="-391.3" font-family="Arial" font-size="11.00" style="">Movie &amp; Showtime CRUD</text>
+</g>
+<!-- Backend&#45;&gt;AdminService -->
+<g id="edge10" class="edge" data-name="Backend-&gt;AdminService">
+
+<path fill="none" stroke="#64748b" d="M903.9,-408.93C903.9,-408.93 984.96,-408.93 984.96,-408.93" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="984.96,-411.38 991.96,-408.93 984.96,-406.48 984.96,-411.38" style=""/>
+<text text-anchor="middle" x="943.96" y="-413.19" font-family="Arial" font-size="9.00" style="">Admin operations</text>
+</g>
+<!-- Report -->
+<g id="node11" class="node" pointer-events="visible" data-name="Report">
+
+<path fill="#ede9fe" stroke="#a78bfa" stroke-width="1.2" d="M1153.7,-298.6C1153.7,-298.6 991.78,-298.6 991.78,-298.6 985.78,-298.6 979.78,-292.6 979.78,-286.6 979.78,-286.6 979.78,-263.8 979.78,-263.8 979.78,-257.8 985.78,-251.8 991.78,-251.8 991.78,-251.8 1153.7,-251.8 1153.7,-251.8 1159.7,-251.8 1165.7,-257.8 1165.7,-263.8 1165.7,-263.8 1165.7,-286.6 1165.7,-286.6 1165.7,-292.6 1159.7,-298.6 1153.7,-298.6" style=""/>
+<text text-anchor="middle" x="1072.74" y="-278.5" font-family="Arial" font-size="11.00" style="">Revenue Report Module</text>
+<text text-anchor="middle" x="1072.74" y="-265.3" font-family="Arial" font-size="11.00" style="">Dashboard · Export CSV/Excel</text>
+</g>
+<!-- Backend&#45;&gt;Report -->
+<g id="edge11" class="edge" data-name="Backend-&gt;Report">
+
+<path fill="none" stroke="#64748b" d="M903.64,-393.47C946.42,-393.47 984.25,-393.47 984.25,-393.47 984.25,-393.47 984.25,-307.36 984.25,-307.36" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="986.7,-307.36 984.25,-300.36 981.8,-307.36 986.7,-307.36" style=""/>
+<text text-anchor="middle" x="945.95" y="-328.29" font-family="Arial" font-size="9.00" style="">Revenue query</text>
+</g>
+<!-- AIService -->
+<g id="node12" class="node" pointer-events="visible" data-name="AIService">
+
+<path fill="#d1fae5" stroke="#059669" stroke-width="1.6" d="M1146.03,-172.6C1146.03,-172.6 999.44,-172.6 999.44,-172.6 993.44,-172.6 987.44,-166.6 987.44,-160.6 987.44,-160.6 987.44,-137.8 987.44,-137.8 987.44,-131.8 993.44,-125.8 999.44,-125.8 999.44,-125.8 1146.03,-125.8 1146.03,-125.8 1152.03,-125.8 1158.03,-131.8 1158.03,-137.8 1158.03,-137.8 1158.03,-160.6 1158.03,-160.6 1158.03,-166.6 1152.03,-172.6 1146.03,-172.6" style=""/>
+<text text-anchor="middle" x="1072.74" y="-152.5" font-family="Arial" font-size="11.00" style="">AI Recommendation Module</text>
+<text text-anchor="middle" x="1072.74" y="-139.3" font-family="Arial" font-size="11.00" style="">RAG Pipeline</text>
+</g>
+<!-- Backend&#45;&gt;AIService -->
+<g id="edge12" class="edge" data-name="Backend-&gt;AIService">
+
+<path fill="none" stroke="#64748b" d="M824.25,-373.27C824.25,-307.66 824.25,-149.2 824.25,-149.2 824.25,-149.2 978.71,-149.2 978.71,-149.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="978.71,-151.65 985.71,-149.2 978.71,-146.75 978.71,-151.65" style=""/>
+<text text-anchor="middle" x="937.98" y="-155.18" font-family="Arial" font-size="9.00" style="">AI query</text>
+</g>
+<!-- Swagger -->
+<g id="node13" class="node" pointer-events="visible" data-name="Swagger">
+
+<path fill="#f5f3ff" stroke="#c4b5fd" stroke-width="1.2" d="M1124.01,-46.6C1124.01,-46.6 1021.47,-46.6 1021.47,-46.6 1015.47,-46.6 1009.47,-40.6 1009.47,-34.6 1009.47,-34.6 1009.47,-11.8 1009.47,-11.8 1009.47,-5.8 1015.47,0.2 1021.47,0.2 1021.47,0.2 1124.01,0.2 1124.01,0.2 1130.01,0.2 1136.01,-5.8 1136.01,-11.8 1136.01,-11.8 1136.01,-34.6 1136.01,-34.6 1136.01,-40.6 1130.01,-46.6 1124.01,-46.6" style=""/>
+<text text-anchor="middle" x="1072.74" y="-26.5" font-family="Arial" font-size="11.00" style="">Swagger UI</text>
+<text text-anchor="middle" x="1072.74" y="-13.3" font-family="Arial" font-size="11.00" style="">API Documentation</text>
+</g>
+<!-- Backend&#45;&gt;Swagger -->
+<g id="edge13" class="edge" data-name="Backend-&gt;Swagger">
+
+<path fill="none" stroke="#64748b" d="M745.25,-373.4C745.25,-286.11 745.25,-23.2 745.25,-23.2 745.25,-23.2 1000.69,-23.2 1000.69,-23.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1000.69,-25.65 1007.69,-23.2 1000.69,-20.75 1000.69,-25.65" style=""/>
+<text text-anchor="middle" x="959.97" y="-29.18" font-family="Arial" font-size="9.00" style="">Auto docs</text>
+</g>
+<!-- Auth&#45;&gt;Booking -->
+<!-- PostgreSQL -->
+<g id="node14" class="node" pointer-events="visible" data-name="PostgreSQL">
+
+<path fill="#ffedd5" stroke="#fb923c" stroke-width="1.6" d="M1444.56,-429.7C1444.56,-433.81 1399.29,-437.15 1343.56,-437.15 1287.83,-437.15 1242.56,-433.81 1242.56,-429.7 1242.56,-429.7 1242.56,-362.7 1242.56,-362.7 1242.56,-358.59 1287.83,-355.25 1343.56,-355.25 1399.29,-355.25 1444.56,-358.59 1444.56,-362.7 1444.56,-362.7 1444.56,-429.7 1444.56,-429.7" style=""/>
+<path fill="none" stroke="#fb923c" stroke-width="1.6" d="M1444.56,-429.7C1444.56,-425.6 1399.29,-422.26 1343.56,-422.26 1287.83,-422.26 1242.56,-425.6 1242.56,-429.7" style=""/>
+<text text-anchor="middle" x="1343.56" y="-406.1" font-family="Arial" font-size="11.00" style="">PostgreSQL Database</text>
+<text text-anchor="middle" x="1343.56" y="-392.9" font-family="Arial" font-size="11.00" style="">Users · Movies · Showtimes</text>
+<text text-anchor="middle" x="1343.56" y="-379.7" font-family="Arial" font-size="11.00" style="">Seats · Bookings · Payments</text>
+</g>
+<!-- Auth&#45;&gt;PostgreSQL -->
+<g id="edge14" class="edge" data-name="Auth-&gt;PostgreSQL">
+
+<path fill="none" stroke="#64748b" d="M1121.82,-793.2C1179.74,-793.2 1268.25,-793.2 1268.25,-793.2 1268.25,-793.2 1268.25,-444.6 1268.25,-444.6" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1270.7,-444.6 1268.25,-437.6 1265.8,-444.6 1270.7,-444.6" style=""/>
+<text text-anchor="middle" x="1221.44" y="-799.22" font-family="Arial" font-size="9.00" style="">User data</text>
+</g>
+<!-- Booking&#45;&gt;Payment -->
+<!-- Booking&#45;&gt;PostgreSQL -->
+<g id="edge15" class="edge" data-name="Booking-&gt;PostgreSQL">
+
+<path fill="none" stroke="#64748b" d="M1134.47,-660.2C1189.44,-660.2 1261.25,-660.2 1261.25,-660.2 1261.25,-660.2 1261.25,-437.62 1261.25,-437.62" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1263.7,-437.62 1261.25,-430.62 1258.8,-437.62 1263.7,-437.62" style=""/>
+<text text-anchor="middle" x="1214.16" y="-664.47" font-family="Arial" font-size="9.00" style="">Seats / bookings</text>
+</g>
+<!-- Payment&#45;&gt;AdminService -->
+<!-- Payment&#45;&gt;PostgreSQL -->
+<g id="edge16" class="edge" data-name="Payment-&gt;PostgreSQL">
+
+<path fill="none" stroke="#64748b" d="M1158.98,-508.85C1205.81,-508.85 1254.25,-508.85 1254.25,-508.85 1254.25,-508.85 1254.25,-443.48 1254.25,-443.48" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1256.7,-443.48 1254.25,-436.48 1251.8,-443.48 1256.7,-443.48" style=""/>
+<text text-anchor="middle" x="1208.36" y="-498.33" font-family="Arial" font-size="9.00" style="">Payment status</text>
+</g>
+<!-- Bank -->
+<g id="node16" class="node" pointer-events="visible" data-name="Bank">
+
+<path fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" d="M1401.06,-523.6C1401.06,-523.6 1286.05,-523.6 1286.05,-523.6 1280.05,-523.6 1274.05,-517.6 1274.05,-511.6 1274.05,-511.6 1274.05,-488.8 1274.05,-488.8 1274.05,-482.8 1280.05,-476.8 1286.05,-476.8 1286.05,-476.8 1401.06,-476.8 1401.06,-476.8 1407.06,-476.8 1413.06,-482.8 1413.06,-488.8 1413.06,-488.8 1413.06,-511.6 1413.06,-511.6 1413.06,-517.6 1407.06,-523.6 1401.06,-523.6" style=""/>
+<text text-anchor="middle" x="1343.56" y="-503.5" font-family="Arial" font-size="11.00" style="">Banking App / VietQR</text>
+<text text-anchor="middle" x="1343.56" y="-490.3" font-family="Arial" font-size="11.00" style="">Payment Provider</text>
+</g>
+<!-- Payment&#45;&gt;Bank -->
+<g id="edge21" class="edge" data-name="Payment-&gt;Bank">
+
+<path fill="none" stroke="#64748b" d="M1158.8,-513.7C1158.8,-513.7 1265.05,-513.7 1265.05,-513.7" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1265.05,-516.15 1272.05,-513.7 1265.05,-511.25 1265.05,-516.15" style=""/>
+<text text-anchor="middle" x="1204.11" y="-532.13" font-family="Arial" font-size="9.00" style="">Generate VietQR</text>
+</g>
+<!-- AdminService&#45;&gt;Report -->
+<!-- AdminService&#45;&gt;PostgreSQL -->
+<g id="edge17" class="edge" data-name="AdminService-&gt;PostgreSQL">
+
+<path fill="none" stroke="#64748b" d="M1151.8,-401.2C1151.8,-401.2 1233.67,-401.2 1233.67,-401.2" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1233.67,-403.65 1240.67,-401.2 1233.67,-398.75 1233.67,-403.65" style=""/>
+<text text-anchor="middle" x="1201.18" y="-406.32" font-family="Arial" font-size="9.00" style="">Movies / showtimes</text>
+</g>
+<!-- Report&#45;&gt;AIService -->
+<!-- Report&#45;&gt;PostgreSQL -->
+<g id="edge18" class="edge" data-name="Report-&gt;PostgreSQL">
+
+<path fill="none" stroke="#64748b" d="M1162.25,-298.72C1162.25,-325.24 1162.25,-364.71 1162.25,-364.71 1162.25,-364.71 1233.79,-364.71 1233.79,-364.71" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1233.79,-367.16 1240.79,-364.71 1233.79,-362.26 1233.79,-367.16" style=""/>
+<text text-anchor="middle" x="1192.92" y="-354.19" font-family="Arial" font-size="9.00" style="">Sales data</text>
+</g>
+<!-- AIService&#45;&gt;Swagger -->
+<!-- AIService&#45;&gt;PostgreSQL -->
+<g id="edge19" class="edge" data-name="AIService-&gt;PostgreSQL">
+
+<path fill="none" stroke="#64748b" d="M1158.41,-160.8C1203.38,-160.8 1249.25,-160.8 1249.25,-160.8 1249.25,-160.8 1249.25,-349.34 1249.25,-349.34" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1246.8,-349.34 1249.25,-356.34 1251.7,-349.34 1246.8,-349.34" style=""/>
+<text text-anchor="middle" x="1193.05" y="-178.1" font-family="Arial" font-size="9.00" style="">Movie &amp; showtime data</text>
+</g>
+<!-- ChromaDB -->
+<g id="node15" class="node" pointer-events="visible" data-name="ChromaDB">
+
+<path fill="#d1fae5" stroke="#059669" stroke-width="1.2" d="M1430.06,-270.22C1430.06,-273.41 1391.29,-276 1343.56,-276 1295.83,-276 1257.06,-273.41 1257.06,-270.22 1257.06,-270.22 1257.06,-218.18 1257.06,-218.18 1257.06,-214.99 1295.83,-212.4 1343.56,-212.4 1391.29,-212.4 1430.06,-214.99 1430.06,-218.18 1430.06,-218.18 1430.06,-270.22 1430.06,-270.22" style=""/>
+<path fill="none" stroke="#059669" stroke-width="1.2" d="M1430.06,-270.22C1430.06,-267.03 1391.29,-264.44 1343.56,-264.44 1295.83,-264.44 1257.06,-267.03 1257.06,-270.22" style=""/>
+<text text-anchor="middle" x="1343.56" y="-247.5" font-family="Arial" font-size="11.00" style="">ChromaDB</text>
+<text text-anchor="middle" x="1343.56" y="-234.3" font-family="Arial" font-size="11.00" style="">Vector Store / Embeddings</text>
+</g>
+<!-- AIService&#45;&gt;ChromaDB -->
+<g id="edge20" class="edge" data-name="AIService-&gt;ChromaDB">
+
+<path fill="none" stroke="#64748b" d="M1101.25,-173.07C1101.25,-196.05 1101.25,-227.35 1101.25,-227.35 1101.25,-227.35 1248.25,-227.35 1248.25,-227.35" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1248.25,-229.8 1255.25,-227.35 1248.25,-224.9 1248.25,-229.8" style=""/>
+<text text-anchor="middle" x="1157.14" y="-233.36" font-family="Arial" font-size="9.00" style="">Semantic retrieval</text>
+</g>
+<!-- Ollama -->
+<g id="node17" class="node" pointer-events="visible" data-name="Ollama">
+
+<path fill="#d1fae5" stroke="#059669" stroke-width="1.4" d="M1420,-172.6C1420,-172.6 1267.12,-172.6 1267.12,-172.6 1261.12,-172.6 1255.12,-166.6 1255.12,-160.6 1255.12,-160.6 1255.12,-137.8 1255.12,-137.8 1255.12,-131.8 1261.12,-125.8 1267.12,-125.8 1267.12,-125.8 1420,-125.8 1420,-125.8 1426,-125.8 1432,-131.8 1432,-137.8 1432,-137.8 1432,-160.6 1432,-160.6 1432,-166.6 1426,-172.6 1420,-172.6" style=""/>
+<text text-anchor="middle" x="1343.56" y="-152.5" font-family="Arial" font-size="11.00" style="">Ollama Local LLM</text>
+<text text-anchor="middle" x="1343.56" y="-139.3" font-family="Arial" font-size="11.00" style="">Natural Language Generation</text>
+</g>
+<!-- AIService&#45;&gt;Ollama -->
+<g id="edge23" class="edge" data-name="AIService-&gt;Ollama">
+
+<path fill="none" stroke="#64748b" d="M1158.43,-137.6C1158.43,-137.6 1246.18,-137.6 1246.18,-137.6" style=""/>
+<polygon fill="#64748b" stroke="#64748b" points="1246.18,-140.05 1253.18,-137.6 1246.18,-135.15 1246.18,-140.05" style=""/>
+<text text-anchor="middle" x="1207.67" y="-126.22" font-family="Arial" font-size="9.00" style="">Prompt + context</text>
+</g>
+<!-- PostgreSQL&#45;&gt;ChromaDB -->
+<!-- Bank&#45;&gt;Payment -->
+<g id="edge22" class="edge" data-name="Bank-&gt;Payment">
+
+<path fill="none" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5,2" d="M1273.81,-518.55C1273.81,-518.55 1167.83,-518.55 1167.83,-518.55" style=""/>
+<polygon fill="#ef4444" stroke="#ef4444" stroke-width="1.4" points="1167.83,-516.1 1160.83,-518.55 1167.83,-521 1167.83,-516.1" style=""/>
+<text text-anchor="middle" x="1208.33" y="-521.94" font-family="Arial" font-size="9.00" fill="#ef4444" style="">Webhook / Callback</text>
+</g>
+<!-- Bank&#45;&gt;Ollama -->
+<!-- Ollama&#45;&gt;AIService -->
+<g id="edge24" class="edge" data-name="Ollama-&gt;AIService">
+
+<path fill="none" stroke="#059669" stroke-width="1.4" stroke-dasharray="5,2" d="M1254.88,-149.2C1254.88,-149.2 1167.51,-149.2 1167.51,-149.2" style=""/>
+<polygon fill="#059669" stroke="#059669" stroke-width="1.4" points="1167.51,-146.75 1160.51,-149.2 1167.51,-151.65 1167.51,-146.75" style=""/>
+<text text-anchor="middle" x="1208.01" y="-152.59" font-family="Arial" font-size="9.00" fill="#059669" style="">Generated answer</text>
+</g>
+<!-- Note1 -->
+<g id="node18" class="node" pointer-events="visible" data-name="Note1">
+
+<polygon fill="#eff6ff" stroke="#93c5fd" stroke-width="1.2" points="183.78,-902.6 16.07,-902.6 16.07,-855.8 189.78,-855.8 189.78,-896.6 183.78,-902.6" style=""/>
+<polyline fill="none" stroke="#93c5fd" stroke-width="1.2" points="183.78,-902.6 183.78,-896.6" style=""/>
+<polyline fill="none" stroke="#93c5fd" stroke-width="1.2" points="189.78,-896.6 183.78,-896.6" style=""/>
+<text text-anchor="middle" x="102.93" y="-882.5" font-family="Arial" font-size="11.00" style="">3-Tier Architecture</text>
+<text text-anchor="middle" x="102.93" y="-869.3" font-family="Arial" font-size="11.00" style="">Presentation → Logic → Data</text>
+</g>
+<!-- Note2 -->
+<g id="node19" class="node" pointer-events="visible" data-name="Note2">
+
+<polygon fill="#f5f3ff" stroke="#c4b5fd" stroke-width="1.2" points="524.83,-902.6 350.98,-902.6 350.98,-855.8 530.83,-855.8 530.83,-896.6 524.83,-902.6" style=""/>
+<polyline fill="none" stroke="#c4b5fd" stroke-width="1.2" points="524.83,-902.6 524.83,-896.6" style=""/>
+<polyline fill="none" stroke="#c4b5fd" stroke-width="1.2" points="530.83,-896.6 524.83,-896.6" style=""/>
+<text text-anchor="middle" x="440.9" y="-882.5" font-family="Arial" font-size="11.00" style="">Client-Server Pattern</text>
+<text text-anchor="middle" x="440.9" y="-869.3" font-family="Arial" font-size="11.00" style="">Browser ↔ FastAPI REST API</text>
+</g>
+<!-- Note1&#45;&gt;Note2 -->
+<!-- Note3 -->
+<g id="node20" class="node" pointer-events="visible" data-name="Note3">
+
+<polygon fill="#d1fae5" stroke="#6ee7b7" stroke-width="1.2" points="880.12,-902.6 681.72,-902.6 681.72,-855.8 886.12,-855.8 886.12,-896.6 880.12,-902.6" style=""/>
+<polyline fill="none" stroke="#6ee7b7" stroke-width="1.2" points="880.12,-902.6 880.12,-896.6" style=""/>
+<polyline fill="none" stroke="#6ee7b7" stroke-width="1.2" points="886.12,-896.6 880.12,-896.6" style=""/>
+<text text-anchor="middle" x="783.92" y="-882.5" font-family="Arial" font-size="11.00" style="">RAG Architecture</text>
+<text text-anchor="middle" x="783.92" y="-869.3" font-family="Arial" font-size="11.00" style="">ChromaDB Retrieval + Ollama LLM</text>
+</g>
+<!-- Note2&#45;&gt;Note3 -->
+<!-- Note4 -->
+<g id="node21" class="node" pointer-events="visible" data-name="Note4">
+
+<polygon fill="#ffe4e6" stroke="#fca5a5" stroke-width="1.2" points="1169.38,-902.6 970.1,-902.6 970.1,-855.8 1175.38,-855.8 1175.38,-896.6 1169.38,-902.6" style=""/>
+<polyline fill="none" stroke="#fca5a5" stroke-width="1.2" points="1169.38,-902.6 1169.38,-896.6" style=""/>
+<polyline fill="none" stroke="#fca5a5" stroke-width="1.2" points="1175.38,-896.6 1169.38,-896.6" style=""/>
+<text text-anchor="middle" x="1072.74" y="-882.5" font-family="Arial" font-size="11.00" style="">Concurrency Control</text>
+<text text-anchor="middle" x="1072.74" y="-869.3" font-family="Arial" font-size="11.00" style="">Optimistic Locking for Seat Booking</text>
+</g>
+<!-- Note3&#45;&gt;Note4 -->
+<!-- Note5 -->
+<g id="node22" class="node" pointer-events="visible" data-name="Note5">
+
+<polygon fill="#fef9c3" stroke="#fde047" stroke-width="1.2" points="1434.45,-902.6 1246.67,-902.6 1246.67,-855.8 1440.45,-855.8 1440.45,-896.6 1434.45,-902.6" style=""/>
+<polyline fill="none" stroke="#fde047" stroke-width="1.2" points="1434.45,-902.6 1434.45,-896.6" style=""/>
+<polyline fill="none" stroke="#fde047" stroke-width="1.2" points="1440.45,-896.6 1434.45,-896.6" style=""/>
+<text text-anchor="middle" x="1343.56" y="-882.5" font-family="Arial" font-size="11.00" style="">Async Payment Confirmation</text>
+<text text-anchor="middle" x="1343.56" y="-869.3" font-family="Arial" font-size="11.00" style="">Webhook / Callback from VietQR</text>
+</g>
+<!-- Note4&#45;&gt;Note5 -->
+</g>
+</svg>
