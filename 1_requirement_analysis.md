@@ -171,9 +171,10 @@ Các yêu cầu phi chức năng xác định những tiêu chí chất lượng
 ## 4. Requirements Analysis
 ### 4.1 Use Case Model
 > Written by: 23120049 - Nguyễn Thanh Huyền    
-Reviewed by: 23120060 - Trần Kim Ngân
-    
-<img width="1514" height="1311" alt="Untitled3_20260519172117" src="https://github.com/user-attachments/assets/908de405-2331-40de-bdfd-1c0fd46b282b" />    
+Reviewed by: 23120060 - Trần Kim Ngân  
+      
+<img width="1514" height="1312" alt="Untitled Diagram" src="https://github.com/user-attachments/assets/f671a4fa-2677-4d21-8219-14a23be1d5c9" />  
+  
     
 ### 4.2 Use Case Specification
 
