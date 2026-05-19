@@ -172,9 +172,9 @@ Các yêu cầu phi chức năng xác định những tiêu chí chất lượng
 ### 4.1 Use Case Model
 > Written by: 23120049 - Nguyễn Thanh Huyền    
 Reviewed by: 23120060 - Trần Kim Ngân
-
-<img width="1514" height="1311" alt="uml (1)" src="https://github.com/user-attachments/assets/a8f6a972-3712-473d-91c8-d80476041d25" />  
-
+    
+<img width="1514" height="1311" alt="Untitled3_20260519172117" src="https://github.com/user-attachments/assets/908de405-2331-40de-bdfd-1c0fd46b282b" />    
+    
 ### 4.2 Use Case Specification
 
 #### 4.2.1 User Authentication
