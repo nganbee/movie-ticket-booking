@@ -173,7 +173,9 @@ Các yêu cầu phi chức năng xác định những tiêu chí chất lượng
 > Written by: 23120049 - Nguyễn Thanh Huyền    
 Reviewed by: 23120060 - Trần Kim Ngân  
       
-<img width="1514" height="1312" alt="Untitled Diagram" src="https://github.com/user-attachments/assets/f671a4fa-2677-4d21-8219-14a23be1d5c9" />  
+<img width="1544" height="1332" alt="updatedusecase" src="https://github.com/user-attachments/assets/a6619ea3-f5dd-4f2d-81fa-6c8d49f53234" />
+
+
   
     
 ### 4.2 Use Case Specification
