@@ -50,9 +50,46 @@ router.post('/login', (req, res) => {
     res.redirect('/');
 });
 
-// Mock Booking Route
+// Find your existing path rule inside src/routes/index.js and swap it:
 router.get('/booking/:showtimeId', (req, res) => {
-    res.send('<h1>Đang vào trang đặt ghế cho suất chiếu: ' + req.params.showtimeId + '</h1><p><a href="/">Quay lại trang chủ</a></p>');
+  // Pulling the showtimeId placeholder argument from URL safely
+  const showtimeId = req.params.showtimeId;
+  
+  // Render your newly created seat-selection template mockup file
+  res.render('user/seat-selection', { 
+    title: 'Select Your Seats',
+    showtimeId: showtimeId 
+  });
+});
+
+// Inside src/routes/index.js
+router.get('/checkout/:bookingId', (req, res) => {
+  const bookingId = req.params.bookingId;
+  
+  // Renders the views/user/checkout.ejs template file
+  res.render('user/checkout', {
+    title: 'Payment Checkout',
+    bookingId: bookingId
+  });
+});
+
+// Receipt Page
+router.get('/receipt/:bookingId', (req, res) => {
+  const bookingId = req.params.bookingId;
+  
+  // Renders the views/user/receipt.ejs template file
+  res.render('user/receipt', {
+    title: 'Booking Confirmed - CineBook',
+    bookingId: bookingId
+  });
+});
+
+// Profile Page
+router.get('/profile', (req, res) => {
+  res.render('user/profile', {
+    title: 'Thông tin cá nhân & Lịch sử đặt vé - CineBook',
+    hideNavbar: false
+  });
 });
 
 module.exports = router;

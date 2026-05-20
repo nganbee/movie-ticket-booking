@@ -1,0 +1,801 @@
+<style>
+  /* ── Seat states ── */
+  .seat-available {
+    background: #fff;
+    border: 2px solid #a1a1aa;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .seat-available:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    transform: scale(1.1);
+  }
+  .seat-vip-available {
+    background: #fef3c7; /* amber-100 */
+    border: 2px solid #f59e0b; /* amber-500 */
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .seat-vip-available:hover {
+    border-color: #d97706; /* amber-600 */
+    background: #fffbeb; /* amber-50 */
+    transform: scale(1.1);
+  }
+  .seat-selected {
+    background: #2563eb;
+    border: 2px solid #1d4ed8;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+  }
+  .seat-selected:hover {
+    background: #1d4ed8;
+    transform: scale(1.1);
+  }
+  .seat-sold {
+    background: #d4d4d8;
+    border: 2px solid transparent;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* ── Timer urgency pulse ── */
+  @keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .timer-urgent {
+    animation: pulse-red 0.8s ease-in-out infinite;
+  }
+
+  /* ── Timeout modal ── */
+  #timeout-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+  }
+  #timeout-overlay.show {
+    display: flex;
+  }
+  #timeout-box {
+    background: #fff;
+    border-radius: 1.25rem;
+    padding: 2rem 2.5rem;
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+    animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes pop-in {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  /* ── Selected seat chip ── */
+  .seat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    background: #e4e4e7;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #18181b;
+  }
+
+  /* ── Check icon inside seat ── */
+  .seat-check {
+    display: none;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 14px;
+    height: 14px;
+    color: #fff;
+    pointer-events: none;
+  }
+  .seat-selected .seat-check {
+    display: block;
+  }
+
+  /* ── Loading overlay ── */
+  #loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 15, 30, 0.75);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  #loading-overlay.show {
+    display: flex;
+    animation: fade-in 0.3s ease both;
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* Spinning ring */
+  .spinner {
+    width: 64px;
+    height: 64px;
+    border: 4px solid rgba(255,255,255,0.15);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Animated dots after text */
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.4s steps(4, end) infinite;
+  }
+  @keyframes dots {
+    0%   { content: ''; }
+    25%  { content: '.'; }
+    50%  { content: '..'; }
+    75%  { content: '...'; }
+    100% { content: ''; }
+  }
+
+  /* Shimmer progress bar */
+  .progress-track {
+    width: 220px;
+    height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: 99px;
+    animation: fill-bar 2.8s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+  @keyframes fill-bar {
+    0%   { width: 0%; }
+    60%  { width: 75%; }
+    85%  { width: 88%; }
+    100% { width: 95%; }
+  }
+</style>
+
+<!-- ═══════════════════════════════════════════
+     TIMEOUT OVERLAY MODAL
+═══════════════════════════════════════════ -->
+<div id="timeout-overlay">
+  <div id="timeout-box">
+    <!-- Red hourglass icon -->
+    <div style="width:64px;height:64px;background:#fef2f2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+           stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 22h14"/><path d="M5 2h14"/>
+        <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/>
+        <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>
+      </svg>
+    </div>
+    <h3 style="font-size:1.25rem;font-weight:700;color:#18181b;margin-bottom:0.5rem;">Hết thời gian!</h3>
+    <p style="font-size:0.9rem;color:#71717a;margin-bottom:1.5rem;line-height:1.6;">
+      Phiên giao dịch giữ ghế của bạn đã hết hạn.<br>
+      <strong style="color:#dc2626;">Đặt ghế không thành công.</strong>
+    </p>
+    <button id="timeout-back-btn"
+      style="width:100%;padding:0.75rem;background:#2563eb;color:#fff;font-weight:600;border:none;border-radius:0.75rem;font-size:1rem;cursor:pointer;transition:background 0.2s;"
+      onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+      Quay lại Trang chủ
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     LOADING OVERLAY
+═══════════════════════════════════════════ -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div style="text-align:center;">
+    <p style="color:#fff;font-size:1.2rem;font-weight:700;margin-bottom:0.35rem;letter-spacing:-0.01em;">
+      Đang chuyển hướng bạn đến trang thanh toán<span class="loading-dots"></span>
+    </p>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.85rem;">Vui lòng chờ trong giây lát</p>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN LAYOUT
+═══════════════════════════════════════════ -->
+<div class="size-full bg-zinc-50 text-zinc-900 flex flex-col overflow-hidden min-h-screen pt-20">
+
+  <!-- Header -->
+  <div class="px-5 py-4 bg-white border-b border-zinc-200 sticky top-20 z-40">
+    <div class="flex items-center justify-between">
+      <h2 class="font-semibold text-lg text-zinc-900">Chọn Ghế Ngồi</h2>
+      <!-- Timer badge -->
+      <div id="timer-badge" class="flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-200 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             class="text-red-600">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span id="timer-display" class="text-sm font-mono text-red-600">10:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="flex-1 overflow-y-auto px-5 py-6 pb-44">
+
+    <!-- Screen graphic -->
+    <div class="mb-8 max-w-md mx-auto">
+      <div class="relative h-3 bg-gradient-to-b from-zinc-300 to-zinc-400 rounded-t-[100%] shadow-[0_5px_30px_rgba(0,0,0,0.15)]"></div>
+      <div class="text-center mt-2 text-xs text-zinc-500 uppercase tracking-widest">Màn hình</div>
+    </div>
+
+    <!-- Legend -->
+    <div class="flex items-center justify-center flex-wrap gap-4 sm:gap-6 mb-6">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 seat-available rounded"></div>
+        <span class="text-xs text-zinc-600 font-semibold">Ghế thường</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 seat-vip-available rounded"></div>
+        <span class="text-xs text-zinc-600 font-semibold">Ghế VIP</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 seat-selected rounded text-white flex items-center justify-center text-[10px]">
+          <i class="fas fa-check"></i>
+        </div>
+        <span class="text-xs text-zinc-600 font-semibold">Đang chọn</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 seat-sold rounded"></div>
+        <span class="text-xs text-zinc-600 font-semibold">Đã bán</span>
+      </div>
+    </div>
+
+    <!-- Seat grid -->
+    <div id="seat-grid" class="max-w-md mx-auto space-y-2">
+
+      <!-- Row A -->
+      <div class="flex items-center gap-2">
+        <div class="w-6 text-center text-xs text-zinc-500 font-medium">A</div>
+        <div class="flex-1 flex justify-center gap-1.5">
+          <button class="seat w-7 h-7 rounded seat-available" data-row="A" data-col="1" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="A" data-col="2" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"      data-row="A" data-col="3" data-type="normal" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-sold"      data-row="A" data-col="4" data-type="normal" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="A" data-col="5" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="A" data-col="6" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="A" data-col="7" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="A" data-col="8" data-type="normal"></button>
+        </div>
+        <div class="w-6"></div>
+      </div>
+
+      <!-- Row B -->
+      <div class="flex items-center gap-2">
+        <div class="w-6 text-center text-xs text-zinc-500 font-medium">B</div>
+        <div class="flex-1 flex justify-center gap-1.5">
+          <button class="seat w-7 h-7 rounded seat-available" data-row="B" data-col="1" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="B" data-col="2" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="B" data-col="3" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="B" data-col="4" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"      data-row="B" data-col="5" data-type="normal" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="B" data-col="6" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="B" data-col="7" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="B" data-col="8" data-type="normal"></button>
+        </div>
+        <div class="w-6"></div>
+      </div>
+
+      <!-- Row C -->
+      <div class="flex items-center gap-2">
+        <div class="w-6 text-center text-xs text-zinc-500 font-medium">C</div>
+        <div class="flex-1 flex justify-center gap-1.5">
+          <button class="seat w-7 h-7 rounded seat-available" data-row="C" data-col="1" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="C" data-col="2" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="C" data-col="3" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"      data-row="C" data-col="4" data-type="normal" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="C" data-col="5" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"      data-row="C" data-col="6" data-type="normal" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="C" data-col="7" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="C" data-col="8" data-type="normal"></button>
+        </div>
+        <div class="w-6"></div>
+      </div>
+
+      <!-- Row D -->
+      <div class="flex items-center gap-2">
+        <div class="w-6 text-center text-xs text-zinc-500 font-medium">D</div>
+        <div class="flex-1 flex justify-center gap-1.5">
+          <button class="seat w-7 h-7 rounded seat-sold"          data-row="D" data-col="1" data-type="normal" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="D" data-col="2" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="D" data-col="3" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="D" data-col="4" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="D" data-col="5" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="D" data-col="6" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"          data-row="D" data-col="7" data-type="normal" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="D" data-col="8" data-type="normal"></button>
+        </div>
+        <div class="w-6"></div>
+      </div>
+
+      <!-- Row E -->
+      <div class="flex items-center gap-2">
+        <div class="w-6 text-center text-xs text-zinc-500 font-medium">E</div>
+        <div class="flex-1 flex justify-center gap-1.5">
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="E" data-col="1" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"          data-row="E" data-col="2" data-type="normal" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="E" data-col="3" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="E" data-col="4" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="E" data-col="5" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="E" data-col="6" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="E" data-col="7" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"          data-row="E" data-col="8" data-type="normal" disabled></button>
+        </div>
+        <div class="w-6"></div>
+      </div>
+
+      <!-- Row F -->
+      <div class="flex items-center gap-2">
+        <div class="w-6 text-center text-xs text-zinc-500 font-medium">F</div>
+        <div class="flex-1 flex justify-center gap-1.5">
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="F" data-col="1" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="F" data-col="2" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"          data-row="F" data-col="3" data-type="vip" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-sold"          data-row="F" data-col="4" data-type="vip" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="F" data-col="5" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="F" data-col="6" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="F" data-col="7" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="F" data-col="8" data-type="normal"></button>
+        </div>
+        <div class="w-6"></div>
+      </div>
+
+      <!-- Row G -->
+      <div class="flex items-center gap-2">
+        <div class="w-6 text-center text-xs text-zinc-500 font-medium">G</div>
+        <div class="flex-1 flex justify-center gap-1.5">
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="G" data-col="1" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="G" data-col="2" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="G" data-col="3" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"          data-row="G" data-col="4" data-type="vip" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="G" data-col="5" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-vip-available" data-row="G" data-col="6" data-type="vip"></button>
+          <button class="seat w-7 h-7 rounded seat-sold"          data-row="G" data-col="7" data-type="normal" disabled></button>
+          <button class="seat w-7 h-7 rounded seat-available"     data-row="G" data-col="8" data-type="normal"></button>
+        </div>
+        <div class="w-6"></div>
+      </div>
+
+      <!-- Row H -->
+      <div class="flex items-center gap-2">
+        <div class="w-6 text-center text-xs text-zinc-500 font-medium">H</div>
+        <div class="flex-1 flex justify-center gap-1.5">
+          <button class="seat w-7 h-7 rounded seat-available" data-row="H" data-col="1" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="H" data-col="2" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="H" data-col="3" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="H" data-col="4" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="H" data-col="5" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="H" data-col="6" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="H" data-col="7" data-type="normal"></button>
+          <button class="seat w-7 h-7 rounded seat-available" data-row="H" data-col="8" data-type="normal"></button>
+        </div>
+        <div class="w-6"></div>
+      </div>
+
+    </div><!-- /seat-grid -->
+  </div>
+
+  <!-- ── Bottom booking bar ── -->
+  <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-zinc-200 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-50">
+    <div class="px-5 py-4 max-w-md mx-auto">
+      <!-- Warning message row -->
+      <div id="limit-warning" class="hidden mb-3 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>Bạn chỉ được phép chọn tối đa 10 ghế cho mỗi lần đặt vé.</span>
+      </div>
+      <div class="mb-3">
+        <div class="text-xs text-zinc-500 mb-1">Ghế đã chọn</div>
+        <div id="selected-chips" class="flex flex-wrap gap-2 min-h-[28px]">
+          <span id="no-seats-msg" class="text-xs text-zinc-400 italic">Chưa có ghế nào được chọn</span>
+        </div>
+      </div>
+      <!-- Pricing Breakdown Panel -->
+      <div id="pricing-breakdown" class="mb-3 text-xs space-y-1 hidden font-medium" style="color: #4b5563;"></div>
+      <div class="flex items-center gap-3">
+        <div class="flex-1">
+          <div class="text-xs text-zinc-500">Tổng tiền</div>
+          <div id="total-price" class="text-2xl font-semibold text-zinc-900">0đ</div>
+        </div>
+        <button id="confirm-btn"
+          class="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 active:scale-95 rounded-lg font-semibold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100"
+          disabled>
+          Xác nhận đặt vé
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main layout -->
+
+<script>
+(function () {
+  const PRICE_NORMAL = 70000;
+  const PRICE_VIP = 100000;
+  const TOTAL_SECONDS = 10 * 60; // 10 minutes
+
+  /* ── State ── */
+  let selectedSeats = new Set();
+  let secondsLeft = TOTAL_SECONDS;
+  let timerInterval = null;
+  let expired = false;
+
+  /* ── DOM refs ── */
+  const timerDisplay  = document.getElementById('timer-display');
+  const timerBadge    = document.getElementById('timer-badge');
+  const chipsContainer= document.getElementById('selected-chips');
+  const noSeatsMsg    = document.getElementById('no-seats-msg');
+  const totalPriceEl  = document.getElementById('total-price');
+  const confirmBtn    = document.getElementById('confirm-btn');
+  const overlay       = document.getElementById('timeout-overlay');
+  const backBtn       = document.getElementById('timeout-back-btn');
+
+  /* ─────────────────────────────────────────
+     COUNTDOWN TIMER
+  ───────────────────────────────────────── */
+  function formatTime(secs) {
+    const m = String(Math.floor(secs / 60)).padStart(2, '0');
+    const s = String(secs % 60).padStart(2, '0');
+    return m + ':' + s;
+  }
+
+  function updateTimerDisplay() {
+    timerDisplay.textContent = formatTime(secondsLeft);
+
+    // Turn badge more urgent in final 60 s
+    if (secondsLeft <= 60) {
+      timerBadge.classList.add('timer-urgent');
+    }
+  }
+
+  function onExpire() {
+    clearInterval(timerInterval);
+    expired = true;
+
+    // Lock all available seats
+    document.querySelectorAll('.seat-available, .seat-selected, .seat-vip-available').forEach(btn => {
+      btn.disabled = true;
+      btn.style.cursor = 'not-allowed';
+    });
+
+    confirmBtn.disabled = true;
+    overlay.classList.add('show');
+  }
+
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimerDisplay();
+    if (secondsLeft <= 0) onExpire();
+  }, 1000);
+
+  updateTimerDisplay(); // immediate render
+
+  /* ─────────────────────────────────────────
+     SEAT TOGGLE LOGIC
+  ───────────────────────────────────────── */
+  function getSeatId(btn) {
+    return btn.dataset.row + btn.dataset.col;
+  }
+
+  function getSeatLabel(btn) {
+    return btn.dataset.row + btn.dataset.col;
+  }
+
+  function selectSeat(btn) {
+    btn.classList.remove('seat-available', 'seat-vip-available');
+    btn.classList.add('seat-selected');
+    // Insert check icon SVG
+    if (!btn.querySelector('svg')) {
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="seat-check" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+        style="display:block;width:14px;height:14px;color:#fff;position:absolute;inset:0;margin:auto;pointer-events:none;">
+        <path d="M20 6 9 17l-5-5"/>
+      </svg>`;
+    }
+  }
+
+  function deselectSeat(btn) {
+    btn.classList.remove('seat-selected');
+    if (btn.dataset.type === 'vip') {
+      btn.classList.add('seat-vip-available');
+    } else {
+      btn.classList.add('seat-available');
+    }
+    btn.innerHTML = '';
+  }
+
+  function toggleSeat(btn) {
+    if (expired) return;
+    if (btn.disabled) return;
+
+    const id = getSeatId(btn);
+    const limitWarning = document.getElementById('limit-warning');
+    if (btn.classList.contains('seat-selected')) {
+      deselectSeat(btn);
+      selectedSeats.delete(id);
+      if (limitWarning) {
+        limitWarning.classList.add('hidden');
+      }
+    } else {
+      // Check selection limit constraint (maximum 10 seats)
+      if (selectedSeats.size >= 10) {
+        if (limitWarning) {
+          limitWarning.classList.remove('hidden');
+        }
+        return;
+      }
+      selectSeat(btn);
+      selectedSeats.add(id);
+      if (limitWarning) {
+        limitWarning.classList.add('hidden');
+      }
+    }
+    updateBottomBar();
+  }
+
+  /* ─────────────────────────────────────────
+     BOTTOM BAR UPDATE
+  ───────────────────────────────────────── */
+  function updateBottomBar() {
+    // Chips
+    chipsContainer.innerHTML = '';
+
+    if (selectedSeats.size === 0) {
+      chipsContainer.appendChild(noSeatsMsg);
+      noSeatsMsg.style.display = 'inline';
+    } else {
+      noSeatsMsg.style.display = 'none';
+      // Sort seats alphabetically
+      const sorted = Array.from(selectedSeats).sort();
+      sorted.forEach(id => {
+        const row = id.charAt(0);
+        const col = id.substring(1);
+        const btn = document.querySelector(`.seat[data-row="${row}"][data-col="${col}"]`);
+        const type = btn ? btn.dataset.type : 'normal';
+
+        const chip = document.createElement('div');
+        chip.className = 'seat-chip';
+        chip.textContent = id;
+        if (type === 'vip') {
+          chip.style.backgroundColor = '#fef3c7'; // amber-100
+          chip.style.color = '#b45309'; // amber-700
+          chip.style.border = '1px solid #f59e0b'; // amber-500
+        } else {
+          chip.style.backgroundColor = '#ffffff'; // white
+          chip.style.color = '#27272a'; // zinc-800
+          chip.style.border = '1px solid #a1a1aa'; // zinc-400
+        }
+        chipsContainer.appendChild(chip);
+      });
+    }
+
+    // Pricing breakdown & total
+    const pricingBreakdownEl = document.getElementById('pricing-breakdown');
+    pricingBreakdownEl.innerHTML = '';
+
+    let total = 0;
+    
+    if (selectedSeats.size > 0) {
+      pricingBreakdownEl.classList.remove('hidden');
+      
+      const vipSeats = [];
+      const normalSeats = [];
+      
+      selectedSeats.forEach(id => {
+        const row = id.charAt(0);
+        const col = id.substring(1);
+        const btn = document.querySelector(`.seat[data-row="${row}"][data-col="${col}"]`);
+        if (btn) {
+          const lowerId = id.toLowerCase();
+          if (btn.dataset.type === 'vip') {
+            vipSeats.push(lowerId);
+          } else {
+            normalSeats.push(lowerId);
+          }
+        }
+      });
+      
+      if (vipSeats.length > 0) {
+        const vipCount = vipSeats.length;
+        const vipTotal = vipCount * PRICE_VIP;
+        total += vipTotal;
+        
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'flex items-center justify-between py-1 font-medium';
+        rowDiv.style.color = '#4b5563';
+        
+        // Left container (Badge + Count)
+        const leftDiv = document.createElement('div');
+        leftDiv.className = 'flex items-center gap-2';
+        
+        // VIP Badge Box
+        const badge = document.createElement('span');
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold border flex-shrink-0';
+        badge.style.backgroundColor = '#fef3c7';
+        badge.style.color = '#92400e';
+        badge.style.borderColor = '#fcd34d';
+        badge.textContent = 'VIP seat';
+        
+        // Count
+        const countSpan = document.createElement('span');
+        countSpan.textContent = `x${vipCount}`;
+        
+        leftDiv.appendChild(badge);
+        leftDiv.appendChild(countSpan);
+        
+        // Right price (right aligned)
+        const priceSpan = document.createElement('span');
+        priceSpan.className = 'font-semibold text-right';
+        priceSpan.textContent = `${vipTotal.toLocaleString('vi-VN')} đ`;
+        
+        rowDiv.appendChild(leftDiv);
+        rowDiv.appendChild(priceSpan);
+        
+        pricingBreakdownEl.appendChild(rowDiv);
+      }
+      
+      if (normalSeats.length > 0) {
+        const normalCount = normalSeats.length;
+        const normalTotal = normalCount * PRICE_NORMAL;
+        total += normalTotal;
+        
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'flex items-center justify-between py-1 font-medium';
+        rowDiv.style.color = '#4b5563';
+        
+        // Left container (Badge + Count)
+        const leftDiv = document.createElement('div');
+        leftDiv.className = 'flex items-center gap-2';
+        
+        // Normal Badge Box
+        const badge = document.createElement('span');
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold border flex-shrink-0';
+        badge.style.backgroundColor = '#f4f4f5';
+        badge.style.color = '#27272a';
+        badge.style.borderColor = '#e4e4e7';
+        badge.textContent = 'Normal seat';
+        
+        // Count
+        const countSpan = document.createElement('span');
+        countSpan.textContent = `x${normalCount}`;
+        
+        leftDiv.appendChild(badge);
+        leftDiv.appendChild(countSpan);
+        
+        // Right price (right aligned)
+        const priceSpan = document.createElement('span');
+        priceSpan.className = 'font-semibold text-right';
+        priceSpan.textContent = `${normalTotal.toLocaleString('vi-VN')} đ`;
+        
+        rowDiv.appendChild(leftDiv);
+        rowDiv.appendChild(priceSpan);
+        
+        pricingBreakdownEl.appendChild(rowDiv);
+      }
+    } else {
+      pricingBreakdownEl.classList.add('hidden');
+    }
+
+    // Price
+    totalPriceEl.textContent = total.toLocaleString('vi-VN') + 'đ';
+
+    // Confirm button
+    confirmBtn.disabled = selectedSeats.size === 0;
+  }
+
+  /* ─────────────────────────────────────────
+     ATTACH SEAT CLICK LISTENERS
+  ───────────────────────────────────────── */
+  document.querySelectorAll('.seat').forEach(btn => {
+    // Only available seats get the listener (sold seats have disabled attr)
+    if (!btn.disabled) {
+      btn.addEventListener('click', () => toggleSeat(btn));
+    }
+  });
+
+  /* ─────────────────────────────────────────
+     TIMEOUT MODAL — BACK BUTTON
+  ───────────────────────────────────────── */
+  backBtn.addEventListener('click', () => {
+    window.location.href = '/';
+  });
+
+  /* ─────────────────────────────────────────
+     CONFIRM BUTTON — show loading screen
+  ───────────────────────────────────────── */
+  const loadingOverlay = document.getElementById('loading-overlay');
+
+  confirmBtn.addEventListener('click', () => {
+    if (selectedSeats.size === 0 || selectedSeats.size > 10 || expired) return;
+
+    // Stop the booking timer so it doesn't fire while loading
+    clearInterval(timerInterval);
+
+    // Lock seats and button to prevent double-clicks
+    confirmBtn.disabled = true;
+    document.querySelectorAll('.seat').forEach(b => b.disabled = true);
+
+    // Show the loading overlay
+    loadingOverlay.classList.add('show');
+
+    // Calculate total price
+    let total = 0;
+    selectedSeats.forEach(id => {
+      const row = id.charAt(0);
+      const col = id.substring(1);
+      const btn = document.querySelector(`.seat[data-row="${row}"][data-col="${col}"]`);
+      if (btn) {
+        if (btn.dataset.type === 'vip') {
+          total += PRICE_VIP;
+        } else {
+          total += PRICE_NORMAL;
+        }
+      }
+    });
+
+    // Simulate redirect after ~3 s to checkout with dynamic parameters
+    setTimeout(() => {
+      const seats = Array.from(selectedSeats).sort().join(',');
+      const bookingId = 'BK-' + Math.floor(Math.random() * 1000000);
+      // Let's assume the user is booking "Kung Fu Panda 4" (you can parameterize this as well if needed)
+      window.location.href = `/checkout/${bookingId}?seats=${encodeURIComponent(seats)}&price=${total}&title=Kung+Fu+Panda+4`;
+    }, 3000);
+  });
+
+  /* ─────────────────────────────────────────
+     BACK BUTTON PROTECTION (pageshow handler)
+     ───────────────────────────────────────── */
+  window.addEventListener('pageshow', (event) => {
+    // Hide the loading overlay and restore confirm button & seats state
+    loadingOverlay.classList.remove('show');
+    confirmBtn.disabled = selectedSeats.size === 0;
+    document.querySelectorAll('.seat').forEach(b => {
+      if (!b.classList.contains('seat-sold')) {
+        b.disabled = false;
+        b.style.cursor = '';
+      }
+    });
+    // Restart timer interval if it was stopped
+    if (!expired && !timerInterval) {
+      timerInterval = setInterval(() => {
+        secondsLeft--;
+        updateTimerDisplay();
+        if (secondsLeft <= 0) onExpire();
+      }, 1000);
+    }
+  });
+})();
+</script>
