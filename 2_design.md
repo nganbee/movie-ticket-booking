@@ -149,8 +149,10 @@ Hệ thống áp dụng nhiều cơ chế bảo mật:
 Những đặc điểm kiến trúc trên giúp CineBook có nền tảng phù hợp cho việc mở rộng tính năng và triển khai thực tế trong tương lai.
 
 ### 3.2 Class Diagram
-> Written by:   
+> Written by: Nguyễn Thanh Huyền - 23120049  
 Reviewed by:
+   
+<img width="3053" height="2957" alt="Article Manager Class Diagram (2)" src="https://github.com/user-attachments/assets/cad83c95-1a8d-4fb7-88b8-bfd2765bfe48" />  
 
 ### 3.3 Class Specifications
 > Written by:   
@@ -255,9 +257,11 @@ Reviewed by: 23120060 - Trần Kim Ngân
 ## 5. UI/UX
 
 ### 5.1 Screen Diagram
-> Written by:   
-Reviewed by:
-
+> Written by: Nguyễn Thanh Huyền  
+Reviewed by:  
+  
+<img width="1572" height="1120" alt="flow (1)" src="https://github.com/user-attachments/assets/365e0280-6860-4df7-bb72-57319eae1f09" />  
+    
 ### 5.2 Screen Specifications
 > Written by:   
 Reviewed by:
