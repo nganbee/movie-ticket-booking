@@ -261,6 +261,16 @@ Reviewed by: 23120060 - Trần Kim Ngân
 Reviewed by:  
   
 <img width="1572" height="1120" alt="flow (1)" src="https://github.com/user-attachments/assets/365e0280-6860-4df7-bb72-57319eae1f09" />  
+
+| Seq | Screen / Element | Description |
+| :--- | :--- | :--- |
+| 1 | **Trang chủ (Home Page)** <br>`home.ejs` | Màn hình chính hiển thị danh sách phim đang chiếu, sắp chiếu, banner động và thanh điều hướng chính. |
+| 2 | **Chi tiết phim (Movie Detail)** <br>`movie-detail.ejs` | Hiển thị thông tin chi tiết phim (nội dung, đạo diễn, diễn viên) cùng khung lựa chọn suất chiếu theo ngày để bắt đầu đặt vé. |
+| 3 | **Chọn ghế (Seat Selection)** <br>`seat-selection.ejs` | Màn hình tương tác chọn vị trí ghế trong rạp (Thường, VIP) và hiển thị tổng tiền thời gian thực. |
+| 4 | **Thanh toán (Checkout)** <br>`checkout.ejs` | Màn hình hiển thị QR thanh toán chuyển khoản ngân hàng giả lập, tóm tắt thông tin vé đặt kèm đồng hồ đếm ngược giữ ghế. |
+| 5 | **Hóa đơn xác nhận (Receipt)** <br>`receipt.ejs` | Hiển thị hóa đơn xác nhận giao dịch thành công, nút tải hóa đơn và nút điều hướng tới Trang cá nhân. |
+| 6 | **Thông tin cá nhân (Profile & History)** <br>`profile.ejs` | Quản lý thông tin cá nhân (Họ tên, SĐT, Email), đồng thời hiển thị danh sách vé đã mua và chưa thanh toán. |
+| 7 | **Hộp thoại Đăng nhập/Đăng ký (Auth Modal)** <br>`auth-modal.ejs` | Hộp thoại overlay tích hợp trên Navigation bar để người dùng đăng nhập hoặc đăng ký tài khoản tại bất kỳ trang nào mà không cần tải lại trang. |  
     
 ### 5.2 Screen Specifications
 > Written by:   
