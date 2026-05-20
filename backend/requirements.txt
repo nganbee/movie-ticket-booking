@@ -1,0 +1,9 @@
+pydantic
+bson
+fastapi
+python-dotenv
+motor
+sqlalchemy==2.0.28
+asyncpg==0.29.0
+pydantic-settings==2.2.1
+uvicorn

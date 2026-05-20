@@ -42,15 +42,18 @@ Reviewed by:
 * **User (Người dùng):** Đại diện cho khách hàng đã đăng ký tài khoản và tương tác với hệ thống để thực hiện đặt vé.
 * **Admin:** Đại diện cho người vận hành hệ thống, quản lý phim, suất chiếu và doanh thu của rạp.
 * **Booking:** Đại diện cho một giao dịch giữ chỗ thành công của khách hàng cho các vị trí ghế cụ thể trong một suất chiếu, bao gồm cả thông tin trạng thái thanh toán.
+* **News**: Đại diện cho các bài viết, tin tức hoặc sự kiện liên quan đến bộ phim do rạp đăng tải.
 
 ### 2. Phân tích Mối quan hệ:
 * **Theater sở hữu Room (Mối quan hệ 1:N):** Một rạp chiếu có thể có nhiều phòng chiếu phim bên trong, nhưng mỗi phòng chiếu bắt buộc chỉ thuộc về quản lý của một rạp duy nhất.
 * **Room chứa Seat (Mối quan hệ 1:N):** Một phòng chiếu sẽ chứa nhiều chiếc ghế ngồi vật lý. Mỗi chiếc ghế ngồi được gắn cố định với duy nhất một phòng chiếu.
 * **Room tổ chức Showtime (Mối quan hệ 1:N):** Một phòng chiếu có thể tổ chức nhiều suất chiếu nối đuôi nhau trong suốt cả ngày, nhưng một suất chiếu cụ thể chỉ được phép diễn ra tại một phòng chiếu duy nhất.
 * **Movie có các Showtime (Mối quan hệ 1:N):** Một bộ phim có thể được xếp lịch vào nhiều suất chiếu khác nhau để phục vụ khán giả, nhưng mỗi suất chiếu tại một thời điểm chỉ phát duy nhất một bộ phim.
+*** Movie Chứa News (Mối quan hệ 1:N)**: Một bộ phim có thể đính kèm hoặc liên kết với nhiều bài viết tin tức (News) truyền thông về phim đó.
 * **User thực hiện Booking (Mối quan hệ 1:N):** Một khách hàng có thể thực hiện nhiều giao dịch đặt vé khác nhau theo thời gian, nhưng mỗi đơn đặt vé chỉ thuộc sở hữu của duy nhất một tài khoản người dùng.
 * **Booking bao gồm Seat (Mối quan hệ 1:N):** Một giao dịch đặt vé của khách hàng có thể bao gồm một hoặc nhiều chiếc ghế được chọn cùng lúc (Ví dụ: Đặt vé theo nhóm, đi xem phim theo cặp). Các chiếc ghế này sẽ được khóa trạng thái đi kèm với mã đơn đặt vé đó trong suốt suất chiếu diễn ra.
-* **Admin (Mối quan hệ 1:N):** Quản trị viên có thể tạo và quản lý nhiều Phim (`Movie`), nhiều Suất chiếu (`Showtime`) trên hệ thống.
+* **Admin (Mối quan hệ 1:N):** Quản trị viên có thể tạo và quản lý nhiều Phim (`Movie`), nhiều Suất chiếu (`Showtime`), nhiều Tin tức của phim (`News`) trên hệ thống.
+
 
 ## 3. Architectural Design
 
@@ -179,80 +182,74 @@ Reviewed by: 23120060 - Trần Kim Ngân
 
 
 ### Bảng `Theater` (Cụm rạp)
-*Ý nghĩa:* Quản lý thông tin các chi nhánh rạp phim trong chuỗi hệ thống CineBook.
-
-| Tên thuộc tính| Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính|
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
 | :--- | :--- | :--- | :--- | :--- |
 | `theater_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của cụm rạp. |
-| `name` | TEXT | Không | NOT NULL | Tên hiển thị của cụm rạp (Ví dụ: CineBook Nguyễn Du). |
-| `address` | TEXT | Không | NOT NULL | Địa chỉ vật lý chi tiết của rạp. |
-
----
+| `name` | TEXT | Không | NOT NULL | Tên hiển thị của cụm rạp. |
+| `address` | TEXT | Không | NOT NULL | Địa chỉ chi tiết của rạp. |
 
 ### Bảng `Room` (Phòng chiếu)
-*Ý nghĩa:* Quản lý các phòng chiếu phim vật lý thuộc một cụm rạp cụ thể.
-
-| Tên thuộc tính| Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính|
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
 | :--- | :--- | :--- | :--- | :--- |
 | `room_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của phòng chiếu. |
-| `theater_id` | SERIAL | FK | NOT NULL, Refs `Theater(theater_id)` | Xác định phòng chiếu này thuộc cụm rạp nào. |
-| `name` | TEXT | Không | NOT NULL | Tên phòng chiếu (Ví dụ: 'Phòng 01', 'IMAX 3D'). |
-| `seat_capacity` | INT | Không | NOT NULL, > 0 | Tổng số lượng ghế tối đa mà phòng chứa được. |
-
----
+| `theater_id` | INT | FK | NOT NULL, Refs `Theater(theater_id)` | Thuộc về cụm rạp nào. |
+| `name` | TEXT | Không | NOT NULL | Tên phòng chiếu. |
+| `seat_capacity` | INT | Không | NOT NULL, > 0 | Tổng số lượng ghế tối đa. |
 
 ### Bảng `Seat` (Ghế ngồi cố định)
-*Ý nghĩa:* Định nghĩa sơ đồ vị trí ghế vật lý tĩnh bên trong từng phòng chiếu (Sơ đồ cứng).
-
-| Tên thuộc tính| Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính|
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
 | :--- | :--- | :--- | :--- | :--- |
-| `seat_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của chiếc ghế vật lý. |
-| `room_id` | SERIAL | FK | NOT NULL, Refs `Room(room_id)` | Xác định ghế này nằm cố định ở phòng nào. |
-| `seat_row` | CHAR(2) | Không | NOT NULL | Ký hiệu hàng ghế (Ví dụ: 'A', 'B', 'K'). |
-| `seat_num` | INT | Không | NOT NULL, > 0 | Số thứ tự của ghế trên hàng đó (Ví dụ: 1, 2, 11). |
-| `seat_type` | TEXT | Không | NOT NULL, DEFAULT 'Standard' | Phân loại phân khúc ghế ('Standard', 'VIP', 'Double'). |
-
----
+| `seat_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của chiếc ghế. |
+| `room_id` | INT | FK | NOT NULL, Refs `Room(room_id)` | Ghế này nằm cố định ở phòng nào. |
+| `seat_row` | CHAR(2) | Không | NOT NULL | Ký hiệu hàng ghế (Ví dụ: 'A', 'B'). |
+| `seat_num` | INT | Không | NOT NULL, > 0 | Số thứ tự của ghế. |
+| `seat_type` | TEXT | Không | NOT NULL | Phân loại ghế ('Standard', 'VIP'). |
 
 ### Bảng `Movie` (Phim)
-*Ý nghĩa:* Kho dữ liệu lưu trữ thông tin các bộ phim được trình chiếu tại rạp.
-
-| Tên thuộc tính| Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính|
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
 | :--- | :--- | :--- | :--- | :--- |
 | `movie_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của bộ phim. |
 | `title` | TEXT | Không | NOT NULL | Tên của bộ phim. |
-| `duration` | INT | Không | NOT NULL, > 0 | Thời lượng của phim (Tính bằng phút). |
-| `genre` | TEXT | Không | Cho phép NULL | Thể loại phim (Hành động, Hài, Kinh dị...). |
-| `language` | TEXT | Không | NOT NULL | Ngôn ngữ phim (Phụ đề tiếng Việt, Lồng tiếng...). |
-| `release_date` | DATE | Không | Cho phép NULL | Ngày bộ phim chính thức khởi chiếu. |
-| `poster_url` | TEXT | Không | Cho phép NULL | Đường dẫn URL đến hình ảnh poster của phim. |
-| `director` | TEXT | Không | Cho phép NULL | Tên đạo diễn bộ phim. |
+| `duration` | INT | Không | NOT NULL, > 0 | Thời lượng của phim (phút). |
+| `genre` | TEXT | Không | Cho phép NULL | Thể loại phim. |
+| `language` | TEXT | Không | NOT NULL | Ngôn ngữ phim. |
+| `release_date` | DATE | Không | Cho phép NULL | Ngày bộ phim khởi chiếu. |
+| `poster_url` | TEXT | Không | Cho phép NULL | URL hình ảnh poster của phim. |
+| `director` | TEXT | Không | Cho phép NULL | Tên đạo diễn. |
+| `status` | TEXT | Không | NOT NULL | Trạng thái phát hành (Đang chiếu, Sắp chiếu). |
+| `description` | TEXT | Không | Cho phép NULL | Tóm tắt nội dung phim. |
+| `imdb_id` | TEXT | Không | Cho phép NULL, UNIQUE | Mã định danh của phim trên hệ thống IMDb (Dùng để đồng bộ API). |
+| `imdb_rating` | FLOAT | Không | Cho phép NULL | Điểm đánh giá từ IMDb (Ví dụ: 8.5). |
+| `imdb_votes` | INT | Không | Cho phép NULL | Tổng số lượt bình chọn trên IMDb. |
 
----
+### Bảng `MovieNews` (Tin tức phim)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `news_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của bài viết. |
+| `movie_id` | INT | FK | Cho phép NULL, Refs `Movie(movie_id)` | Tin tức thuộc về phim nào. |
+| `title` | TEXT | Không | NOT NULL | Tiêu đề tin tức. |
+| `content` | TEXT | Không | NOT NULL | Nội dung chi tiết. |
+| `image_url` | TEXT | Không | Cho phép NULL | Hình ảnh minh họa. |
+| `published_at`| TIMESTAMPTZ | Không | NOT NULL, DEFAULT NOW() | Ngày giờ xuất bản. |
 
 ### Bảng `Showtime` (Suất chiếu)
-*Ý nghĩa:* Lịch chiếu cụ thể của một bộ phim tại một phòng chiếu vào một khung giờ nhất định.
-
-| Tên thuộc tính| Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
 | :--- | :--- | :--- | :--- | :--- |
 | `showtime_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của suất chiếu. |
-| `movie_id` | SERIAL | FK | NOT NULL, Refs `Movie(movie_id)` | Xác định suất chiếu này phát bộ phim nào. |
-| `room_id` | SERIAL | FK | NOT NULL, Refs `Room(room_id)` | Xác định suất chiếu diễn ra tại phòng nào. |
-| `start_time` | TIMESTAMPTZ | Không | NOT NULL | Thời gian bắt đầu suất chiếu (Bao gồm múi giờ). |
-| `end_time` | TIMESTAMPTZ | Không | NOT NULL | Thời gian dự kiến kết thúc suất chiếu. |
-
----
+| `movie_id` | INT | FK | NOT NULL, Refs `Movie(movie_id)` | Suất chiếu phát bộ phim nào. |
+| `room_id` | INT | FK | NOT NULL, Refs `Room(room_id)` | Suất chiếu diễn ra tại phòng nào. |
+| `start_time` | TIMESTAMPTZ | Không | NOT NULL | Thời gian bắt đầu. |
+| `end_time` | TIMESTAMPTZ | Không | NOT NULL | Thời gian kết thúc. |
 
 ### Bảng `ShowSeat` (Trạng thái ghế theo suất)
-*Ý nghĩa:* Quản lý trạng thái động (Trống/Đang giữ/Đã bán) của từng chiếc ghế trong từng suất chiếu cụ thể.
-
-| Tên thuộc tính| Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính|
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
 | :--- | :--- | :--- | :--- | :--- |
-| `show_seat_id`| SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng trạng thái ghế theo suất. |
-| `showtime_id` | SERIAL | FK | NOT NULL, Refs `Showtime(showtime_id)`| Thuộc về suất chiếu cụ thể nào. |
-| `seat_id` | SERIAL | FK | NOT NULL, Refs `Seat(seat_id)` | Gắn với chiếc ghế vật lý cố định nào. |
-| `booking_id` | SERIAL | FK | Cho phép NULL | Mã đơn hàng liên kết sau khi đặt thành công (Nối sang bảng Booking). |
-| `status` | TEXT | Không | NOT NULL, DEFAULT 'Available' | Trạng thái ghế hiện tại ('Available', 'Holding', 'Sold'). |
+| `show_seat_id`| SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng trạng thái ghế. |
+| `showtime_id` | INT | FK | NOT NULL, Refs `Showtime(showtime_id)`| Thuộc về suất chiếu nào. |
+| `seat_id` | INT | FK | NOT NULL, Refs `Seat(seat_id)` | Gắn với ghế vật lý nào. |
+| `booking_id` | INT | FK | Cho phép NULL, Refs `Booking(booking_id)`| Liên kết mã đơn hàng sau khi đặt thành công. |
+| `status` | TEXT | Không | NOT NULL | Trạng thái ('Available', 'Holding', 'Sold'). |
+| `hold_expires_at`| TIMESTAMPTZ| Không | Cho phép NULL | Thời gian hết hạn giữ chỗ (phục vụ Redis). |
 
 ## 5. UI/UX
 
