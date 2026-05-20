@@ -216,6 +216,9 @@ Reviewed by: 23120060 - Trần Kim Ngân
 | `director` | TEXT | Không | Cho phép NULL | Tên đạo diễn. |
 | `status` | TEXT | Không | NOT NULL | Trạng thái phát hành (Đang chiếu, Sắp chiếu). |
 | `description` | TEXT | Không | Cho phép NULL | Tóm tắt nội dung phim. |
+| `imdb_id` | TEXT | Không | Cho phép NULL, UNIQUE | Mã định danh của phim trên hệ thống IMDb (Dùng để đồng bộ API). |
+| `imdb_rating` | FLOAT | Không | Cho phép NULL | Điểm đánh giá từ IMDb (Ví dụ: 8.5). |
+| `imdb_votes` | INT | Không | Cho phép NULL | Tổng số lượt bình chọn trên IMDb. |
 
 ### Bảng `MovieNews` (Tin tức phim)
 | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
