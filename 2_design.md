@@ -158,8 +158,220 @@ Reviewed by:
 <img width="3053" height="2957" alt="Article Manager Class Diagram (2)" src="https://github.com/user-attachments/assets/cad83c95-1a8d-4fb7-88b8-bfd2765bfe48" />  
 
 ### 3.3 Class Specifications
-> Written by:   
-Reviewed by:
+> Written by: 23120047 - Nguyễn Gia Huy  
+Reviewed by: 23120060 - Trần Kim Ngân
+
+#### 3.3.1 Lớp `Role`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `role_id: SERIAL` | Thuộc tính | Khóa chính định danh vai trò. |
+| `role_name: TEXT` | Thuộc tính | Tên vai trò trong hệ thống (ví dụ: `'user'`, `'admin'`). |
+| `getRoleName(): TEXT` | Phương thức | Trả về tên của vai trò. |
+
+**Ràng buộc:** `role_name` phải là duy nhất (UNIQUE) và không được để trống (NOT NULL).
+
+---
+
+#### 3.3.2 Lớp `Account`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `account_id: SERIAL` | Thuộc tính | Khóa chính định danh tài khoản. |
+| `email: TEXT` | Thuộc tính | Địa chỉ email dùng để đăng nhập, phải là duy nhất. |
+| `password: TEXT` | Thuộc tính | Mật khẩu đã được băm (bcrypt) trước khi lưu. |
+| `role_id: INT` | Thuộc tính | Khóa ngoại liên kết tới `Role`, xác định quyền hạn của tài khoản. |
+| `validateCredentials(email, password): BOOL` | Phương thức | Xác thực email và mật khẩu khi đăng nhập. |
+| `generateJWT(): TEXT` | Phương thức | Tạo JWT access token sau khi đăng nhập thành công. |
+| `updatePassword(newHash): VOID` | Phương thức | Cập nhật mật khẩu đã được băm mới. |
+
+**Ràng buộc:** `email` phải UNIQUE và NOT NULL. `password` không được lưu plaintext. `role_id` tham chiếu `Role(role_id)` với ON DELETE RESTRICT.
+
+---
+
+#### 3.3.3 Lớp `User`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `user_id: INT` | Thuộc tính | Khóa chính, đồng thời là khóa ngoại tham chiếu `Account(account_id)`. |
+| `name: TEXT` | Thuộc tính | Họ và tên đầy đủ của khách hàng. |
+| `phone: TEXT` | Thuộc tính | Số điện thoại liên hệ (có thể NULL). |
+| `getProfile(): UserDTO` | Phương thức | Trả về thông tin cá nhân (không bao gồm mật khẩu). |
+| `updateProfile(name, phone): VOID` | Phương thức | Cập nhật họ tên và số điện thoại. |
+| `getBookingHistory(): List<Booking>` | Phương thức | Trả về danh sách các đơn đặt vé đã thực hiện. |
+
+**Ràng buộc:** `user_id` tham chiếu `Account(account_id)` với quan hệ 1-1. `name` NOT NULL.
+
+---
+
+#### 3.3.4 Lớp `Admin`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `admin_id: BIGINT` | Thuộc tính | Khóa chính, đồng thời là khóa ngoại tham chiếu `Account(account_id)`. |
+| `name: TEXT` | Thuộc tính | Tên hiển thị của quản trị viên. |
+| `manageMovie(action, data): VOID` | Phương thức | Thêm, sửa hoặc xóa thông tin phim. |
+| `manageShowtime(action, data): VOID` | Phương thức | Tạo lịch chiếu hàng loạt hoặc hủy suất chiếu. |
+| `manageNews(action, data): VOID` | Phương thức | Đăng tải và cập nhật tin tức/sự kiện rạp. |
+| `viewRevenueReport(filter): ReportDTO` | Phương thức | Xem báo cáo doanh thu theo phim hoặc khoảng thời gian. |
+
+**Ràng buộc:** `admin_id` tham chiếu `Account(account_id)` với quan hệ 1-1. `name` NOT NULL.
+
+---
+
+#### 3.3.5 Lớp `Theater`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `theater_id: SERIAL` | Thuộc tính | Khóa chính tự động tăng. |
+| `name: TEXT` | Thuộc tính | Tên cụm rạp (ví dụ: "Galaxy Nguyễn Du"). |
+| `address: TEXT` | Thuộc tính | Địa chỉ chi tiết của rạp. |
+| `getRooms(): List<Room>` | Phương thức | Trả về danh sách phòng chiếu thuộc rạp này. |
+
+**Ràng buộc:** `name` và `address` NOT NULL.
+
+---
+
+#### 3.3.6 Lớp `Room`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `room_id: SERIAL` | Thuộc tính | Khóa chính tự động tăng. |
+| `theater_id: INT` | Thuộc tính | Khóa ngoại tham chiếu `Theater(theater_id)`. |
+| `name: TEXT` | Thuộc tính | Tên phòng chiếu (ví dụ: "Phòng 1", "IMAX"). |
+| `seat_capacity: INT` | Thuộc tính | Tổng số ghế trong phòng. |
+| `getSeats(): List<Seat>` | Phương thức | Trả về danh sách toàn bộ ghế trong phòng. |
+| `getShowtimes(date): List<Showtime>` | Phương thức | Trả về lịch chiếu trong ngày của phòng này. |
+
+**Ràng buộc:** `seat_capacity > 0`, NOT NULL. `theater_id` ON DELETE CASCADE.
+
+---
+
+#### 3.3.7 Lớp `Seat`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `seat_id: SERIAL` | Thuộc tính | Khóa chính tự động tăng. |
+| `room_id: SERIAL` | Thuộc tính | Khóa ngoại tham chiếu `Room(room_id)`. |
+| `seat_row: CHAR(2)` | Thuộc tính | Ký hiệu hàng ghế (ví dụ: 'A', 'B'). |
+| `seat_num: INT` | Thuộc tính | Số thứ tự ghế trong hàng. |
+| `seat_type: TEXT` | Thuộc tính | Loại ghế: `'Standard'` hoặc `'VIP'`. |
+| `getSeatLabel(): TEXT` | Phương thức | Trả về nhãn ghế dạng kết hợp (ví dụ: `'D5'`). |
+| `getPrice(): FLOAT` | Phương thức | Trả về đơn giá vé tương ứng với loại ghế. |
+
+**Ràng buộc:** `(room_id, seat_row, seat_num)` UNIQUE để không trùng ghế trong cùng phòng. `seat_num > 0`, NOT NULL.
+
+---
+
+#### 3.3.8 Lớp `Movie`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `movie_id: SERIAL` | Thuộc tính | Khóa chính tự động tăng. |
+| `title: TEXT` | Thuộc tính | Tên bộ phim. |
+| `duration: INT` | Thuộc tính | Thời lượng phim (phút). |
+| `genre: TEXT` | Thuộc tính | Thể loại phim. |
+| `language: TEXT` | Thuộc tính | Ngôn ngữ. |
+| `release_date: DATE` | Thuộc tính | Ngày khởi chiếu. |
+| `poster_url: TEXT` | Thuộc tính | URL ảnh poster. |
+| `director: TEXT` | Thuộc tính | Tên đạo diễn. |
+| `status: TEXT` | Thuộc tính | Trạng thái: `'now_showing'` hoặc `'coming_soon'`. |
+| `description: TEXT` | Thuộc tính | Tóm tắt nội dung phim. |
+| `imdb_id: TEXT` | Thuộc tính | Mã IMDb để đồng bộ dữ liệu. |
+| `imdb_rating: FLOAT` | Thuộc tính | Điểm đánh giá IMDb. |
+| `imdb_votes: INT` | Thuộc tính | Số lượt bình chọn trên IMDb. |
+| `getShowtimes(date): List<Showtime>` | Phương thức | Trả về danh sách suất chiếu của phim theo ngày. |
+| `getNews(): List<MovieNews>` | Phương thức | Trả về danh sách tin tức liên quan đến phim. |
+
+**Ràng buộc:** `title`, `duration`, `language`, `status` NOT NULL. `imdb_id` UNIQUE nếu có giá trị.
+
+---
+
+#### 3.3.9 Lớp `MovieNews`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `news_id: SERIAL` | Thuộc tính | Khóa chính tự động tăng. |
+| `movie_id: INT` | Thuộc tính | Khóa ngoại tham chiếu `Movie(movie_id)` (có thể NULL nếu tin chung). |
+| `title: TEXT` | Thuộc tính | Tiêu đề bài viết tin tức. |
+| `content: TEXT` | Thuộc tính | Nội dung chi tiết. |
+| `image_url: TEXT` | Thuộc tính | Hình ảnh minh họa (có thể NULL). |
+| `published_at: TIMESTAMPTZ` | Thuộc tính | Thời điểm xuất bản, mặc định là `NOW()`. |
+| `getRelatedMovie(): Movie` | Phương thức | Trả về đối tượng phim liên quan đến bài viết. |
+
+**Ràng buộc:** `title`, `content`, `published_at` NOT NULL.
+
+---
+
+#### 3.3.10 Lớp `Showtime`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `showtime_id: SERIAL` | Thuộc tính | Khóa chính tự động tăng. |
+| `movie_id: SERIAL` | Thuộc tính | Khóa ngoại tham chiếu `Movie(movie_id)`. |
+| `room_id: SERIAL` | Thuộc tính | Khóa ngoại tham chiếu `Room(room_id)`. |
+| `start_time: TIMESTAMPTZ` | Thuộc tính | Thời điểm bắt đầu suất chiếu. |
+| `end_time: TIMESTAMPTZ` | Thuộc tính | Thời điểm kết thúc suất chiếu. |
+| `isConflict(roomId, start, end): BOOL` | Phương thức | Kiểm tra xem suất chiếu mới có trùng phòng/giờ không. |
+| `getAvailableSeats(): List<ShowSeat>` | Phương thức | Trả về danh sách ghế còn trống của suất chiếu này. |
+
+**Ràng buộc:** `(room_id, start_time)` UNIQUE để không trùng lịch chiếu cùng phòng. `end_time > start_time`, NOT NULL.
+
+---
+
+#### 3.3.11 Lớp `ShowSeat`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `show_seat_id: SERIAL` | Thuộc tính | Khóa chính tự động tăng. |
+| `showtime_id: SERIAL` | Thuộc tính | Khóa ngoại tham chiếu `Showtime(showtime_id)`. |
+| `seat_id: SERIAL` | Thuộc tính | Khóa ngoại tham chiếu `Seat(seat_id)`. |
+| `booking_id: SERIAL` | Thuộc tính | Khóa ngoại tham chiếu `Booking(booking_id)`, NULL nếu chưa đặt. |
+| `status: TEXT` | Thuộc tính | Trạng thái ghế: `'Available'`, `'Holding'`, `'Sold'`. |
+| `hold_expires_at: TIMESTAMPTZ` | Thuộc tính | Thời điểm hết hạn giữ chỗ tạm thời (NULL nếu không đang giữ). |
+| `hold(bookingId, ttlMinutes): VOID` | Phương thức | Đặt trạng thái `'Holding'` và ghi thời gian hết hạn. |
+| `release(): VOID` | Phương thức | Giải phóng ghế về `'Available'` khi hết giờ giữ hoặc hủy. |
+| `confirm(bookingId): VOID` | Phương thức | Chuyển trạng thái sang `'Sold'` sau khi thanh toán thành công. |
+
+**Ràng buộc:** `(showtime_id, seat_id)` UNIQUE để không có hai bản ghi trùng ghế trùng suất.
+
+---
+
+#### 3.3.12 Lớp `Booking`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `booking_id: SERIAL` | Thuộc tính | Khóa chính tự động tăng. |
+| `user_id: SERIAL` | Thuộc tính | Khóa ngoại tham chiếu `User(user_id)`. |
+| `showtime_id: SERIAL` | Thuộc tính | Khóa ngoại tham chiếu `Showtime(showtime_id)`. |
+| `booking_date: TIMESTAMPTZ` | Thuộc tính | Thời điểm tạo đơn đặt vé, mặc định `NOW()`. |
+| `total_price: BIGINT` | Thuộc tính | Tổng tiền của đơn hàng (VND, không dùng float để tránh sai số). |
+| `status: TEXT` | Thuộc tính | Trạng thái đơn: `'pending'`, `'paid'`, `'cancelled'`. |
+| `getSeats(): List<ShowSeat>` | Phương thức | Trả về danh sách ghế thuộc đơn đặt vé này. |
+| `getPayment(): Payment` | Phương thức | Trả về thông tin giao dịch thanh toán liên quan. |
+| `cancel(): VOID` | Phương thức | Hủy đơn hàng và giải phóng các ghế đang giữ. |
+
+**Ràng buộc:** `total_price >= 0`, NOT NULL. `status` NOT NULL, mặc định `'pending'`.
+
+---
+
+#### 3.3.13 Lớp `Payment`
+
+| Thuộc tính / Phương thức | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `payment_id: SERIAL` | Thuộc tính | Khóa chính tự động tăng. |
+| `booking_id: SERIAL` | Thuộc tính | Khóa ngoại tham chiếu `Booking(booking_id)`. |
+| `payment_method: TEXT` | Thuộc tính | Phương thức thanh toán (ví dụ: `'VietQR'`, `'MoMo'`). |
+| `amount: FLOAT` | Thuộc tính | Số tiền thực tế đã thanh toán. |
+| `payment_time: TIMESTAMPTZ` | Thuộc tính | Thời điểm giao dịch được xác nhận. |
+| `transaction_id: TEXT` | Thuộc tính | Mã giao dịch từ cổng thanh toán (dùng để đối chiếu webhook). |
+| `generateQR(): TEXT` | Phương thức | Tạo nội dung mã VietQR tương ứng với số tiền đơn hàng. |
+| `verifyWebhook(payload): BOOL` | Phương thức | Xác thực callback từ cổng thanh toán, đảm bảo tính toàn vẹn giao dịch. |
+| `markPaid(): VOID` | Phương thức | Cập nhật trạng thái đơn hàng liên kết sang `'paid'`. |
+
+**Ràng buộc:** `transaction_id` UNIQUE để tránh xử lý trùng webhook. `booking_id` ON DELETE RESTRICT.
+
+---
 
 ## 4. Data Design
 
@@ -279,6 +491,52 @@ Reviewed by: 23120060 - Trần Kim Ngân
 | `content` | TEXT | Không | NOT NULL | Nội dung tin nhắn. |
 | `sent_at` | TIMESTAMP(0)| Không | NOT NULL | Thời gian gửi tin nhắn. |
 
+### Bảng `Account` (Tài khoản đăng nhập)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `account_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của tài khoản. |
+| `email` | TEXT | Không | NOT NULL, UNIQUE | Địa chỉ email dùng để đăng nhập, phải là duy nhất trong hệ thống. |
+| `password` | TEXT | Không | NOT NULL | Mật khẩu đã được băm bằng bcrypt, không lưu plaintext. |
+| `role_id` | INT | FK | NOT NULL, Refs `Role(role_id)` | Vai trò của tài khoản (User hoặc Admin). |
+
+### Bảng `Role` (Vai trò hệ thống)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `role_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của vai trò. |
+| `role_name` | TEXT | Không | NOT NULL, UNIQUE | Tên vai trò trong hệ thống (`'user'` hoặc `'admin'`). |
+
+### Bảng `User` (Hồ sơ khách hàng)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `user_id` | INT | PK, FK | NOT NULL, Refs `Account(account_id)` | Khóa chính đồng thời là khóa ngoại tham chiếu tài khoản (quan hệ 1-1). |
+| `name` | TEXT | Không | NOT NULL | Họ và tên đầy đủ của khách hàng. |
+| `phone` | TEXT | Không | Cho phép NULL | Số điện thoại liên hệ của khách hàng. |
+
+### Bảng `Admin` (Hồ sơ quản trị viên)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `admin_id` | INT | PK, FK | NOT NULL, Refs `Account(account_id)` | Khóa chính đồng thời là khóa ngoại tham chiếu tài khoản (quan hệ 1-1). |
+| `name` | TEXT | Không | NOT NULL | Tên hiển thị của quản trị viên trong hệ thống. |
+
+### Bảng `Booking` (Đơn đặt vé)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `booking_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của đơn đặt vé. |
+| `user_id` | INT | FK | NOT NULL, Refs `User(user_id)` | Khách hàng thực hiện đơn đặt vé này. |
+| `showtime_id` | INT | FK | NOT NULL, Refs `Showtime(showtime_id)` | Suất chiếu mà đơn vé hướng đến. |
+| `booking_date` | TIMESTAMPTZ | Không | NOT NULL, DEFAULT NOW() | Thời điểm đơn đặt vé được tạo ra. |
+| `total_price` | BIGINT | Không | NOT NULL, ≥ 0 | Tổng tiền của đơn hàng (đơn vị VND). Dùng BIGINT để tránh sai số dấu phẩy động. |
+| `status` | TEXT | Không | NOT NULL, DEFAULT `'pending'` | Trạng thái xử lý đơn: `'pending'` (chờ thanh toán), `'paid'` (đã thanh toán), `'cancelled'` (đã hủy). |
+
+### Bảng `Payment` (Giao dịch thanh toán)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `payment_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã định danh tự động tăng của giao dịch. |
+| `booking_id` | INT | FK | NOT NULL, Refs `Booking(booking_id)` | Đơn đặt vé mà giao dịch này thanh toán cho. |
+| `payment_method` | TEXT | Không | NOT NULL | Phương thức thanh toán (ví dụ: `'VietQR'`, `'MoMo'`). |
+| `amount` | FLOAT | Không | NOT NULL, > 0 | Số tiền thực tế đã được xác nhận thanh toán. |
+| `payment_time` | TIMESTAMPTZ | Không | NOT NULL, DEFAULT NOW() | Thời điểm cổng thanh toán xác nhận giao dịch thành công. |
+| `transaction_id` | TEXT | Không | NOT NULL, UNIQUE | Mã giao dịch từ cổng thanh toán bên thứ ba, dùng để đối chiếu và chống xử lý trùng webhook. |
 ## 5. UI/UX
 
 ### 5.1 Screen Diagram
