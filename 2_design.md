@@ -171,7 +171,7 @@ Reviewed by: 23120047 - Nguyễn Gia Huy
 <p align="center">
   <img 
     src="data/image_template_2/2/data_diagram.png"
-    style="width:80%; height:auto;"
+    style="width:100%; height:auto;"
   />
 </p>
 
