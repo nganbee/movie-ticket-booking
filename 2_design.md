@@ -170,7 +170,7 @@ Reviewed by: 23120047 - Nguyễn Gia Huy
 
 <p align="center">
   <img 
-    src="data/image_template_2/2/data_diagram.jpg"
+    src="data/image_template_2/2/data_diagram.png"
     style="width:80%; height:auto;"
   />
 </p>
@@ -240,6 +240,7 @@ Reviewed by: 23120060 - Trần Kim Ngân
 | `room_id` | INT | FK | NOT NULL, Refs `Room(room_id)` | Suất chiếu diễn ra tại phòng nào. |
 | `start_time` | TIMESTAMPTZ | Không | NOT NULL | Thời gian bắt đầu. |
 | `end_time` | TIMESTAMPTZ | Không | NOT NULL | Thời gian kết thúc. |
+| `day_type` | TEXT | Không | NOT NULL | Loại ngày (VD: Weekday, Weekend) để tính giá. |
 
 ### Bảng `ShowSeat` (Trạng thái ghế theo suất)
 | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
@@ -250,6 +251,33 @@ Reviewed by: 23120060 - Trần Kim Ngân
 | `booking_id` | INT | FK | Cho phép NULL, Refs `Booking(booking_id)`| Liên kết mã đơn hàng sau khi đặt thành công. |
 | `status` | TEXT | Không | NOT NULL | Trạng thái ('Available', 'Holding', 'Sold'). |
 | `hold_expires_at`| TIMESTAMPTZ| Không | Cho phép NULL | Thời gian hết hạn giữ chỗ (phục vụ Redis). |
+
+### Bảng `PricingRule` (Quy tắc tính giá)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `rule_id` | SERIAL | PK, FK | NOT NULL, UNIQUE, Refs `BookingItem(rule_id)`| Mã quy tắc giá. |
+| `seat_type` | TEXT | Không | NOT NULL | Loại ghế áp dụng. |
+| `day_type` | TEXT | Không | NOT NULL | Loại ngày áp dụng (VD: Cuối tuần, Ngày lễ). |
+| `multiplier` | INTEGER | Không | NOT NULL | Hệ số nhân giá (VD: x1.5). |
+| `base_price` | INTEGER | Không | NOT NULL | Giá gốc mặc định. |
+| `effective_from` | DATE | Không | NOT NULL | Ngày bắt đầu áp dụng quy tắc. |
+| `effective_to` | DATE | Không | NOT NULL | Ngày kết thúc hiệu lực quy tắc. |
+
+### Bảng `AIConversation` (Phiên trò chuyện AI)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `conversation_id`| SERIAL | PK | NOT NULL, UNIQUE | Mã phiên chat với AI. |
+| `customer_id` | INTEGER | Không | NOT NULL | Khách hàng thực hiện phiên chat. |
+| `started_at` | TIMESTAMP(0)| Không | NOT NULL | Thời gian bắt đầu trò chuyện. |
+
+### Bảng `AIMessage` (Tin nhắn AI)
+| Tên thuộc tính | Kiểu dữ liệu | Ràng buộc khóa | Ràng buộc giá trị | Giải thích thuộc tính |
+| :--- | :--- | :--- | :--- | :--- |
+| `message_id` | SERIAL | PK | NOT NULL, UNIQUE | Mã tin nhắn trong phiên chat. |
+| `conversation_id`| INTEGER | FK | NOT NULL, Refs `AIConversation(conversation_id)`| Thuộc phiên chat nào. |
+| `sender_type` | TEXT | Không | NOT NULL | Phân biệt người gửi (VD: USER hoặc AI). |
+| `content` | TEXT | Không | NOT NULL | Nội dung tin nhắn. |
+| `sent_at` | TIMESTAMP(0)| Không | NOT NULL | Thời gian gửi tin nhắn. |
 
 ## 5. UI/UX
 
