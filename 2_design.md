@@ -15,22 +15,48 @@
 ## 1. Member Contribution Assessment
 
 **23120038 - Lê Hoàng Mỹ Hạ - Contribution (25%)**
+- Phần 3.1 Architectural Design (System Decomposition Tree Diagram, Overall System Architecture Diagram, Architectural Characteristics & Design Approach).
+- Phần 5.2 Screen Specifications
+- Frontend: Làm các frame chính cho báo cáo
 
 **23120047 - Nguyễn Gia Huy - Contribution (25%)**
+- Phần 3.3 Class Specifications
+- Phần 4.2 Data Specification
+- Backend: làm API đăng nhập, đăng kí
 
 **23120049 - Nguyễn Thanh Huyền - Contribution (25%)**
+- Phần 3.2 Class Diagram
+- Phần 5.1 Screen Diagram
+- Phần 5.2 Screen Specifications 
+- Frontend: Làm các frame chính cho báo cáo
 
 **23120060 - Trần Kim Ngân - Contribution (25%)**
+- Phần 2 Conceptual Model
+- Phần 4.1 Data Diagram
+- Backend: Làm API Thông tin phim, tin tức
+
+<p align="center">
+  <img 
+    src="data/image_template_2/jira.png"
+    style="width:100%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 1: Bảng Jira phân công task</em>
+</p>
 
 ## 2. Conceptual Model
 > Written by: 23120060 - Trần Kim Ngân   
-Reviewed by:
+Reviewed by: 23120049 - Nguyễn Thanh Huyền
 
 <p align="center">
   <img 
     src="data/image_template_2/2/CineBook_Conceptual_MOdel.png"
     style="width:80%; height:auto;"
   />
+</p>
+<p align="center">
+  <em>Hình 2: Conceptual Model</em>
 </p>
 
 ### 1. Mô tả chi tiết các Thực thể
@@ -59,7 +85,7 @@ Reviewed by:
 
 ### 3.1 Architecture Diagram
 > Written by: 23120038 - Lê Hoàng Mỹ Hạ  
-Reviewed by:
+Reviewed by: 23120049 - Nguyễn Thanh Huyền
 
 #### 3.1.1 System Decomposition Tree Diagram
 
@@ -111,7 +137,7 @@ Kiến trúc này cho phép tách biệt rõ ràng giữa giao diện, xử lý 
 
 #### 3.1.3 Architectural Characteristics & Design Approach
 > Written by: 23120038 - Lê Hoàng Mỹ Hạ  
-Reviewed by:   
+Reviewed by: 23120047 - Nguyễn Gia Huy
 
 Hệ thống CineBook áp dụng nhiều đặc điểm kiến trúc và nguyên tắc thiết kế nhằm đảm bảo hiệu năng, khả năng mở rộng và bảo trì lâu dài.
 
@@ -152,8 +178,8 @@ Hệ thống áp dụng nhiều cơ chế bảo mật:
 Những đặc điểm kiến trúc trên giúp CineBook có nền tảng phù hợp cho việc mở rộng tính năng và triển khai thực tế trong tương lai.
 
 ### 3.2 Class Diagram
-> Written by: Nguyễn Thanh Huyền - 23120049  
-Reviewed by:
+> Written by: 23120049 - Nguyễn Thanh Huyền  
+Reviewed by: 23120047 - Nguyễn Gia Huy
    
 <img width="3053" height="2957" alt="Article Manager Class Diagram (2)" src="https://github.com/user-attachments/assets/cad83c95-1a8d-4fb7-88b8-bfd2765bfe48" />  
 
@@ -476,6 +502,9 @@ Reviewed by: 23120047 - Nguyễn Gia Huy
     style="width:100%; height:auto;"
   />
 </p>
+<p align="center">
+  <em>Hình 4: Data Diagram</em>
+</p>
 
 
 ### 4.2 Data Specification
@@ -676,7 +705,7 @@ Reviewed by:
 ### 5.2 Screen Specifications
 > Written by: 23120049 - Nguyễn Thanh Huyền  
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;23120038 - Lê Hoàng Mỹ Hạ  
-Reviewed by:
+Reviewed by: 23120060 - Trần Kim Ngân
 
 #### 5.2.1. Trang chủ (Home Screen - `home.ejs`)
 
@@ -1285,6 +1314,12 @@ graph TD
 
   
 ## 6. AI Usage Declaration
+
+Gemini, Google, gemini.google.com, truy cập lúc 14:20, 18/05/2026, prompt: “Tôi đang làm dự án rạp chiếu phim CineBook sử dụng kiến trúc Multi-Tier với FastAPI và PostgreSQL. Hãy gợi ý cho tôi cấu trúc chi tiết của phần Conceptual Model bao gồm các thực thể chính như Theater, Room, Showtime, Movie, Booking và các mối quan hệ logic giữa chúng để tôi vẽ sơ đồ.”, sử dụng làm nền tảng ý tưởng cho phần thiết kế mô hình khái niệm tại Mục 2. Conceptual Model; AI đưa ra danh sách thực thể và phân tích mối quan hệ 1:N,nhóm đã chỉnh sửa và bổ sung thực thể News cùng Admin để phù hợp với yêu cầu hệ thống.
+
+Gemini, Google, gemini.google.com, truy cập lúc 09:45, 19/05/2026, prompt: “Viết các đặc tả lớp (Class Specifications) bằng Markdown dưới dạng bảng cho hệ thống đặt vé phim. Cần đầy đủ các thuộc tính, phương thức và ràng buộc dữ liệu cho các lớp: Showtime, ShowSeat, Booking, Payment, PricingRule.”, sử dụng để chuẩn hóa tài liệu kỹ thuật tại Mục 3.3 Class Specifications; AI sinh cấu trúc bảng mặc định, nhóm đã cập nhật lại kiểu dữ liệu tương thích với PostgreSQL (SERIAL, TIMESTAMPTZ, BIGINT) và bổ sung các phương thức nghiệp vụ thực tế như verifyWebhook() hay generateQR().
+
+Gemini, Google, gemini.google.com, truy cập lúc 16:15, 21/05/2026, prompt: “Thiết kế đặc tả giao diện (Screen Specifications) bằng tiếng Việt cho màn hình Chọn Ghế (seat-selection.ejs) và màn hình Hóa Đơn (receipt.ejs) của một web đặt vé phim. Yêu cầu mô tả kỹ định dạng hiển thị trực quan (mã màu ghế VIP, ghế thường) và xử lý sự kiện đếm ngược giữ ghế, sự kiện chụp ảnh bằng html2canvas.”, sử dụng cho việc hoàn thiện tài liệu UI/UX tại Mục 5.2 Screen Specifications; AI đã hỗ trợ lên khung mô tả sự kiện chi tiết và bảng tổng hợp style mã màu, nhóm đã đồng bộ hóa các tham số URL truyền nhận dữ liệu giữa các màn hình thực tế trong mã nguồn.
 
 ## 7. Presentation
 Video thuyết trình: [LINK]()
