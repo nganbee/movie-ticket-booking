@@ -69,102 +69,8 @@
     <div>
       <h2 class="text-2xl font-extrabold text-zinc-900 mb-6">Lịch sử giao dịch</h2>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        <!-- TICKET 1: PAID (Dune) -->
-        <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition duration-300">
-          
-          <div class="p-6 space-y-5">
-            <!-- Header Group -->
-            <div class="flex justify-between items-start gap-4">
-              <h3 class="font-bold text-zinc-900 text-lg leading-tight">Dune: Hành Tinh Cát - Phần Hai</h3>
-              <span class="bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0">
-                Đã thanh toán
-              </span>
-            </div>
-
-            <!-- Details List -->
-            <div class="space-y-3.5 text-sm text-zinc-650">
-              <div class="flex items-center gap-3">
-                <i class="far fa-calendar-alt text-zinc-400 w-5 text-center"></i>
-                <span>Suất chiếu: <strong>20:00 | 15/04/2026</strong></span>
-              </div>
-              <div class="flex items-center gap-3">
-                <i class="fas fa-map-marker-alt text-zinc-400 w-5 text-center"></i>
-                <span>Phòng: Cinema 04 (IMAX)</span>
-              </div>
-              <div class="flex items-center gap-3">
-                <i class="fas fa-ticket-alt text-zinc-400 w-5 text-center"></i>
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-zinc-700">Ghế:</span>
-                  <span class="px-2.5 py-0.5 text-xs font-semibold rounded border" style="background-color: #ffffff; color: #27272a; border-color: #a1a1aa;">H12</span>
-                  <span class="px-2.5 py-0.5 text-xs font-semibold rounded border" style="background-color: #ffffff; color: #27272a; border-color: #a1a1aa;">H13</span>
-                </div>
-              </div>
-              <div class="flex items-start gap-3">
-                <i class="fas fa-gift text-zinc-400 w-5 text-center mt-0.5"></i>
-                <span>Bắp nước: 01 Combo Solo (1 Bắp L, 1 Nước M)</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom Button -->
-          <div class="px-6 pb-6 pt-2 border-t border-zinc-100 bg-zinc-50">
-            <button onclick="openQrModal()" class="w-full bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 hover:border-zinc-300 py-3 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm focus:outline-none">
-              <i class="fas fa-qrcode text-base"></i>
-              Xem mã QR vé
-            </button>
-          </div>
-
-        </div>
-
-        <!-- TICKET 2: UNPAID (Kung Fu Panda 4) -->
-        <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition duration-300">
-          
-          <div class="p-6 space-y-5">
-            <!-- Header Group -->
-            <div class="flex justify-between items-start gap-4">
-              <h3 class="font-bold text-zinc-900 text-lg leading-tight">Kung Fu Panda 4</h3>
-              <span class="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0">
-                Chưa thanh toán
-              </span>
-            </div>
-
-            <!-- Details List -->
-            <div class="space-y-3.5 text-sm text-zinc-650">
-              <div class="flex items-center gap-3">
-                <i class="far fa-calendar-alt text-zinc-400 w-5 text-center"></i>
-                <span>Suất chiếu: <strong>14:30 | 22/04/2026</strong></span>
-              </div>
-              <div class="flex items-center gap-3">
-                <i class="fas fa-map-marker-alt text-zinc-400 w-5 text-center"></i>
-                <span>Phòng: Cinema 02</span>
-              </div>
-              <div class="flex items-center gap-3">
-                <i class="fas fa-ticket-alt text-zinc-400 w-5 text-center"></i>
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-zinc-700">Ghế:</span>
-                  <span class="px-2.5 py-0.5 text-xs font-semibold rounded border" style="background-color: #fef3c7; color: #b45309; border-color: #f59e0b;">F5</span>
-                  <span class="px-2.5 py-0.5 text-xs font-semibold rounded border" style="background-color: #ffffff; color: #27272a; border-color: #a1a1aa;">F10</span>
-                </div>
-              </div>
-              <div class="flex items-start gap-3">
-                <i class="fas fa-gift text-zinc-400 w-5 text-center mt-0.5"></i>
-                <span>Bắp nước: 01 Combo Couple (1 Bắp L, 2 Nước M)</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom Button -->
-          <div class="px-6 pb-6 pt-2 border-t border-zinc-100 bg-zinc-50">
-            <button id="pay-now-btn" class="w-full bg-brand hover:bg-brandHover text-white py-3.5 rounded-xl text-sm font-bold shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2 focus:outline-none active:scale-[0.99]">
-              <i class="fas fa-qrcode text-base"></i>
-              Thanh toán ngay (QR)
-            </button>
-          </div>
-
-        </div>
-
+      <div id="bookings-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <p class="text-zinc-500 text-sm py-4 col-span-2" id="bookings-loading">Đang tải lịch sử giao dịch...</p>
       </div>
     </div>
 
@@ -203,39 +109,30 @@
 
     <div class="p-6 text-center">
       <h3 class="text-lg font-bold text-zinc-900 mb-1">Mã Vé Vào Cổng</h3>
-      <p class="text-xs text-zinc-400 mb-6">Trình mã QR này tại cửa soát vé của rạp</p>
-      
-      <!-- QR Image Frame -->
-      <div class="w-48 h-48 mx-auto bg-white border border-zinc-200 rounded-2xl flex items-center justify-center shadow-inner p-4 mb-4">
-        <!-- SVG QR Code vector for pixel-perfect sharpness -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29" shape-rendering="crispEdges" class="w-full h-full text-zinc-800">
-          <path fill="#ffffff" d="M0 0h29v29H0z"/>
-          <path fill="currentColor" d="M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0zm9 0h1v1H9zm1 1h1v1h-1zm-1 1h1v1H9zm-1-2h1v1H8zm5-21h1v1h-1zm1 1h2v1h-2zm-1 2h1v1h-1zm3-3h1v1h-1zm1 1h1v1h-1zm-2 2h2v1h-2zm4-3h1v1h-1zm1 2h1v1h-1zm-3 1h1v1h-1zm2 1h1v1h-1zm-4 1h3v1h-3zm5 0h1v1h-1zm1 1h1v1h-1zm-3 1h2v1h-2zm4 0h1v1h-1zm-5 1h1v1h-1zm3 0h1v1h-1zm-6 2h1v1h-1zm2 0h1v1h-1zm1 1h2v1h-2zm1 1h1v1h-1zm-4 1h1v1h-1zm3 0h1v1h-1zm-5 1h1v1h-1zm3 0h1v1h-1zm1 1h1v1h-1zm-3 1h2v1h-2zm-1-6h1v1h-1zm-2 1h1v1h-1zm3 1h1v1h-1zm2 0h1v1h-1zm-4 1h1v1h-1zm2 0h1v1h-1zm-3 1h1v1h-1zm2 0h1v1h-1zm-3 1h1v1h-1zm2 0h1v1h-1zM2 2h3v3H2zm20 0h3v3h-3zM2 24h3v3H2zm9-14h1v1h-1zm2 0h1v1h-1zm-2 2h1v1h-1zm2 0h1v1h-1zm-2 2h1v1h-1zm2 0h1v1h-1zm4-4h1v1h-1zm3 0h1v1h-1zm-3 2h2v1h-2zm3 0h1v1h-1zm-3 2h1v1h-1zm2 0h1v1h-1z"/>
-        </svg>
+      <p class="text-xs text-zinc-400 mb-4" id="modal-subtitle">Trình mã QR này tại cửa soát vé của rạp</p>
+
+      <!-- QR Carousel (multiple seats) -->
+      <div id="qr-slides" class="space-y-4 mb-4">
+        <!-- Populated by JS -->
       </div>
-      
-      <span class="text-xs font-mono text-zinc-500 tracking-widest block mb-5">BK20260515082</span>
-      
+
       <!-- Metadata detail block inside QR Modal -->
-      <div class="bg-zinc-50 rounded-xl p-3.5 text-left space-y-2 text-xs border border-zinc-150">
+      <div class="bg-zinc-50 rounded-xl p-3.5 text-left space-y-2 text-xs border border-zinc-100">
         <div class="flex justify-between">
           <span class="text-zinc-500">Phim:</span>
-          <span class="font-bold text-zinc-800">Dune: Hành Tinh Cát - Phần Hai</span>
+          <span id="modal-movie" class="font-bold text-zinc-800 text-right max-w-[60%]">...</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-500">Suất chiếu:</span>
-          <span class="font-semibold text-zinc-700">20:00 | 15/04/2026</span>
+          <span class="text-zinc-500">Suất chiếu:</span>
+          <span id="modal-time" class="font-semibold text-zinc-700">...</span>
         </div>
         <div class="flex justify-between">
           <span class="text-zinc-500">Phòng:</span>
-          <span class="text-zinc-700">Cinema 04 (IMAX)</span>
+          <span id="modal-room" class="text-zinc-700">...</span>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-zinc-500">Ghế:</span>
-          <div class="flex items-center gap-1.5">
-            <span class="px-2.5 py-0.5 text-xs font-semibold rounded border" style="background-color: #ffffff; color: #27272a; border-color: #a1a1aa;">H12</span>
-            <span class="px-2.5 py-0.5 text-xs font-semibold rounded border" style="background-color: #ffffff; color: #27272a; border-color: #a1a1aa;">H13</span>
-          </div>
+          <div id="modal-seats" class="flex items-center gap-1.5 flex-wrap justify-end"></div>
         </div>
       </div>
     </div>
@@ -401,11 +298,47 @@
   const qrModal = document.getElementById('qrModal');
   const qrModalContent = document.getElementById('qrModalContent');
 
-  function openQrModal() {
+  function openQrModal(bookingId) {
+    const bk = (window.bookingDataMap || {})[bookingId];
+    if (!bk) return;
+
+    const d = new Date(bk.showtime_start);
+    const timeStr = d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) + ' | ' + d.toLocaleDateString('vi-VN');
+
+    // Fill modal metadata
+    document.getElementById('modal-movie').textContent = bk.movie_title;
+    document.getElementById('modal-room').textContent = bk.room_name;
+    document.getElementById('modal-time').textContent = timeStr;
+
+    // Seats badges
+    const seatsEl = document.getElementById('modal-seats');
+    seatsEl.innerHTML = bk.seats.map(s => {
+      const row = s.charAt(0); const col = parseInt(s.substring(1));
+      const isVip = ['D','E','F','G'].includes(row) && [3,4,5,6].includes(col);
+      const bg = isVip ? '#fef3c7' : '#ffffff';
+      const color = isVip ? '#b45309' : '#27272a';
+      const border = isVip ? '#f59e0b' : '#a1a1aa';
+      return `<span class="px-2.5 py-0.5 text-xs font-semibold rounded border" style="background-color:${bg};color:${color};border-color:${border};">${s}</span>`;
+    }).join('');
+
+    // QR code slides
+    const slidesEl = document.getElementById('qr-slides');
+    const qrCodes = bk.qr_codes || [];
+    if (qrCodes.length > 0) {
+      slidesEl.innerHTML = qrCodes.map((qr, i) => {
+        const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qr)}`;
+        return `<div class="flex flex-col items-center">
+          <span class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-2">Ghế ${bk.seats[i] || (i+1)}</span>
+          <img src="${qrImgUrl}" alt="QR Code Vé ${i+1}" class="w-44 h-44 rounded-xl border border-zinc-200 shadow-inner" />
+          <span class="text-[10px] font-mono text-zinc-400 mt-1">${qr.substring(0,16)}...</span>
+        </div>`;
+      }).join('');
+    } else {
+      slidesEl.innerHTML = '<p class="text-zinc-400 text-xs">Vé chưa được phát hành.</p>';
+    }
+
     qrModal.classList.remove('hidden');
     qrModal.classList.add('flex');
-    
-    // Smooth fade & scale pop-in
     setTimeout(() => {
       qrModalContent.classList.remove('scale-95', 'opacity-0');
       qrModalContent.classList.add('scale-100', 'opacity-100');
@@ -423,45 +356,11 @@
   }
 
   /* ─────────────────────────────────────────
-     PAYMENT LOADING TRANSITION
-     ───────────────────────────────────────── */
-  const payNowBtn = document.getElementById('pay-now-btn');
-  const loadingOverlay = document.getElementById('loading-overlay');
-  const progressFill = document.querySelector('.progress-fill');
-
-  payNowBtn.addEventListener('click', function() {
-    // 1. Show the beautiful loading overlay
-    loadingOverlay.classList.remove('hidden');
-    loadingOverlay.classList.add('flex');
-    
-    // 2. Start progress bar fill animation
-    progressFill.classList.add('active');
-
-    // 3. Disable button to prevent double submits
-    payNowBtn.disabled = true;
-
-    // 4. Simulate a premium payment route transition delay (~2.8s)
-    setTimeout(() => {
-      // Dynamic booking params mapping to seat selection / checkout setup
-      const bookingId = 'BK-164592';
-      const seats = 'F5,F10';
-      const price = '170000';
-      const title = 'Kung Fu Panda 4';
-      
-      // Redirect directly to the checkout route as done in seat-selection.ejs
-      window.location.href = `/checkout/${bookingId}?seats=${encodeURIComponent(seats)}&price=${price}&title=${encodeURIComponent(title)}`;
-    }, 2800);
-  });
-
-  /* ─────────────────────────────────────────
      BACK BUTTON PROTECTION (pageshow handler)
      ───────────────────────────────────────── */
-  // Resets the loading state if the user returns via browser Back button
-  window.addEventListener('pageshow', function(event) {
-    loadingOverlay.classList.add('hidden');
-    loadingOverlay.classList.remove('flex');
-    progressFill.classList.remove('active');
-    payNowBtn.disabled = false;
+  window.addEventListener('pageshow', function() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
   });
 
   /* ─────────────────────────────────────────
@@ -509,10 +408,84 @@
         localStorage.removeItem('user');
         window.location.href = '/';
       }
+      // Fetch user booking history
+      const histRes = await fetch('http://localhost:8000/user/history', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (histRes.ok) {
+        const bookings = await histRes.json();
+        renderBookings(bookings);
+      }
+
     } catch (error) {
       console.error('Lỗi khi tải profile:', error);
     }
   });
+
+
+  function renderBookings(bookings) {
+    const container = document.getElementById('bookings-container');
+    container.innerHTML = '';
+    if (bookings.length === 0) {
+      container.innerHTML = '<p class="text-zinc-500 text-sm py-4 col-span-2">Bạn chưa có giao dịch nào.</p>';
+      return;
+    }
+    bookings.forEach(bk => {
+      const isPaid = bk.status === 'paid';
+      const statusBadge = isPaid
+        ? `<span class="bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0">Đã thanh toán</span>`
+        : `<span class="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0">Chưa thanh toán</span>`;
+      const d = new Date(bk.showtime_start);
+      const timeStr = d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) + ' | ' + d.toLocaleDateString('vi-VN');
+      const seatsHtml = bk.seats.map(s => {
+        const row = s.charAt(0);
+        const col = parseInt(s.substring(1));
+        const isVip = ['D','E','F','G'].includes(row) && [3,4,5,6].includes(col);
+        const bg = isVip ? '#fef3c7' : '#ffffff';
+        const color = isVip ? '#b45309' : '#27272a';
+        const border = isVip ? '#f59e0b' : '#a1a1aa';
+        return `<span class="px-2.5 py-0.5 text-xs font-semibold rounded border" style="background-color:${bg};color:${color};border-color:${border};">${s}</span>`;
+      }).join('');
+      const qrDataAttr = JSON.stringify(bk.qr_codes || []).replace(/'/g, '&#39;');
+      const seatsDataAttr = JSON.stringify(bk.seats || []).replace(/'/g, '&#39;');
+      // Store booking data in global map to avoid JSON/quote conflict in onclick
+      window.bookingDataMap = window.bookingDataMap || {};
+      window.bookingDataMap[bk.booking_id] = bk;
+      const actionBtn = isPaid
+        ? `<button onclick="openQrModal(${bk.booking_id})" class="w-full bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 hover:border-zinc-300 py-3 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm">
+             <i class="fas fa-qrcode text-base"></i> Xem mã QR vé
+           </button>`
+        : `<button onclick="window.location.href='/checkout/${bk.booking_id}'" class="w-full bg-brand hover:bg-brandHover text-white py-3.5 rounded-xl text-sm font-bold shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2 active:scale-[0.99]">
+             <i class="fas fa-qrcode text-base"></i> Thanh toán ngay
+           </button>`;
+      container.insertAdjacentHTML('beforeend', `
+        <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition duration-300">
+          <div class="p-6 space-y-5">
+            <div class="flex justify-between items-start gap-4">
+              <h3 class="font-bold text-zinc-900 text-lg leading-tight">${bk.movie_title}</h3>
+              ${statusBadge}
+            </div>
+            <div class="space-y-3.5 text-sm">
+              <div class="flex items-center gap-3">
+                <i class="far fa-calendar-alt text-zinc-400 w-5 text-center"></i>
+                <span>Suất chiếu: <strong>${timeStr}</strong></span>
+              </div>
+              <div class="flex items-center gap-3">
+                <i class="fas fa-map-marker-alt text-zinc-400 w-5 text-center"></i>
+                <span>Phòng: ${bk.room_name}</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <i class="fas fa-ticket-alt text-zinc-400 w-5 text-center"></i>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-zinc-700">Ghế:</span>${seatsHtml}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="px-6 pb-6 pt-2 border-t border-zinc-100 bg-zinc-50">${actionBtn}</div>
+        </div>`);
+    });
+  }
 
   function openEditModal() {
     // 1. Pre-fill input fields with current text content

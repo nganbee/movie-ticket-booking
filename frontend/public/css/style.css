@@ -794,6 +794,10 @@ body {
   grid-column: span 1 / span 1;
 }
 
+.col-span-2 {
+  grid-column: span 2 / span 2;
+}
+
 .mx-4 {
   margin-left: 1rem;
   margin-right: 1rem;
@@ -1028,6 +1032,10 @@ body {
   height: 100%;
 }
 
+.h-44 {
+  height: 11rem;
+}
+
 .min-h-\[28px\] {
   min-height: 28px;
 }
@@ -1104,6 +1112,10 @@ body {
   width: 1px;
 }
 
+.w-44 {
+  width: 11rem;
+}
+
 .min-w-\[100px\] {
   min-width: 100px;
 }
@@ -1138,6 +1150,10 @@ body {
 
 .max-w-xl {
   max-width: 36rem;
+}
+
+.max-w-\[60\%\] {
+  max-width: 60%;
 }
 
 .flex-1 {
