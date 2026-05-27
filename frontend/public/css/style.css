@@ -1012,6 +1012,10 @@ body {
   height: 1.5rem;
 }
 
+.h-64 {
+  height: 16rem;
+}
+
 .h-7 {
   height: 1.75rem;
 }
@@ -1858,6 +1862,10 @@ body {
 .object-top {
   -o-object-position: top;
      object-position: top;
+}
+
+.p-2 {
+  padding: 0.5rem;
 }
 
 .p-2\.5 {
@@ -2805,6 +2813,10 @@ body {
 
 .disabled\:opacity-40:disabled {
   opacity: 0.4;
+}
+
+.disabled\:opacity-50:disabled {
+  opacity: 0.5;
 }
 
 .group:hover .group-hover\:translate-x-1 {

@@ -3,7 +3,7 @@
     
     <div class="mb-8 border-b border-zinc-200 pb-5">
       <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Thanh toán</h1>
-      <p class="mt-2 text-sm text-zinc-500">Vui lòng kiểm tra lại đơn hàng và chọn phương thức thanh toán để hoàn thành đặt vé.</p>
+      <p class="mt-2 text-sm text-zinc-500">Vui lòng kiểm tra lại đơn hàng và quét mã QR để hoàn thành đặt vé.</p>
     </div>
 
     <div class="flex flex-col gap-8 lg:flex-row lg:items-start">
@@ -15,11 +15,12 @@
             <h2 class="text-lg font-medium text-zinc-900 mb-4">Phương thức thanh toán</h2>
             
             <div class="flex flex-col items-center justify-center p-6 bg-zinc-50 rounded-lg border border-dashed border-zinc-300">
-              <div class="w-48 h-48 bg-white border border-zinc-200 rounded-md flex items-center justify-center shadow-inner mb-4">
-                <span class="text-xs text-zinc-400 font-mono">[ Quét mã QR ]</span>
+              <div id="qr-container" class="w-64 h-64 bg-white border border-zinc-200 rounded-md flex items-center justify-center shadow-inner mb-4 overflow-hidden">
+                <span class="text-xs text-zinc-400 font-mono" id="qr-loading">[ Đang tải mã QR... ]</span>
+                <img id="qr-image" src="" alt="Mã QR Thanh Toán" class="hidden w-full h-full object-contain p-2" />
               </div>
-              <p class="text-sm font-medium text-zinc-700">Quét mã để thanh toán bằng ứng dụng ngân hàng của bạn</p>
-              <p class="text-xs text-zinc-400 mt-1">Hỗ trợ mọi giao thức giao dịch ngân hàng an toàn</p>
+              <p class="text-sm font-medium text-zinc-700">Sử dụng App Ngân Hàng (Mở tính năng Quét QR)</p>
+              <p class="text-xs text-zinc-400 mt-1">Giao dịch được xử lý qua hệ thống VietQR an toàn tuyệt đối</p>
             </div>
             
           </div>
@@ -32,12 +33,12 @@
           </svg>
           <div>
             <p class="font-medium text-amber-900 text-sm">Đang chờ xác nhận thanh toán</p>
-            <p class="text-xs text-amber-700 mt-0.5">Vui lòng hoàn tất thanh toán để xác nhận đơn đặt vé của bạn.</p>
+            <p class="text-xs text-amber-700 mt-0.5">Vui lòng hoàn tất chuyển khoản để chúng tôi xuất vé điện tử cho bạn.</p>
           </div>
         </div>
 
-        <button id="success-btn" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-3 px-4 rounded-xl text-sm font-semibold shadow transition-all active:scale-[0.99]">
-          Giả lập Thanh toán Thành công (Demo)
+        <button id="success-btn" disabled class="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-3 px-4 rounded-xl text-sm font-semibold shadow transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed">
+          [Test] Bấm để Giả lập Ngân hàng báo Thanh toán Thành công
         </button>
 
       </div>
@@ -52,31 +53,31 @@
           <div class="p-6 space-y-4">
             <div class="flex justify-between items-start border-b border-zinc-100 pb-4">
               <div>
-                <h4 id="summary-title" class="font-medium text-zinc-900 text-base">The Matrix</h4>
-                <p class="text-xs text-zinc-500 mt-0.5">Phòng chiếu Standard • Màn hình 2</p>
+                <h4 id="summary-title" class="font-medium text-zinc-900 text-base">Đang tải...</h4>
+                <p id="summary-room" class="text-xs text-zinc-500 mt-0.5">...</p>
               </div>
-              <span id="summary-tickets-count" class="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded">x1 Vé</span>
+              <span id="summary-tickets-count" class="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded">... Vé</span>
             </div>
 
             <div class="space-y-1.5">
               <span class="text-xs text-zinc-400 block">Ghế đã chọn</span>
               <div id="summary-seats" class="flex flex-wrap gap-1.5">
-                <span class="px-2.5 py-0.5 bg-zinc-100 text-zinc-800 text-xs font-medium rounded border border-zinc-200">B3</span>
+                <!-- Vị trí điền ghế -->
               </div>
             </div>
 
             <div class="pt-4 border-t border-zinc-100 space-y-2">
               <div class="flex justify-between text-sm text-zinc-600">
                 <span>Tạm tính vé</span>
-                <span id="summary-subtotal">0đ</span>
+                <span id="summary-subtotal">...</span>
               </div>
               <div class="flex justify-between text-sm text-zinc-600">
                 <span>Phí dịch vụ</span>
                 <span>0đ</span>
               </div>
               <div class="flex justify-between text-base font-semibold text-zinc-900 pt-2 border-t border-zinc-100">
-                <span>Tổng cộng</span>
-                <span id="summary-total">0đ</span>
+                <span>Tổng thanh toán</span>
+                <span id="summary-total" class="text-brand font-bold text-lg">...</span>
               </div>
             </div>
           </div>
@@ -94,66 +95,111 @@
 </div>
 
 <script>
-  // Simple interactions for demo
-  document.getElementById('success-btn').addEventListener('click', function() {
-    // Get booking ID from path or generate new one
-    const pathParts = window.location.pathname.split('/');
-    const bookingId = pathParts[pathParts.length - 1] || 'BK-' + Math.floor(Math.random() * 1000000);
-    
-    // Forward the current query parameters (seats, price, title) to the receipt page
-    window.location.href = `/receipt/${bookingId}${window.location.search}`;
-  });
-
-  // Pull optional URL search params to make summary interactive if available
-  const urlParams = new URLSearchParams(window.location.search);
-  const seats = urlParams.get('seats');
-  const price = urlParams.get('price');
-  const title = urlParams.get('title');
-
-  if (title) {
-    document.getElementById('summary-title').textContent = title;
+(async function() {
+  const bookingId = parseInt('<%= bookingId %>');
+  const API_BASE_URL = 'http://localhost:8000';
+  const token = localStorage.getItem('access_token');
+  
+  if (!token) {
+    alert("Vui lòng đăng nhập!");
+    window.location.href = '/';
+    return;
   }
-  if (seats) {
-    const seatsList = seats.split(',');
+  
+  let currentAmount = 0;
+
+  try {
+    // 1. Fetch booking details
+    const resDetail = await fetch(`${API_BASE_URL}/bookings/${bookingId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!resDetail.ok) {
+        throw new Error('Không thể tải thông tin đơn hàng');
+    }
+    
+    const detail = await resDetail.json();
+    currentAmount = detail.total_price;
+    
+    // Fill UI
+    document.getElementById('summary-title').textContent = detail.movie_title;
+    document.getElementById('summary-room').textContent = detail.room_name;
+    document.getElementById('summary-tickets-count').textContent = `x${detail.seats.length} Vé`;
+    
     const seatsContainer = document.getElementById('summary-seats');
     seatsContainer.innerHTML = '';
-    seatsList.forEach(seat => {
-      const span = document.createElement('span');
-      span.textContent = seat.trim();
-      
-      const seatUpper = seat.trim().toUpperCase();
-      const row = seatUpper.charAt(0);
-      const col = parseInt(seatUpper.substring(1), 10);
-      const isVip = ['D', 'E', 'F', 'G'].includes(row) && [3, 4, 5, 6].includes(col);
-
-      if (isVip) {
-        span.className = 'px-2.5 py-0.5 text-xs font-semibold rounded border';
-        span.style.backgroundColor = '#fef3c7';
-        span.style.color = '#b45309';
-        span.style.borderColor = '#f59e0b';
-      } else {
-        span.className = 'px-2.5 py-0.5 text-xs font-semibold rounded border';
-        span.style.backgroundColor = '#ffffff';
-        span.style.color = '#27272a';
-        span.style.borderColor = '#a1a1aa';
-      }
-      seatsContainer.appendChild(span);
+    detail.seats.forEach(seat => {
+        const span = document.createElement('span');
+        span.className = 'px-2.5 py-0.5 bg-zinc-100 text-zinc-800 text-xs font-medium rounded border border-zinc-200';
+        span.textContent = seat;
+        seatsContainer.appendChild(span);
     });
-    document.getElementById('summary-tickets-count').textContent = `x${seatsList.length} Vé`;
-  }
-  if (price) {
-    const parsedPrice = parseFloat(price);
-    let formattedPrice = '';
-    if (!isNaN(parsedPrice)) {
-      if (parsedPrice < 100) {
-        formattedPrice = '$' + parsedPrice.toFixed(2);
-      } else {
-        formattedPrice = parsedPrice.toLocaleString('vi-VN') + ' VND';
-      }
-    } else {
-      formattedPrice = price;
-    }
+    
+    const formattedPrice = currentAmount.toLocaleString('vi-VN') + 'đ';
     document.getElementById('summary-subtotal').textContent = formattedPrice;
     document.getElementById('summary-total').textContent = formattedPrice;
+    
+    if (detail.status === 'paid') {
+        window.location.href = `/receipt/${bookingId}`;
+        return;
+    }
+
+    // 2. Fetch Payment Intent (QR Code)
+    const resIntent = await fetch(`${API_BASE_URL}/payments/create-intent/${bookingId}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!resIntent.ok) {
+        throw new Error('Lỗi khởi tạo cổng thanh toán');
+    }
+    
+    const intent = await resIntent.json();
+    
+    // Show QR
+    document.getElementById('qr-loading').style.display = 'none';
+    const qrImg = document.getElementById('qr-image');
+    qrImg.src = intent.qr_url;
+    qrImg.classList.remove('hidden');
+    
+    // Enable simulate button
+    document.getElementById('success-btn').disabled = false;
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
   }
+
+  // Simulate Webhook Call
+  document.getElementById('success-btn').addEventListener('click', async function() {
+    this.disabled = true;
+    this.textContent = "Đang xử lý...";
+    
+    try {
+        const payload = {
+            transaction_id: "SIM_" + Math.random().toString(36).substring(2, 10).toUpperCase(),
+            booking_id: bookingId,
+            amount: currentAmount,
+            status: "success",
+            signature: "mock_signature"
+        };
+        
+        const res = await fetch(`${API_BASE_URL}/payments/webhook`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (!res.ok) throw new Error("Webhook xử lý thất bại!");
+        
+        // Success
+        window.location.href = `/receipt/${bookingId}`;
+    } catch (err) {
+        alert(err.message);
+        this.disabled = false;
+        this.textContent = "[Test] Bấm để Giả lập Ngân hàng báo Thanh toán Thành công";
+    }
+  });
+
+})();
 </script>

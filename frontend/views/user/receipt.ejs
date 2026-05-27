@@ -389,108 +389,111 @@
 </div>
 
 <script>
-  // Pull dynamic parameters
-  const urlParams = new URLSearchParams(window.location.search);
-  const seats = urlParams.get('seats');
-  const price = urlParams.get('price');
-  const title = urlParams.get('title');
-
-  // Booking ID from pathname
+(async function() {
   const pathParts = window.location.pathname.split('/');
   const bookingId = pathParts[pathParts.length - 1];
+  
+  const API_BASE_URL = 'http://localhost:8000';
+  const token = localStorage.getItem('access_token');
+  
+  if (!token) {
+      alert("Vui lòng đăng nhập!");
+      window.location.href = '/';
+      return;
+  }
 
   /* ─────────────────────────────────────────
-     POPULATE TICKET VALUES (On-screen + Hidden capture stub)
+     FETCH BOOKING DETAILS
   ───────────────────────────────────────── */
-  if (bookingId) {
-    document.getElementById('receipt-booking-id').textContent = bookingId;
-    document.getElementById('capture-booking-id').textContent = bookingId;
-    
-    // Generate simple deterministic Transaction ID based on Booking ID digits
-    const digits = bookingId.replace(/\D/g, '');
-    if (digits) {
-      const txn = 'TXN' + digits.padEnd(8, '0');
-      document.getElementById('receipt-txn-id').textContent = txn;
-      document.getElementById('capture-txn-id').textContent = txn;
-    }
-  }
-  
-  if (title) {
-    const decodedTitle = decodeURIComponent(title);
-    document.getElementById('receipt-title').textContent = decodedTitle;
-    document.getElementById('capture-title').textContent = decodedTitle;
-  }
-  
-  if (seats) {
-    const seatsList = seats.split(',');
-    
-    // Populate screen seats
-    const seatsContainer = document.getElementById('receipt-seats');
-    seatsContainer.innerHTML = '';
-    
-    // Populate hidden capture card seats
-    const captureSeatsContainer = document.getElementById('capture-seats');
-    captureSeatsContainer.innerHTML = '';
-
-    seatsList.forEach(seat => {
-      const seatUpper = seat.trim().toUpperCase();
-      const row = seatUpper.charAt(0);
-      const col = parseInt(seatUpper.substring(1), 10);
-      const isVip = ['D', 'E', 'F', 'G'].includes(row) && [3, 4, 5, 6].includes(col);
-
-      // Screen badge
-      const span = document.createElement('span');
-      span.textContent = seat.trim();
-      if (isVip) {
-        span.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg shadow-sm border';
-        span.style.backgroundColor = '#fef3c7';
-        span.style.color = '#b45309';
-        span.style.borderColor = '#f59e0b';
-      } else {
-        span.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg shadow-sm border';
-        span.style.backgroundColor = '#ffffff';
-        span.style.color = '#27272a';
-        span.style.borderColor = '#a1a1aa';
-      }
-      seatsContainer.appendChild(span);
-
-      // Capture badge
-      const capSpan = document.createElement('span');
-      capSpan.textContent = seat.trim();
-      if (isVip) {
-        capSpan.className = 'px-2.5 py-1 text-[10px] font-extrabold rounded shadow-sm border';
-        capSpan.style.backgroundColor = '#fef3c7';
-        capSpan.style.color = '#b45309';
-        capSpan.style.borderColor = '#f59e0b';
-      } else {
-        capSpan.className = 'px-2.5 py-1 text-[10px] font-extrabold rounded shadow-sm border';
-        capSpan.style.backgroundColor = '#ffffff';
-        capSpan.style.color = '#27272a';
-        capSpan.style.borderColor = '#a1a1aa';
-      }
-      captureSeatsContainer.appendChild(capSpan);
+  try {
+    const res = await fetch(`${API_BASE_URL}/bookings/${bookingId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
     });
-  }
-  
-  if (price) {
-    const parsedPrice = parseFloat(price);
-    if (!isNaN(parsedPrice)) {
-      let finalPrice = '';
-      if (parsedPrice < 100) {
-        finalPrice = '$' + parsedPrice.toFixed(2);
-      } else {
-        finalPrice = parsedPrice.toLocaleString('vi-VN') + ' đ';
-      }
-      document.getElementById('receipt-total').textContent = finalPrice;
-      document.getElementById('capture-total').textContent = finalPrice;
-    } else {
-      let rawPrice = price.trim();
-      if (rawPrice.toLowerCase().endsWith('vnd')) {
-        rawPrice = rawPrice.slice(0, -3).trim() + ' đ';
-      }
-      document.getElementById('receipt-total').textContent = rawPrice;
-      document.getElementById('capture-total').textContent = rawPrice;
+    
+    if (!res.ok) {
+        throw new Error('Lỗi tải thông tin vé');
     }
+    
+    const detail = await res.json();
+    
+    // Fill text fields
+    document.getElementById('receipt-booking-id').textContent = 'BK' + String(detail.booking_id).padStart(8, '0');
+    document.getElementById('capture-booking-id').textContent = 'BK' + String(detail.booking_id).padStart(8, '0');
+    
+    const txn = 'TXN' + String(detail.booking_id).padStart(8, '0');
+    document.getElementById('receipt-txn-id').textContent = txn;
+    document.getElementById('capture-txn-id').textContent = txn;
+    
+    document.getElementById('receipt-title').textContent = detail.movie_title;
+    document.getElementById('capture-title').textContent = detail.movie_title;
+    
+    const d = new Date(detail.showtime_start);
+    const dateStr = d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ', ' + d.toLocaleDateString('vi-VN');
+    
+    // Update showtime (we need to inject IDs or just use querySelector for the hardcoded elements)
+    // The HTML has fixed "19:30, 07/05/2026", we will replace their text by walking the DOM.
+    // For safety, let's just grab the elements by their sibling 'Suất chiếu' text.
+    document.querySelectorAll('.text-blue-600').forEach(el => {
+        if (el.textContent === 'Suất chiếu') {
+            el.nextElementSibling.textContent = dateStr;
+        }
+        if (el.textContent === 'Rạp chiếu') {
+            el.nextElementSibling.textContent = detail.room_name;
+        }
+    });
+    
+    const formattedPrice = detail.total_price.toLocaleString('vi-VN') + ' đ';
+    document.getElementById('receipt-total').textContent = formattedPrice;
+    document.getElementById('capture-total').textContent = formattedPrice;
+    
+    // Fill seats
+    const seatsContainer = document.getElementById('receipt-seats');
+    const captureSeatsContainer = document.getElementById('capture-seats');
+    seatsContainer.innerHTML = '';
+    captureSeatsContainer.innerHTML = '';
+    
+    detail.seats.forEach(seat => {
+        const seatUpper = seat.toUpperCase();
+        const row = seatUpper.charAt(0);
+        const col = parseInt(seatUpper.substring(1), 10);
+        const isVip = ['D', 'E', 'F', 'G'].includes(row) && [3, 4, 5, 6].includes(col);
+        
+        // Screen badge
+        const span = document.createElement('span');
+        span.textContent = seatUpper;
+        if (isVip) {
+            span.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg shadow-sm border';
+            span.style.backgroundColor = '#fef3c7';
+            span.style.color = '#b45309';
+            span.style.borderColor = '#f59e0b';
+        } else {
+            span.className = 'px-3 py-1.5 text-xs font-extrabold rounded-lg shadow-sm border';
+            span.style.backgroundColor = '#ffffff';
+            span.style.color = '#27272a';
+            span.style.borderColor = '#a1a1aa';
+        }
+        seatsContainer.appendChild(span);
+
+        // Capture badge
+        const capSpan = document.createElement('span');
+        capSpan.textContent = seatUpper;
+        if (isVip) {
+            capSpan.className = 'px-2.5 py-1 text-[10px] font-extrabold rounded shadow-sm border';
+            capSpan.style.backgroundColor = '#fef3c7';
+            capSpan.style.color = '#b45309';
+            capSpan.style.borderColor = '#f59e0b';
+        } else {
+            capSpan.className = 'px-2.5 py-1 text-[10px] font-extrabold rounded shadow-sm border';
+            capSpan.style.backgroundColor = '#ffffff';
+            capSpan.style.color = '#27272a';
+            capSpan.style.borderColor = '#a1a1aa';
+        }
+        captureSeatsContainer.appendChild(capSpan);
+    });
+    
+  } catch (err) {
+      console.error(err);
+      alert(err.message);
   }
 
   /* ─────────────────────────────────────────
@@ -519,7 +522,7 @@
         backgroundColor: '#f4f4f5' // Light zinc-100 background outer bleed
       }).then(canvas => {
         const link = document.createElement('a');
-        link.download = `CineBook-Ve-${bookingId || 'HoaDon'}.png`;
+        link.download = `CineBook-Ve-BK${String(bookingId).padStart(8, '0')}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
         
@@ -534,4 +537,5 @@
       });
     }, 150);
   });
+})();
 </script>
