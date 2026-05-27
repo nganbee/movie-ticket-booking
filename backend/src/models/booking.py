@@ -50,3 +50,15 @@ class BookingResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class BookingDetailResponse(BaseModel):
+    booking_id: int
+    total_price: int
+    status: str
+    movie_title: str
+    room_name: str
+    showtime_start: str
+    seats: List[str]
+    
+    class Config:
+        from_attributes = True

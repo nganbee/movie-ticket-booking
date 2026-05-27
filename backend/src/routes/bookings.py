@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.config.db import get_db
 from src.controllers.booking_controller import BookingController
-from src.models.booking import BookingReserveRequest, BookingResponse
+from src.models.booking import BookingReserveRequest, BookingResponse, BookingDetailResponse
 from src.middlewares.auth import get_current_user
 from src.models.user import UserTable
 
@@ -15,3 +15,11 @@ async def reserve_booking(
     current_user: UserTable = Depends(get_current_user)
 ):
     return await BookingController.reserve_booking(db, current_user.user_id, payload)
+
+@router.get("/{booking_id}", response_model=BookingDetailResponse)
+async def get_booking_detail(
+    booking_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserTable = Depends(get_current_user)
+):
+    return await BookingController.get_booking_detail(db, current_user.user_id, booking_id)

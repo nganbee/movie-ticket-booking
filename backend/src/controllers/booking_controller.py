@@ -5,7 +5,8 @@ from typing import List
 from datetime import datetime, timezone
 
 from src.models.booking import BookingTable, BookingItemTable, BookingReserveRequest
-from src.models.theater import ShowSeatTable, SeatTable, PricingRuleTable, ShowtimeTable
+from src.models.theater import ShowSeatTable, SeatTable, PricingRuleTable, ShowtimeTable, RoomTable
+from src.models.movie import MovieTable
 
 class BookingController:
     @staticmethod
@@ -95,4 +96,46 @@ class BookingController:
             "booking_id": booking.booking_id,
             "total_price": booking.total_price,
             "status": booking.status
+        }
+
+    @staticmethod
+    async def get_booking_detail(db: AsyncSession, user_id: int, booking_id: int):
+        # Join bookings -> showtimes -> movies & rooms
+        stmt = (
+            select(BookingTable, MovieTable, RoomTable, ShowtimeTable)
+            .join(ShowtimeTable, ShowtimeTable.showtime_id == BookingTable.showtime_id)
+            .join(MovieTable, MovieTable.movie_id == ShowtimeTable.movie_id)
+            .join(RoomTable, RoomTable.room_id == ShowtimeTable.room_id)
+            .where(
+                BookingTable.booking_id == booking_id,
+                BookingTable.customer_id == user_id
+            )
+        )
+        res = await db.execute(stmt)
+        row = res.first()
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="Booking not found")
+            
+        booking, movie, room, showtime = row
+        
+        # Get seats
+        stmt_seats = (
+            select(SeatTable)
+            .join(ShowSeatTable, ShowSeatTable.seat_id == SeatTable.seat_id)
+            .join(BookingItemTable, BookingItemTable.show_seat_id == ShowSeatTable.show_seat_id)
+            .where(BookingItemTable.booking_id == booking.booking_id)
+        )
+        res_seats = await db.execute(stmt_seats)
+        seats = res_seats.scalars().all()
+        seat_labels = [f"{s.seat_row}{s.seat_num}" for s in seats]
+        
+        return {
+            "booking_id": booking.booking_id,
+            "total_price": booking.total_price,
+            "status": booking.status,
+            "movie_title": movie.title,
+            "room_name": room.name,
+            "showtime_start": showtime.start_time.isoformat(),
+            "seats": seat_labels
         }
