@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.user import UserUpdate, UserResponse
 from src.services.user_service import UserService
+from src.controllers.booking_controller import BookingController
 
 
 class UserController:
@@ -37,4 +38,4 @@ class UserController:
     @staticmethod
     async def get_history(db: AsyncSession, user_id: int) -> list:
         """Lấy lịch sử đặt vé của user."""
-        return await UserService.get_history(db, user_id)
+        return await BookingController.get_user_bookings(db, user_id)

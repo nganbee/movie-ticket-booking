@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from src.models.booking import BookingTable, BookingItemTable, BookingReserveRequest
 from src.models.theater import ShowSeatTable, SeatTable, PricingRuleTable, ShowtimeTable, RoomTable
 from src.models.movie import MovieTable
+from src.models.booking import ETicketTable
 
 class BookingController:
     @staticmethod
@@ -139,3 +140,54 @@ class BookingController:
             "showtime_start": showtime.start_time.isoformat(),
             "seats": seat_labels
         }
+
+    @staticmethod
+    async def get_user_bookings(db: AsyncSession, user_id: int):
+        stmt = (
+            select(BookingTable, MovieTable, RoomTable, ShowtimeTable)
+            .join(ShowtimeTable, ShowtimeTable.showtime_id == BookingTable.showtime_id)
+            .join(MovieTable, MovieTable.movie_id == ShowtimeTable.movie_id)
+            .join(RoomTable, RoomTable.room_id == ShowtimeTable.room_id)
+            .where(BookingTable.customer_id == user_id)
+            .order_by(BookingTable.booking_date.desc())
+        )
+        res = await db.execute(stmt)
+        rows = res.all()
+        
+        results = []
+        for booking, movie, room, showtime in rows:
+            # Get seats
+            stmt_seats = (
+                select(SeatTable)
+                .join(ShowSeatTable, ShowSeatTable.seat_id == SeatTable.seat_id)
+                .join(BookingItemTable, BookingItemTable.show_seat_id == ShowSeatTable.show_seat_id)
+                .where(BookingItemTable.booking_id == booking.booking_id)
+            )
+            res_seats = await db.execute(stmt_seats)
+            seats = res_seats.scalars().all()
+            seat_labels = [f"{s.seat_row}{s.seat_num}" for s in seats]
+
+            # Get e-ticket QR codes (only for paid bookings)
+            qr_codes = []
+            if booking.status == "paid":
+                stmt_tickets = (
+                    select(ETicketTable)
+                    .join(BookingItemTable, BookingItemTable.item_id == ETicketTable.item_id)
+                    .where(BookingItemTable.booking_id == booking.booking_id)
+                )
+                res_tickets = await db.execute(stmt_tickets)
+                tickets = res_tickets.scalars().all()
+                qr_codes = [t.qr_code for t in tickets if t.is_valid]
+            
+            results.append({
+                "booking_id": booking.booking_id,
+                "total_price": booking.total_price,
+                "status": booking.status,
+                "movie_title": movie.title,
+                "room_name": room.name,
+                "showtime_start": showtime.start_time.isoformat(),
+                "seats": seat_labels,
+                "qr_codes": qr_codes
+            })
+            
+        return results
