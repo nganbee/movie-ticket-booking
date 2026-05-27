@@ -1,7 +1,7 @@
 # src/models/movie.py
 from datetime import date
 from typing import Optional
-from sqlalchemy import Text, Integer, Date
+from sqlalchemy import Text, Integer, Date, Float
 from sqlalchemy.orm import Mapped, mapped_column
 from pydantic import BaseModel
 from src.config.db import Base
@@ -20,6 +20,9 @@ class MovieTable(Base):
     director: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
+    imdb_id: Mapped[Optional[str]] = mapped_column(Text, unique=True, nullable=True)
+    imdb_rating: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    imdb_votes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
 # --- 2. PYDANTIC SCHEMAS (Validate dữ liệu API) ---
 class MovieBase(BaseModel):
@@ -32,6 +35,9 @@ class MovieBase(BaseModel):
     director: str
     status: str
     description: str
+    imdb_id: Optional[str] = None
+    imdb_rating: Optional[float] = None
+    imdb_votes: Optional[int] = None
 
 class MovieCreate(MovieBase):
     pass
