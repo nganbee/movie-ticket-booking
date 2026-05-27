@@ -292,7 +292,7 @@
             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-400">
               <i class="fas fa-envelope"></i>
             </span>
-            <input type="email" id="edit-email" class="w-full pl-10 pr-4 py-3 rounded-xl border border-zinc-200 focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none text-sm text-zinc-900 transition font-medium" placeholder="Nhập email...">
+            <input type="email" id="edit-email" class="w-full pl-10 pr-4 py-3 rounded-xl border border-zinc-200 focus:outline-none text-sm text-zinc-500 transition font-medium bg-zinc-50 cursor-not-allowed" placeholder="Nhập email..." readonly title="Email không thể thay đổi">
           </div>
           <p id="error-email" class="hidden text-xs text-red-500 mt-1 font-semibold"></p>
         </div>
@@ -484,17 +484,33 @@
   const errEmail = document.getElementById('error-email');
 
   // Load stored profile data on page load
-  document.addEventListener('DOMContentLoaded', () => {
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      try {
-        const data = JSON.parse(savedProfile);
-        if (data.name) profileName.textContent = data.name;
-        if (data.phone) profilePhone.textContent = data.phone;
-        if (data.email) profileEmail.textContent = data.email;
-      } catch (e) {
-        console.error('Error loading saved profile data:', e);
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      // Redirect to home if not logged in
+      window.location.href = '/';
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8000/user/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        profileName.textContent = data.full_name;
+        profilePhone.textContent = data.phone || 'Chưa cập nhật';
+        profileEmail.textContent = data.email;
+        // Save back to localStorage for consistency
+        localStorage.setItem('user', JSON.stringify(data));
+      } else {
+        // Token might be expired or invalid
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
       }
+    } catch (error) {
+      console.error('Lỗi khi tải profile:', error);
     }
   });
 
@@ -546,12 +562,11 @@
     errorEl.textContent = '';
   }
 
-  function saveProfile(event) {
+  async function saveProfile(event) {
     event.preventDefault();
 
     const nameVal = editFullnameInput.value.trim();
     const phoneVal = editPhoneInput.value.trim();
-    const emailVal = editEmailInput.value.trim();
     
     let hasError = false;
 
@@ -565,56 +580,59 @@
 
     // 2. Validation: Phone
     const phoneRegex = /^[0-9+() .\s-x]{9,20}$/;
-    if (!phoneVal) {
-      showError(editPhoneInput, errPhone, 'Số điện thoại không được để trống.');
-      hasError = true;
-    } else if (!phoneRegex.test(phoneVal)) {
+    if (phoneVal && !phoneRegex.test(phoneVal)) {
       showError(editPhoneInput, errPhone, 'Số điện thoại không hợp lệ.');
       hasError = true;
     } else {
       hideError(editPhoneInput, errPhone);
     }
 
-    // 3. Validation: Email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailVal) {
-      showError(editEmailInput, errEmail, 'Email không được để trống.');
-      hasError = true;
-    } else if (!emailRegex.test(emailVal)) {
-      showError(editEmailInput, errEmail, 'Định dạng email không hợp lệ.');
-      hasError = true;
-    } else {
-      hideError(editEmailInput, errEmail);
-    }
-
     if (hasError) return;
 
-    // 4. Save to LocalStorage
-    const profileData = {
-      name: nameVal,
-      phone: phoneVal,
-      email: emailVal
-    };
-    localStorage.setItem('userProfile', JSON.stringify(profileData));
+    // 3. Save to Backend
+    const token = localStorage.getItem('access_token');
+    try {
+      const response = await fetch('http://localhost:8000/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          full_name: nameVal,
+          phone: phoneVal || null
+        })
+      });
 
-    // 5. Update UI with fade animation
-    const fieldsToAnimate = [profileName, profilePhone, profileEmail];
-    fieldsToAnimate.forEach(el => el.classList.add('profile-fade'));
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update UI with fade animation
+        const fieldsToAnimate = [profileName, profilePhone];
+        fieldsToAnimate.forEach(el => el.classList.add('profile-fade'));
 
-    profileName.textContent = nameVal;
-    profilePhone.textContent = phoneVal;
-    profileEmail.textContent = emailVal;
+        profileName.textContent = data.full_name;
+        profilePhone.textContent = data.phone || 'Chưa cập nhật';
+        localStorage.setItem('user', JSON.stringify(data));
 
-    // Clean up animation class
-    setTimeout(() => {
-      fieldsToAnimate.forEach(el => el.classList.remove('profile-fade'));
-    }, 500);
+        // Clean up animation class
+        setTimeout(() => {
+          fieldsToAnimate.forEach(el => el.classList.remove('profile-fade'));
+        }, 500);
 
-    // 6. Close Modal
-    closeEditModal();
+        // 6. Close Modal
+        closeEditModal();
 
-    // 7. Show Toast Alert
-    showToast('Cập nhật hồ sơ cá nhân thành công!');
+        // 7. Show Toast Alert
+        showToast('Cập nhật hồ sơ cá nhân thành công!');
+      } else {
+        const err = await response.json();
+        showToast(err.detail || 'Lỗi khi cập nhật hồ sơ');
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật:', error);
+      showToast('Lỗi kết nối máy chủ');
+    }
   }
 
   function showToast(message) {

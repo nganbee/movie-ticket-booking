@@ -166,23 +166,48 @@
     }
 
     // Login Validation
-    modalLoginForm.addEventListener('submit', function(e) {
+    modalLoginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
         const emailRegex = /^[^\s@]+@gmail\.com$/;
         
         if (!emailRegex.test(email)) {
             document.getElementById('loginEmailError').classList.remove('hidden');
         } else {
             document.getElementById('loginEmailError').classList.add('hidden');
-            // Mock login failure for demo
-            document.getElementById('loginErrorAlert').classList.remove('hidden');
+            
+            try {
+                const response = await fetch('http://localhost:8000/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    document.getElementById('loginErrorAlert').classList.add('hidden');
+                    window.location.reload(); // Reload or redirect
+                } else {
+                    const errorData = await response.json();
+                    document.getElementById('loginErrorAlert').querySelector('span').textContent = errorData.detail || 'Email hoặc mật khẩu không chính xác.';
+                    document.getElementById('loginErrorAlert').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('loginErrorAlert').querySelector('span').textContent = 'Lỗi kết nối đến máy chủ.';
+                document.getElementById('loginErrorAlert').classList.remove('hidden');
+            }
         }
     });
 
     // Register Validation
-    modalRegisterForm.addEventListener('submit', function(e) {
+    modalRegisterForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+        const fullname = document.getElementById('regFullname').value;
         const email = document.getElementById('regEmail').value;
         const password = document.getElementById('regPassword').value;
         const confirm = document.getElementById('regConfirmPassword').value;
@@ -211,11 +236,39 @@
         }
 
         if (isValid) {
-            document.getElementById('registerSuccessAlert').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('registerSuccessAlert').classList.add('hidden');
-                switchAuthMode('login');
-            }, 1500);
+            try {
+                const response = await fetch('http://localhost:8000/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        full_name: fullname,
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                if (response.ok) {
+                    const alertEl = document.getElementById('registerSuccessAlert');
+                    alertEl.className = 'mb-4 bg-green-50 border-l-4 border-green-500 text-green-700 p-3 rounded shadow-sm text-sm flex items-start';
+                    alertEl.innerHTML = '<i class="fas fa-check-circle mt-0.5 mr-2"></i><span>Đăng ký thành công! Đang chuyển sang đăng nhập...</span>';
+                    
+                    setTimeout(() => {
+                        alertEl.classList.add('hidden');
+                        switchAuthMode('login');
+                        document.getElementById('loginEmail').value = email;
+                    }, 1500);
+                } else {
+                    const errorData = await response.json();
+                    const alertEl = document.getElementById('registerSuccessAlert');
+                    alertEl.className = 'mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded shadow-sm text-sm flex items-start';
+                    alertEl.innerHTML = `<i class="fas fa-exclamation-circle mt-0.5 mr-2"></i><span>${errorData.detail || 'Đăng ký thất bại.'}</span>`;
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                const alertEl = document.getElementById('registerSuccessAlert');
+                alertEl.className = 'mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded shadow-sm text-sm flex items-start';
+                alertEl.innerHTML = '<i class="fas fa-exclamation-circle mt-0.5 mr-2"></i><span>Lỗi kết nối đến máy chủ.</span>';
+            }
         }
     });
 
