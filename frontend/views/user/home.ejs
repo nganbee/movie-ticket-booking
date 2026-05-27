@@ -1,9 +1,12 @@
 <!-- Hero Banner -->
+<% if (nowShowing && nowShowing.length > 0) { 
+    const featured = nowShowing[0];
+%>
 <div class="relative min-h-[85vh] w-full bg-slate-900 pb-20">
     <!-- Banner Background Image with Gradient Overlay -->
     <div class="absolute inset-0">
-        <img src="https://image.tmdb.org/t/p/original/kDp1vUBnMpe8ak4rjgl3cLELqjU.jpg" alt="Banner"
-            class="w-full h-full object-cover object-top opacity-50" />
+        <img src="<%= featured.poster %>" alt="Banner"
+            class="w-full h-full object-cover object-top opacity-50 blur-sm" />
         <div class="absolute inset-0 bg-gradient-to-t from-bgLight via-bgLight/20 to-transparent"></div>
         <div class="absolute inset-0 bg-gradient-to-r from-bgLight via-bgLight/40 to-transparent"></div>
     </div>
@@ -18,39 +21,36 @@
                     <span class="w-2 h-2 rounded-full bg-brand mr-2 animate-pulse"></span> Phim Đang Chiếu
                 </span>
                 <span
-                    class="text-sm font-medium text-textMain border border-borderSubtle bg-white/50 backdrop-blur-sm rounded px-2 py-0.5">Hoạt
-                    Hình</span>
+                    class="text-sm font-medium text-textMain border border-borderSubtle bg-white/50 backdrop-blur-sm rounded px-2 py-0.5"><%= featured.genre.split(',')[0] %></span>
             </div>
 
             <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 leading-[1.1] tracking-tight">
-                Kung Fu Panda 4
+                <%= featured.title %>
             </h1>
 
             <div class="flex flex-wrap items-center gap-4 text-sm md:text-base font-medium text-slate-700 mb-6">
                 <span
                     class="flex items-center bg-yellow-50 text-yellow-600 px-3 py-1 rounded-md border border-yellow-200">
-                    <i class="fas fa-star mr-1.5"></i> 7.5
+                    <i class="fas fa-star mr-1.5"></i> <%= featured.rating %>
                 </span>
-                <span class="flex items-center"><i class="far fa-clock mr-2 text-slate-400"></i> 1h 34m</span>
-                <span class="flex items-center"><i class="fas fa-film mr-2 text-slate-400"></i> Hoạt Hình, Hài
-                    Hước</span>
+                <span class="flex items-center"><i class="far fa-clock mr-2 text-slate-400"></i> <%= featured.duration %></span>
+                <span class="flex items-center"><i class="fas fa-film mr-2 text-slate-400"></i> <%= featured.genre %></span>
                 <span class="flex items-center"><i class="fas fa-calendar-alt mr-2 text-slate-400"></i>
-                    22/03/2024</span>
+                    <%= featured.releaseDate %></span>
             </div>
 
             <p class="text-slate-600 max-w-xl text-base md:text-lg mb-10 line-clamp-3 leading-relaxed">
-                Po phải huấn luyện một chiến binh mới đảm nhận vai trò Thần Long Đại Hiệp, trong khi một phù thủy độc ác
-                tên là Tắc Kè Hoa nhắm đến việc đánh cắp những kỹ năng kung fu của tất cả các bậc thầy độc ác trước đây.
+                <%= featured.description %>
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4">
-                <a href="#now-showing"
+                <a href="/movie/<%= featured.id %>"
                     class="bg-brand text-white px-8 py-4 rounded-xl font-bold hover:bg-brandHover transition duration-300 shadow-lg shadow-brand/30 flex items-center justify-center group">
                     <i class="fas fa-ticket-alt mr-3 group-hover:scale-110 transition-transform"></i> Đặt Vé Ngay
                 </a>
-                <a href="/movie/2"
+                <a href="/movie/<%= featured.id %>"
                     class="bg-white/80 backdrop-blur-md border border-slate-200 text-slate-800 px-8 py-4 rounded-xl font-bold hover:bg-white transition duration-300 flex items-center justify-center group shadow-sm">
-                    <i class="fas fa-play mr-3 text-brand group-hover:scale-110 transition-transform"></i> Xem Trailer
+                    <i class="fas fa-play mr-3 text-brand group-hover:scale-110 transition-transform"></i> Xem Thông Tin
                 </a>
             </div>
         </div>
@@ -63,7 +63,7 @@
                     class="absolute -inset-3 bg-brand/20 rounded-3xl blur-2xl opacity-60 group-hover:opacity-90 transition-opacity duration-500">
                 </div>
                 <!-- Poster Image -->
-                <img src="https://image.tmdb.org/t/p/w500/kDp1vUBnMpe8ak4rjgl3cLELqjU.jpg" alt="Kung Fu Panda 4 Poster"
+                <img src="<%= featured.poster %>" alt="<%= featured.title %> Poster"
                     class="relative w-64 lg:w-72 rounded-2xl shadow-2xl border-4 border-white/80 transform -rotate-2 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500 ease-out">
                 <!-- Rating Badge on Poster -->
                 <div
@@ -71,7 +71,7 @@
                     <i class="fas fa-star text-yellow-500 text-lg"></i>
                     <div>
                         <p class="text-xs text-slate-500 font-medium leading-none">IMDb</p>
-                        <p class="text-slate-800 font-extrabold text-lg leading-none">7.5</p>
+                        <p class="text-slate-800 font-extrabold text-lg leading-none"><%= featured.rating %></p>
                     </div>
                 </div>
                 <!-- Now Showing Badge -->
@@ -83,6 +83,7 @@
         </div>
     </div>
 </div>
+<% } %>
 
 <!-- Search & Filter Section -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10 mb-16">

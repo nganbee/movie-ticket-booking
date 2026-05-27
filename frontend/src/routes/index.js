@@ -1,23 +1,42 @@
 const express = require('express');
 const router = express.Router();
 
-// Mock data
-const nowShowing = [
-    { id: 1, title: 'Godzilla x Kong: Đế Chế Mới', genre: 'Hành Động, Phiêu Lưu, Giả Tưởng', rating: '6.7', poster: 'https://image.tmdb.org/t/p/w500/tMefBSflR6PGQLvLuPEoBiY14Z.jpg', duration: '115 phút', director: 'Adam Wingard', cast: 'Rebecca Hall, Brian Tyree Henry, Dan Stevens, Kaylee Hottle, Trần Pháp Lai', description: 'Kong và người bảo vệ của anh ta tìm kiếm một hành trình mới để khám phá ra nguồn gốc của anh ta trong Trái Đất Rỗng, trong khi Godzilla phải đối mặt với mối đe dọa mới từ Skar King — kẻ cai trị lực lượng Titan băng giá Shimo đang âm mưu hủy diệt bề mặt Trái Đất.' },
-    { id: 2, title: 'Kung Fu Panda 4', genre: 'Hoạt Hình, Hài Hước', rating: '7.5', poster: 'https://image.tmdb.org/t/p/w500/kDp1vUBnMpe8ak4rjgl3cLELqjU.jpg', duration: '94 phút', director: 'Mike Mitchell', cast: 'Jack Black, Awkwafina, Viola Davis', description: 'Po phải huấn luyện một chiến binh mới đảm nhận vai trò Thần Long Đại Hiệp, trong khi một phù thủy độc ác tên là Tắc Kè Hoa nhắm đến việc đánh cắp những kỹ năng kung fu của tất cả các bậc thầy độc ác trước đây.' },
-    { id: 3, title: 'Dune: Hành Tinh Cát 2', genre: 'Viễn Tưởng, Phiêu Lưu', rating: '9.0', poster: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2JGjjc9CW.jpg', duration: '166 phút', director: 'Denis Villeneuve', cast: 'Timothée Chalamet, Zendaya, Rebecca Ferguson', description: 'Paul Atreides hợp nhất với Chani và người Fremen trên hành trình báo thù những kẻ đã tiêu diệt gia tộc anh.' },
-    { id: 4, title: 'Mai', genre: 'Tâm Lý, Tình Cảm', rating: '8.5', poster: 'https://image.tmdb.org/t/p/w500/yRbD3Dhn0fA1L7A2D3wY1g9qY6I.jpg', duration: '131 phút', director: 'Trấn Thành', cast: 'Phương Anh Đào, Tuấn Trần, Trấn Thành', description: 'Một câu chuyện tình lãng mạn nhưng cũng đầy bi kịch giữa Mai và Dương.' }
-];
+const API_BASE_URL = 'http://localhost:8000';
 
-const comingSoon = [
-    { id: 5, title: 'Deadpool & Wolverine', genre: 'Hành Động, Hài Hước', releaseDate: '26/07/2024', poster: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg' },
-    { id: 6, title: 'Furiosa: Câu Chuyện TỪ Mad Max', genre: 'Hành Động, Phiêu Lưu', releaseDate: '24/05/2024', poster: 'https://image.tmdb.org/t/p/w500/iADOJ8Zymht2JPMoy3R7xceZprc.jpg' },
-    { id: 7, title: 'Inside Out 2', genre: 'Hoạt Hình, Gia Đình', releaseDate: '14/06/2024', poster: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg' },
-    { id: 8, title: 'Hành Tinh Khỉ: Vương Quốc Mới', genre: 'Viễn Tưởng, Hành Động', releaseDate: '10/05/2024', poster: 'https://image.tmdb.org/t/p/w500/gKkl37BQuKTanygYQG1pyYgLVgf.jpg' }
-];
+const mapMovie = (m) => ({
+    id: m.movie_id,
+    title: m.title,
+    genre: m.genre,
+    rating: m.imdb_rating ? m.imdb_rating.toFixed(1) : 'N/A', // Lấy rating thực tế từ Backend
+    poster: m.poster_url || 'https://via.placeholder.com/500x750?text=No+Poster',
+    duration: `${m.duration} phút`,
+    director: m.director,
+    cast: 'Đang cập nhật...',
+    description: m.description,
+    releaseDate: m.release_date ? new Date(m.release_date).toLocaleDateString('vi-VN') : 'Đang cập nhật'
+});
 
 // Home page
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+    let nowShowing = [];
+    let comingSoon = [];
+    try {
+        const [nowShowingRes, comingSoonRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/movies/?status=now_showing`),
+            fetch(`${API_BASE_URL}/movies/?status=coming_soon`)
+        ]);
+        if (nowShowingRes.ok) {
+            const data = await nowShowingRes.json();
+            nowShowing = data.map(mapMovie);
+        }
+        if (comingSoonRes.ok) {
+            const data = await comingSoonRes.json();
+            comingSoon = data.map(mapMovie);
+        }
+    } catch (error) {
+        console.error("Error fetching movies from backend:", error);
+    }
+
     res.render('user/home', { 
         title: 'CineBook - Trang chủ',
         nowShowing,
@@ -27,19 +46,25 @@ router.get('/', (req, res) => {
 });
 
 // Movie Detail
-router.get('/movie/:id', (req, res) => {
-    const movieId = parseInt(req.params.id);
-    const movie = nowShowing.find(m => m.id === movieId) || comingSoon.find(m => m.id === movieId);
-    
-    if (!movie) {
-        return res.status(404).send('Movie not found');
+router.get('/movie/:id', async (req, res) => {
+    const movieId = req.params.id;
+    try {
+        const response = await fetch(`${API_BASE_URL}/movies/${movieId}`);
+        if (response.ok) {
+            const data = await response.json();
+            const movie = mapMovie(data);
+            return res.render('user/movie-detail', {
+                title: `${movie.title} - CineBook`,
+                movie,
+                hideNavbar: false
+            });
+        } else {
+            return res.status(404).send('Phim không tồn tại');
+        }
+    } catch (error) {
+        console.error("Error fetching movie detail:", error);
+        return res.status(500).send('Lỗi kết nối tới máy chủ Backend');
     }
-
-    res.render('user/movie-detail', {
-        title: `${movie.title} - CineBook`,
-        movie,
-        hideNavbar: false
-    });
 });
 
 // Auth Routes (Mock API for modal)
