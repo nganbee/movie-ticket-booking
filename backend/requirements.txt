@@ -10,3 +10,4 @@ pydantic[email]
 uvicorn
 python-jose[cryptography]
 bcrypt
+httpx
