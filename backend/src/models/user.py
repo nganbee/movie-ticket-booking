@@ -1,7 +1,7 @@
 # src/models/user.py
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
-from sqlalchemy import Text, Integer, DateTime, SmallInteger
+from sqlalchemy import Text, DateTime, SmallInteger, func
 from sqlalchemy.orm import Mapped, mapped_column
 from pydantic import BaseModel, EmailStr, field_validator
 from src.config.db import Base
@@ -22,8 +22,8 @@ class UserTable(Base):
     # Lockout: theo FR-A3, khóa 15 phút sau 5 lần thất bại
     failed_login_attempts: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
     locked_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+    created_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True, server_default=func.now()
     )
 
 
@@ -81,7 +81,7 @@ class UserResponse(BaseModel):
     email: str
     phone: Optional[str] = None
     role: str
-    created_at: datetime
+    created_at: Optional[datetime] = None  # Optional vì server_default chưa được fetch sau flush()
 
     class Config:
         from_attributes = True

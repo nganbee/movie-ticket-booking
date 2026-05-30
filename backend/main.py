@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from src.config.db import engine, Base
 
@@ -25,6 +26,16 @@ app = FastAPI(
     version="1.0.0",
     description="Backend API cho hệ thống đặt vé xem phim CineBook",
 )
+
+# ── CORS (cho phép frontend gọi API) ─────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # ── Public / Auth routes ──────────────────────────────────────────────────────
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
