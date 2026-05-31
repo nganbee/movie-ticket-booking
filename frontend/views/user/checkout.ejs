@@ -14,31 +14,21 @@
           <div class="p-6">
             <h2 class="text-lg font-medium text-zinc-900 mb-4">Phương thức thanh toán</h2>
             
-            <div class="flex flex-col items-center justify-center p-6 bg-zinc-50 rounded-lg border border-dashed border-zinc-300">
-              <div id="qr-container" class="w-64 h-64 bg-white border border-zinc-200 rounded-md flex items-center justify-center shadow-inner mb-4 overflow-hidden">
-                <span class="text-xs text-zinc-400 font-mono" id="qr-loading">[ Đang tải mã QR... ]</span>
-                <img id="qr-image" src="" alt="Mã QR Thanh Toán" class="hidden w-full h-full object-contain p-2" />
-              </div>
-              <p class="text-sm font-medium text-zinc-700">Sử dụng App Ngân Hàng (Mở tính năng Quét QR)</p>
-              <p class="text-xs text-zinc-400 mt-1">Giao dịch được xử lý qua hệ thống VietQR an toàn tuyệt đối</p>
+            <div class="flex flex-col items-center justify-center p-6 bg-zinc-50 rounded-lg border border-zinc-200">
+              <img src="/images/vnpay_logo.png" alt="VNPAY Logo" class="h-12 mb-4 object-contain" />
+              <p class="text-sm font-medium text-zinc-700 text-center">Thanh toán an toàn qua cổng VNPAY</p>
+              <p class="text-xs text-zinc-500 mt-1 text-center">Hỗ trợ thẻ ATM, thẻ tín dụng và quét mã QR qua App Ngân hàng</p>
             </div>
             
           </div>
         </div>
 
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-sm">
-          <svg class="w-5 h-5 text-amber-600 animate-spin flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <button id="vnpay-btn" disabled class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 px-4 rounded-xl text-base font-semibold shadow transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4">
+          <svg id="vnpay-loading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <div>
-            <p class="font-medium text-amber-900 text-sm">Đang chờ xác nhận thanh toán</p>
-            <p class="text-xs text-amber-700 mt-0.5">Vui lòng hoàn tất chuyển khoản để chúng tôi xuất vé điện tử cho bạn.</p>
-          </div>
-        </div>
-
-        <button id="success-btn" disabled class="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-3 px-4 rounded-xl text-sm font-semibold shadow transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed">
-          [Test] Bấm để Giả lập Ngân hàng báo Thanh toán Thành công
+          <span id="vnpay-text">Đang tải...</span>
         </button>
 
       </div>
@@ -144,62 +134,42 @@
         return;
     }
 
-    // 2. Fetch Payment Intent (QR Code)
+    // 2. Fetch Payment Intent (VNPAY Link)
     const resIntent = await fetch(`${API_BASE_URL}/payments/create-intent/${bookingId}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
     });
     
     if (!resIntent.ok) {
-        throw new Error('Lỗi khởi tạo cổng thanh toán');
+        throw new Error('Lỗi khởi tạo cổng thanh toán VNPAY');
     }
     
     const intent = await resIntent.json();
     
-    // Show QR
-    document.getElementById('qr-loading').style.display = 'none';
-    const qrImg = document.getElementById('qr-image');
-    qrImg.src = intent.qr_url;
-    qrImg.classList.remove('hidden');
+    const btn = document.getElementById('vnpay-btn');
+    const spinner = document.getElementById('vnpay-loading');
+    const text = document.getElementById('vnpay-text');
     
-    // Enable simulate button
-    document.getElementById('success-btn').disabled = false;
+    if (intent.payment_link) {
+        spinner.classList.add('hidden');
+        text.textContent = 'Thanh toán qua VNPAY';
+        btn.disabled = false;
+        
+        btn.addEventListener('click', () => {
+            btn.disabled = true;
+            spinner.classList.remove('hidden');
+            text.textContent = 'Đang chuyển hướng sang VNPAY...';
+            window.location.href = intent.payment_link;
+        });
+    } else {
+        throw new Error('Không lấy được link thanh toán VNPAY');
+    }
 
   } catch (err) {
     console.error(err);
     alert(err.message);
   }
 
-  // Simulate Webhook Call
-  document.getElementById('success-btn').addEventListener('click', async function() {
-    this.disabled = true;
-    this.textContent = "Đang xử lý...";
-    
-    try {
-        const payload = {
-            transaction_id: "SIM_" + Math.random().toString(36).substring(2, 10).toUpperCase(),
-            booking_id: bookingId,
-            amount: currentAmount,
-            status: "success",
-            signature: "mock_signature"
-        };
-        
-        const res = await fetch(`${API_BASE_URL}/payments/webhook`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        
-        if (!res.ok) throw new Error("Webhook xử lý thất bại!");
-        
-        // Success
-        window.location.href = `/receipt/${bookingId}`;
-    } catch (err) {
-        alert(err.message);
-        this.disabled = false;
-        this.textContent = "[Test] Bấm để Giả lập Ngân hàng báo Thanh toán Thành công";
-    }
-  });
 
 })();
 </script>
