@@ -7,8 +7,9 @@ from src.config.db import engine, Base
 from src.models.movie import MovieTable
 from src.models.news import NewsTable
 from src.models.user import UserTable  # Auth & User tables
+from src.models.showtime import ShowtimeTable, RoomTable, TheaterTable  # Showtime tables
 
-from src.routes import movies, news, auth, users
+from src.routes import movies, news, auth, users, showtimes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -46,3 +47,6 @@ app.include_router(users.router, prefix="/user", tags=["User"])
 # ── Movie & News routes ───────────────────────────────────────────────────────
 app.include_router(movies.router, prefix="/movies", tags=["Movies"])
 app.include_router(news.router, prefix="/news", tags=["News"])
+
+# ── Showtime routes ───────────────────────────────────────────────────────────
+app.include_router(showtimes.router, prefix="/showtimes", tags=["Showtimes"])
