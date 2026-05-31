@@ -11,12 +11,18 @@ class TheaterTable(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     address: Mapped[str] = mapped_column(Text, nullable=False)
 
+    rooms: Mapped[List["RoomTable"]] = relationship("RoomTable", back_populates="theater")
+
 class RoomTable(Base):
     __tablename__ = "rooms"
     room_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     theater_id: Mapped[int] = mapped_column(ForeignKey("theaters.theater_id"), nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     seat_capacity: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    theater: Mapped["TheaterTable"] = relationship("TheaterTable", back_populates="rooms")
+    seats: Mapped[List["SeatTable"]] = relationship("SeatTable", back_populates="room")
+    showtimes: Mapped[List["ShowtimeTable"]] = relationship("ShowtimeTable", back_populates="room")
 
 class SeatTable(Base):
     __tablename__ = "seats"
@@ -26,6 +32,8 @@ class SeatTable(Base):
     seat_num: Mapped[int] = mapped_column(Integer, nullable=False)
     seat_type: Mapped[str] = mapped_column(Text, nullable=False) # 'Standard', 'VIP'
 
+    room: Mapped["RoomTable"] = relationship("RoomTable", back_populates="seats")
+
 class ShowtimeTable(Base):
     __tablename__ = "showtimes"
     showtime_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -34,6 +42,8 @@ class ShowtimeTable(Base):
     start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     day_type: Mapped[str] = mapped_column(Text, nullable=False) # Weekday, Weekend
+
+    room: Mapped["RoomTable"] = relationship("RoomTable", back_populates="showtimes")
 
 class ShowSeatTable(Base):
     __tablename__ = "show_seats"
