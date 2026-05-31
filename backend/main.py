@@ -12,15 +12,33 @@ from src.models.booking import BookingTable, PaymentTable, BookingItemTable, ETi
 
 from src.routes import movies, news, auth, users, seats, bookings, payments
 
+from src.config.settings import settings
+import ngrok
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Khi ứng dụng chạy: Tự động quét Models và tạo bảng trên Supabase nếu chưa tồn tại
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("Ket noi Supabase on dinh va dong bo bang thanh cong!")
+    print("Connected Supabase successfully!")
+    
+    # Khởi tạo Ngrok tunnel
+    if settings.NGROK_AUTHTOKEN:
+        try:
+            listener = await ngrok.forward(
+                "localhost:8000", 
+                authtoken=settings.NGROK_AUTHTOKEN,
+                domain="gush-unafraid-regain.ngrok-free.dev"
+            )
+            print(f"Ngrok tunnel opened at: {listener.url()}")
+        except Exception as e:
+            print(f"Lỗi khởi tạo ngrok: {e}")
+            
     yield
     # Khi ứng dụng tắt
     await engine.dispose()
+    if settings.NGROK_AUTHTOKEN:
+        ngrok.disconnect()
 
 from fastapi.middleware.cors import CORSMiddleware
 
