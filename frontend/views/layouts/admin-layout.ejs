@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%- title %></title>
+    <!-- Tailwind CSS CDN (Admin) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: '#DC2626',
+              brandHover: '#B91C1C',
+              bgLight: '#FFFFFF',
+              bgSubtle: '#F8FAFC',
+              textMain: '#1E293B',
+              textMuted: '#64748B',
+              borderSubtle: '#E2E8F0',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-slate-100 text-textMain min-h-screen font-sans flex">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside id="admin-sidebar" class="fixed top-0 left-0 h-full w-64 bg-slate-900 text-white flex flex-col z-40 transition-transform duration-300">
+    <!-- Logo -->
+    <div class="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
+      <a href="/" class="text-2xl font-extrabold tracking-tighter flex items-center gap-2">
+        <i class="fas fa-film text-brand"></i>
+        <span class="text-brand">Cine</span><span class="text-white">Book</span>
+      </a>
+      <span class="text-[10px] font-bold bg-brand/20 text-brand px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
+    </div>
+
+    <!-- Nav Links -->
+    <nav class="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
+      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-3">Tổng quan</p>
+      <a href="/admin/dashboard" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'dashboard' ? 'bg-brand text-white' : '' %>">
+        <i class="fas fa-chart-pie w-5 text-center <%- currentPage === 'dashboard' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
+        Dashboard
+      </a>
+
+      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-3 mt-6">Quản Lý</p>
+      <a href="/admin/movies" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'movies' ? 'bg-brand text-white' : '' %>">
+        <i class="fas fa-film w-5 text-center <%- currentPage === 'movies' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
+        Quản lý Phim
+      </a>
+      <a href="/admin/showtimes" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'showtimes' ? 'bg-brand text-white' : '' %>">
+        <i class="fas fa-calendar-alt w-5 text-center <%- currentPage === 'showtimes' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
+        Lịch Chiếu
+      </a>
+      <a href="/admin/bulk-showtime" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'bulk-showtime' ? 'bg-brand text-white' : '' %>">
+        <i class="fas fa-layer-group w-5 text-center <%- currentPage === 'bulk-showtime' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
+        Tạo Lịch Hàng Loạt
+      </a>
+      <a href="/admin/bookings" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'bookings' ? 'bg-brand text-white' : '' %>">
+        <i class="fas fa-ticket-alt w-5 text-center <%- currentPage === 'bookings' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
+        Đặt Vé
+      </a>
+      <a href="/admin/users" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'users' ? 'bg-brand text-white' : '' %>">
+        <i class="fas fa-users w-5 text-center <%- currentPage === 'users' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
+        Người Dùng
+      </a>
+      <a href="/admin/news" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'news' ? 'bg-brand text-white' : '' %>">
+        <i class="fas fa-newspaper w-5 text-center <%- currentPage === 'news' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
+        Tin Tức & Khuyến Mãi
+      </a>
+    </nav>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-brand/20 flex items-center justify-center text-brand font-bold text-sm">A</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-white truncate">Admin</p>
+          <p class="text-xs text-slate-400 truncate">admin@cinebook.vn</p>
+        </div>
+        <a href="/" class="text-slate-400 hover:text-brand transition text-sm" title="Về trang chủ">
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="ml-64 flex-1 flex flex-col min-h-screen">
+    <!-- Top Header -->
+    <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="text-slate-400 hover:text-brand transition text-lg">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="text-lg font-bold text-slate-800"><%- pageTitle || title %></h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="relative text-slate-400 hover:text-brand transition">
+          <i class="fas fa-bell text-lg"></i>
+          <span class="absolute -top-1 -right-1 w-4 h-4 bg-brand text-white text-[9px] font-bold rounded-full flex items-center justify-center">3</span>
+        </button>
+        <div class="w-9 h-9 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-sm border border-brand/20">A</div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="flex-1 p-8">
+      <%- body %>
+    </main>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('admin-sidebar');
+      const main = sidebar.nextElementSibling;
+      sidebar.classList.toggle('-translate-x-full');
+      main.classList.toggle('ml-64');
+      main.classList.toggle('ml-0');
+    }
+  </script>
+</body>
+</html>

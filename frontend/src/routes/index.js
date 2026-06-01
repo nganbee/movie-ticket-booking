@@ -75,6 +75,50 @@ router.post('/login', (req, res) => {
     res.redirect('/');
 });
 
+// Movie Filter / Browse page
+router.get('/movies', async (req, res) => {
+    res.render('user/movies', {
+        title: 'Tất Cả Phim - CineBook',
+        hideNavbar: false
+    });
+});
+
+// ── Admin Routes ──────────────────────────────────────────────────────────────
+// Admin Dashboard
+router.get('/admin/dashboard', (req, res) => {
+    res.render('admin/dashboard', {
+        layout: 'layouts/admin-layout',
+        title: 'Admin Dashboard - CineBook',
+        pageTitle: 'Dashboard',
+        currentPage: 'dashboard'
+    });
+});
+
+// Admin News Management
+router.get('/admin/news', (req, res) => {
+    res.render('admin/news-management', {
+        layout: 'layouts/admin-layout',
+        title: 'Quản lý Tin Tức - CineBook',
+        pageTitle: 'Tin Tức & Khuyến Mãi',
+        currentPage: 'news'
+    });
+});
+
+// Admin Bulk Showtime Tool
+router.get('/admin/bulk-showtime', (req, res) => {
+    res.render('admin/bulk-showtime', {
+        layout: 'layouts/admin-layout',
+        title: 'Tạo Lịch Chiếu Hàng Loạt - CineBook',
+        pageTitle: 'Tạo Lịch Chiếu Hàng Loạt',
+        currentPage: 'bulk-showtime'
+    });
+});
+
+// Redirect /admin to dashboard
+router.get('/admin', (req, res) => {
+    res.redirect('/admin/dashboard');
+});
+
 // Find your existing path rule inside src/routes/index.js and swap it:
 router.get('/booking/:showtimeId', (req, res) => {
   // Pulling the showtimeId placeholder argument from URL safely
