@@ -1,0 +1,578 @@
+<!-- News Management -->
+<div>
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <h2 class="text-2xl font-extrabold text-slate-800">Tin Tức & Khuyến Mãi</h2>
+      <p class="text-slate-400 text-sm mt-1">Đăng bản tin, sự kiện và chương trình khuyến mãi.</p>
+    </div>
+    <button onclick="openAddModal()" class="flex items-center gap-2 bg-brand text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 transition shadow-md shadow-brand/20">
+      <i class="fas fa-pen"></i> Viết bài viết mới
+    </button>
+  </div>
+
+  <!-- Filter & Search Bar -->
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-6 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+    <div class="relative flex-1 w-full">
+      <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+      <input id="news-search" type="text" placeholder="Tìm kiếm tiêu đề bài viết..." oninput="renderNews()"
+        class="w-full border border-slate-200 bg-slate-50 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button onclick="setTypeFilter('all', this)" class="type-filter-btn active text-xs font-bold px-3 py-2 rounded-xl border border-brand bg-brand text-white transition">Tất cả</button>
+      <button onclick="setTypeFilter('Khuyến Mãi', this)" class="type-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">🎁 Khuyến Mãi</button>
+      <button onclick="setTypeFilter('Sự Kiện', this)" class="type-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">🎉 Sự Kiện</button>
+      <button onclick="setTypeFilter('Thông Báo', this)" class="type-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">📢 Thông Báo</button>
+    </div>
+  </div>
+
+  <!-- News Cards Grid -->
+  <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+
+  <!-- Empty State -->
+  <div id="news-empty" class="hidden py-20 text-center bg-white rounded-2xl border border-slate-100">
+    <i class="fas fa-newspaper text-5xl text-slate-200 mb-4"></i>
+    <p class="text-slate-400 font-medium">Không tìm thấy bài viết nào</p>
+  </div>
+
+  <div class="mt-4">
+    <p id="news-count" class="text-xs text-slate-400"></p>
+  </div>
+</div>
+
+<!-- ===================================================================
+     MODAL: THÊM / CHỈNH SỬA BÀI VIẾT  (Facebook-style composer)
+=================================================================== -->
+<div id="news-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-10 flex flex-col max-h-[92vh]">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
+      <h3 id="modal-title" class="text-lg font-bold text-slate-800"></h3>
+      <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition text-xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100">
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Scrollable Form Body -->
+    <form id="news-form" onsubmit="saveNews(event)" class="overflow-y-auto flex-1">
+      <input type="hidden" id="form-id">
+
+      <!-- Author row (decorative, mimic Facebook) -->
+      <div class="px-6 pt-5 pb-3 flex items-center gap-3 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-sm flex-shrink-0">A</div>
+        <div class="flex-1">
+          <p class="font-bold text-slate-800 text-sm">Admin CineBook</p>
+          <div class="flex items-center gap-2 mt-1">
+            <select id="form-status" class="text-xs border border-slate-200 rounded-md px-2 py-1 focus:outline-none focus:border-brand appearance-none bg-slate-50 text-slate-600 font-medium">
+              <option value="Draft">🔒 Chỉ mình tôi (Bản nháp)</option>
+              <option value="Published">🌐 Công khai (Đã đăng)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-5 space-y-4">
+        <!-- Tiêu đề bài viết -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">
+            Tiêu đề bài viết <span class="text-brand">*</span>
+          </label>
+          <input id="form-title" type="text" required
+            placeholder="VD: [CineBook] THÔNG BÁO LỊCH CHIẾU ĐẶC BIỆT DỊP LỄ 2/9..."
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+        </div>
+
+        <!-- NỘI DUNG CHÍNH — Facebook-style textarea -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">
+            Nội dung bài viết <span class="text-brand">*</span>
+          </label>
+          <div class="relative">
+            <textarea id="form-content" required rows="12"
+              oninput="updateCharCount()"
+              placeholder="Nhập nội dung bài viết...
+
+Ví dụ:
+🎊 CineBook xin thông báo...
+
+📌 CHI TIẾT CHƯƠNG TRÌNH
+- Thời gian: ...
+- Địa điểm: ...
+
+Hãy đến với chúng tôi để trải nghiệm điện ảnh đỉnh cao! 🎬"
+              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition resize-y leading-relaxed min-h-[200px]"
+            ></textarea>
+            <div class="absolute bottom-3 right-3 flex gap-2">
+              <button type="button" onclick="insertEmoji('🎊')" class="text-lg hover:scale-125 transition-transform" title="Chèn emoji">🎊</button>
+              <button type="button" onclick="insertEmoji('📌')" class="text-lg hover:scale-125 transition-transform">📌</button>
+              <button type="button" onclick="insertEmoji('🎬')" class="text-lg hover:scale-125 transition-transform">🎬</button>
+              <button type="button" onclick="insertEmoji('💥')" class="text-lg hover:scale-125 transition-transform">💥</button>
+              <button type="button" onclick="insertEmoji('✨')" class="text-lg hover:scale-125 transition-transform">✨</button>
+              <button type="button" onclick="insertEmoji('🏆')" class="text-lg hover:scale-125 transition-transform">🏆</button>
+              <button type="button" onclick="insertSeparator()" class="text-xs text-slate-400 hover:text-brand font-bold transition px-1" title="Chèn dấu ngăn cách">—————</button>
+            </div>
+          </div>
+          <div class="flex justify-between mt-1">
+            <p class="text-xs text-slate-400">Hỗ trợ emoji, xuống dòng, dấu phân cách</p>
+            <p id="char-count" class="text-xs text-slate-400">0 ký tự</p>
+          </div>
+        </div>
+
+        <!-- Row: Loại + Ngày đăng -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Loại <span class="text-brand">*</span></label>
+            <select id="form-type" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition appearance-none bg-white">
+              <option value="">-- Chọn loại --</option>
+              <option value="Khuyến Mãi">🎁 Khuyến Mãi</option>
+              <option value="Sự Kiện">🎉 Sự Kiện</option>
+              <option value="Thông Báo">📢 Thông Báo</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Ngày đăng</label>
+            <input id="form-date" type="date" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition">
+          </div>
+        </div>
+
+        <!-- Thumbnail -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Ảnh đại diện (URL)</label>
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <i class="fas fa-image absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+              <input id="form-thumbnail" type="url" placeholder="https://..."
+                oninput="updateThumbnailPreview()"
+                class="w-full border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand transition">
+            </div>
+          </div>
+          <div id="thumbnail-preview" class="hidden mt-2">
+            <img id="thumb-img" src="" alt="preview" class="h-20 rounded-xl object-cover border border-slate-200">
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div id="form-error" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs font-medium px-4 py-2.5 rounded-xl">
+          <i class="fas fa-exclamation-circle mr-1"></i><span id="form-error-msg"></span>
+        </div>
+      </div>
+    </form>
+
+    <!-- Modal Footer -->
+    <div class="px-6 py-4 border-t border-slate-100 flex justify-between items-center flex-shrink-0 bg-slate-50 rounded-b-2xl">
+      <button type="button" onclick="previewPost()" class="flex items-center gap-2 text-slate-500 hover:text-brand text-sm font-semibold transition">
+        <i class="fas fa-eye text-xs"></i> Xem trước
+      </button>
+      <div class="flex gap-3">
+        <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition">Hủy</button>
+        <button type="button" onclick="document.getElementById('news-form').requestSubmit()" class="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-red-700 transition shadow-md shadow-brand/20 flex items-center gap-2">
+          <i class="fas fa-paper-plane text-xs"></i> Đăng bài
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     MODAL: XEM TRƯỚC BÀI VIẾT (Facebook-style preview)
+=================================================================== -->
+<div id="preview-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="closePreview()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg z-10 max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+      <h3 class="font-bold text-slate-800 flex items-center gap-2"><i class="fas fa-eye text-brand text-sm"></i> Xem trước bài đăng</h3>
+      <button onclick="closePreview()" class="text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition"><i class="fas fa-times text-sm"></i></button>
+    </div>
+    <div class="overflow-y-auto flex-1 p-5">
+      <!-- FB-style post card -->
+      <div class="border border-slate-200 rounded-xl bg-white shadow-sm">
+        <div class="p-4 border-b border-slate-100">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-sm">A</div>
+            <div>
+              <p class="font-bold text-slate-800 text-sm">Admin CineBook</p>
+              <p id="preview-date" class="text-xs text-slate-400 flex items-center gap-1"><i class="fas fa-globe-asia"></i> Hôm nay</p>
+            </div>
+          </div>
+          <p id="preview-title" class="font-extrabold text-slate-800 text-base leading-snug mb-2"></p>
+        </div>
+        <div id="preview-thumb-wrap" class="hidden">
+          <img id="preview-thumb" src="" alt="" class="w-full max-h-56 object-cover">
+        </div>
+        <div class="p-4">
+          <pre id="preview-content" class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed font-sans"></pre>
+        </div>
+        <div class="px-4 py-3 border-t border-slate-100 flex items-center gap-4 text-slate-400 text-xs">
+          <span><i class="fas fa-thumbs-up mr-1 text-blue-500"></i> 0 thích</span>
+          <span><i class="fas fa-comment mr-1"></i> 0 bình luận</span>
+          <span><i class="fas fa-share mr-1"></i> Chia sẻ</span>
+        </div>
+      </div>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-100 flex-shrink-0">
+      <button onclick="closePreview()" class="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-red-700 transition">Đóng xem trước</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     MODAL: XEM CHI TIẾT BÀI ĐÃ ĐĂNG
+=================================================================== -->
+<div id="view-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="closeViewModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg z-10 max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+      <h3 class="font-bold text-slate-800 flex items-center gap-2"><i class="fas fa-newspaper text-brand text-sm"></i> Chi tiết bài viết</h3>
+      <button onclick="closeViewModal()" class="text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition"><i class="fas fa-times text-sm"></i></button>
+    </div>
+    <div class="overflow-y-auto flex-1 p-5">
+      <div class="border border-slate-200 rounded-xl bg-white shadow-sm">
+        <div class="p-4 border-b border-slate-100">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-sm">A</div>
+            <div>
+              <p class="font-bold text-slate-800 text-sm">Admin CineBook</p>
+              <p id="view-date" class="text-xs text-slate-400 flex items-center gap-1"><i class="fas fa-globe-asia"></i></p>
+            </div>
+          </div>
+          <p id="view-title" class="font-extrabold text-slate-800 text-base leading-snug mb-1"></p>
+          <span id="view-type-badge" class="text-xs font-bold px-2 py-0.5 rounded-full"></span>
+        </div>
+        <div id="view-thumb-wrap" class="hidden">
+          <img id="view-thumb" src="" alt="" class="w-full max-h-56 object-cover">
+        </div>
+        <div class="p-4">
+          <pre id="view-content" class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed font-sans"></pre>
+        </div>
+        <div class="px-4 py-3 border-t border-slate-100 flex items-center gap-4 text-slate-400 text-xs">
+          <span><i class="fas fa-thumbs-up mr-1 text-blue-500"></i> 0 thích</span>
+          <span><i class="fas fa-comment mr-1"></i> 0 bình luận</span>
+          <span><i class="fas fa-share mr-1"></i> Chia sẻ</span>
+        </div>
+      </div>
+    </div>
+    <div class="px-5 py-3 border-t border-slate-100 flex gap-3 flex-shrink-0">
+      <button onclick="closeViewModal(); openEditModal(currentViewId)" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-brand border border-brand hover:bg-red-50 transition">
+        <i class="fas fa-edit mr-1"></i> Chỉnh sửa
+      </button>
+      <button onclick="closeViewModal()" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-700 hover:bg-slate-800 transition">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     MODAL: XÁC NHẬN XÓA
+=================================================================== -->
+<div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm z-10 p-6 text-center">
+    <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i class="fas fa-trash-alt text-2xl text-brand"></i>
+    </div>
+    <h3 class="text-lg font-bold text-slate-800 mb-2">Xóa bài viết?</h3>
+    <p class="text-sm text-slate-400 mb-6">Bài viết sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
+    <div class="flex gap-3">
+      <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Hủy</button>
+      <button onclick="confirmDelete()" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-red-700 transition">Xóa</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     JAVASCRIPT
+=================================================================== -->
+<script>
+// ===== MOCK DATA =====
+let NEWS_DATA = [
+  {
+    id: 1,
+    title: 'Giảm 30% vé xem phim cuối tuần tháng 6',
+    content: '🎊 CineBook xin thông báo chương trình khuyến mãi đặc biệt!\n\n📌 CHI TIẾT CHƯƠNG TRÌNH\n- Giảm 30% cho tất cả vé cuối tuần\n- Áp dụng: Thứ 7 và Chủ Nhật\n- Thời gian: Toàn tháng 6/2026\n\n💳 Điều kiện áp dụng\n- Đặt vé trực tiếp trên website cinebook.vn\n- Không áp dụng cùng các khuyến mãi khác\n- Thanh toán trước 24 giờ trước suất chiếu\n\n✨ Đừng bỏ lỡ cơ hội thưởng thức điện ảnh với mức giá cực kỳ hấp dẫn này nhé!',
+    type: 'Khuyến Mãi',
+    publishDate: '2026-06-01',
+    status: 'Published',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg'
+  },
+  {
+    id: 2,
+    title: '[CineBook] Ra mắt phòng chiếu IMAX mới tại Hà Nội',
+    content: '🎬 CineBook tự hào thông báo sự ra đời của phòng chiếu IMAX đẳng cấp quốc tế ngay tại trung tâm Hà Nội!\n\n💥 ĐIỂM NỔI BẬT\n- Màn hình IMAX khổng lồ 27m x 20m\n- Âm thanh Dolby Atmos 12 kênh\n- Ghế ngồi massage cao cấp (200 chỗ)\n- Công nghệ chiếu laser 4K sắc nét tuyệt đối\n\n📍 ĐỊA ĐIỂM\nCineBook Landmark 81, Tầng 5\n720A Điện Biên Phủ, Q. Bình Thạnh, TP.HCM\n\n📅 NGÀY KHAI TRƯƠNG: 15/06/2026\n\n🏆 Buổi chiếu khai mạc sẽ là bộ phim bom tấn Dune: Part Two với chất lượng hình ảnh đỉnh cao chưa từng có tại Việt Nam.\n\n🎁 Đặt vé sớm nhận ngay ưu đãi 20% và quà tặng đặc biệt từ CineBook!',
+    type: 'Sự Kiện',
+    publishDate: '2026-06-05',
+    status: 'Published',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/cdqLnri3NEGcmfnqwk2TSIYtddg.jpg'
+  },
+  {
+    id: 3,
+    title: 'Thông báo thay đổi lịch chiếu dịp Quốc khánh 2/9',
+    content: '📢 THÔNG BÁO QUAN TRỌNG\n\nNhân dịp Lễ Quốc khánh 2/9/2026, CineBook xin thông báo điều chỉnh lịch chiếu như sau:\n\n📅 Ngày 1/9 (Thứ Bảy): Lịch chiếu bình thường\n📅 Ngày 2/9 (Chủ Nhật - Quốc khánh):\n- Suất chiếu sớm nhất: 08:00 sáng\n- Bổ sung thêm 3 suất đặc biệt: 00:00, 01:00, 02:00\n- Giá vé tăng 15% cho các suất đặc biệt\n\n📅 Ngày 3/9 (Thứ Hai - bù):\n- Suất chiếu đầu tiên: 09:00 sáng\n- Hoạt động bình thường từ 10:00\n\nMọi thắc mắc xin liên hệ hotline: 1800-CINE (miễn phí)\n\nXin cảm ơn sự quan tâm của Quý khách!',
+    type: 'Thông Báo',
+    publishDate: '2026-08-28',
+    status: 'Draft',
+    thumbnail: ''
+  },
+  {
+    id: 4,
+    title: '[CineBook Awards 2026] Đêm hội điện ảnh lớn nhất năm',
+    content: '🌟 CineBook Awards 2026 - Đêm vinh danh điện ảnh!\n\n💖 Sau một năm đồng hành cùng hàng triệu khán giả, CineBook trân trọng tổ chức CineBook Awards 2026 - đêm hội vinh danh những tác phẩm điện ảnh xuất sắc nhất năm, do chính khán giả bình chọn.\n\n🏆 CÁC HẠNG MỤC GIẢI THƯỞNG\n🥇 Phim hay nhất năm (do khán giả bình chọn)\n🥇 Diễn viên được yêu thích nhất\n🥇 Cặp đôi màn bạc đẹp nhất\n🥇 Phim có doanh thu cao nhất\n🥇 Đạo diễn xuất sắc nhất\n\n📅 THỜI GIAN: 21/06/2026 | 19:00 - 23:00\n📍 ĐỊA ĐIỂM: Nhà hát Lớn TP.HCM\n\n🎟️ CÁCH THAM DỰ\n- 500 suất vé mời MIỄN PHÍ cho khách hàng thân thiết\n- Bình chọn online tại: cinebook.vn/awards\n- Kết quả công bố LIVE trên fanpage CineBook\n\n✨ Hẹn gặp các bạn trong đêm hội điện ảnh không thể bỏ lỡ!',
+    type: 'Sự Kiện',
+    publishDate: '2026-06-10',
+    status: 'Draft',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg'
+  },
+  {
+    id: 5,
+    title: 'Combo vé + bắp + nước chỉ 150.000đ',
+    content: '🍿 DEAL CỰC HOT - KHÔNG THỂ BỎ LỠ!\n\nChỉ với 150.000đ, bạn sẽ có:\n✅ 01 vé xem phim 2D (bất kỳ suất nào)\n✅ 01 bắp rang bơ Size L (không giới hạn refill)\n✅ 01 nước ngọt Size L\n✅ 01 que kẹo mút CineBook (quà tặng đặc biệt)\n\n📍 ÁP DỤNG TẠI\nTất cả 12 rạp CineBook trên toàn quốc\n\n⏰ THỜI GIAN\n01/06/2026 - 30/06/2026 (chỉ trong tháng 6)\n\n💡 LƯU Ý\n- Áp dụng cho các suất chiếu từ 10:00 - 16:00 (giờ thấp điểm)\n- Mỗi vé chỉ áp dụng 01 combo\n- Không áp dụng cùng các khuyến mãi khác\n\n🎯 Đặt ngay tại cinebook.vn trước khi hết slot!',
+    type: 'Khuyến Mãi',
+    publishDate: '2026-06-01',
+    status: 'Published',
+    thumbnail: 'https://image.tmdb.org/t/p/w500/wTnV3PCVW5O92JMrFvvrRcV39RU.jpg'
+  },
+];
+
+let currentTypeFilter = 'all';
+let deleteTargetId = null;
+let currentViewId = null;
+let nextId = NEWS_DATA.length + 1;
+
+// ===== HELPERS =====
+const typeColors = {
+  'Khuyến Mãi': 'bg-green-50 text-green-600 border-green-200',
+  'Sự Kiện':    'bg-blue-50 text-blue-600 border-blue-200',
+  'Thông Báo':  'bg-amber-50 text-amber-600 border-amber-200',
+};
+const typeIcons = { 'Khuyến Mãi': '🎁', 'Sự Kiện': '🎉', 'Thông Báo': '📢' };
+
+function formatDate(d) {
+  if (!d) return '—';
+  return new Date(d + 'T00:00:00').toLocaleDateString('vi-VN');
+}
+
+function truncate(str, n) {
+  if (!str) return '';
+  return str.length > n ? str.slice(0, n) + '...' : str;
+}
+
+// ===== RENDER CARDS =====
+function renderNews() {
+  const search = document.getElementById('news-search').value.toLowerCase();
+  let data = NEWS_DATA.filter(n => {
+    if (search && !n.title.toLowerCase().includes(search) && !(n.content||'').toLowerCase().includes(search)) return false;
+    if (currentTypeFilter !== 'all' && n.type !== currentTypeFilter) return false;
+    return true;
+  });
+
+  const grid = document.getElementById('news-grid');
+  const empty = document.getElementById('news-empty');
+  document.getElementById('news-count').textContent = `${data.length} bài viết`;
+
+  if (data.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  grid.innerHTML = data.map(n => `
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+      <!-- Thumbnail -->
+      ${n.thumbnail
+        ? `<div class="relative h-40 overflow-hidden flex-shrink-0">
+             <img src="${n.thumbnail}" alt="" class="w-full h-full object-cover">
+             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+             <span class="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full border ${typeColors[n.type] || ''} bg-white/90">${typeIcons[n.type]||''} ${n.type}</span>
+           </div>`
+        : `<div class="flex-shrink-0 px-5 pt-4">
+             <span class="text-xs font-bold px-2.5 py-1 rounded-full border ${typeColors[n.type] || 'bg-slate-100 text-slate-600 border-slate-200'}">${typeIcons[n.type]||''} ${n.type}</span>
+           </div>`
+      }
+
+      <!-- Content -->
+      <div class="p-5 flex-1 flex flex-col">
+        <!-- Author row -->
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-xs flex-shrink-0">A</div>
+          <div>
+            <p class="text-xs font-bold text-slate-700">Admin CineBook</p>
+            <p class="text-[10px] text-slate-400">${formatDate(n.publishDate)} · ${n.status === 'Published' ? '<span class="text-green-500">🌐 Đã đăng</span>' : '<span class="text-slate-400">🔒 Bản nháp</span>'}</p>
+          </div>
+        </div>
+
+        <h3 class="font-extrabold text-slate-800 text-sm mb-2 leading-snug line-clamp-2">${n.title}</h3>
+        <p class="text-slate-500 text-xs leading-relaxed flex-1 line-clamp-3 whitespace-pre-line">${truncate(n.content, 150)}</p>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
+          <button onclick="openViewModal(${n.id})" class="text-xs font-semibold text-brand hover:text-red-700 transition flex items-center gap-1">
+            <i class="fas fa-eye text-[10px]"></i> Xem toàn bộ
+          </button>
+          <div class="flex gap-1">
+            <button onclick="openEditModal(${n.id})" class="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Chỉnh sửa">
+              <i class="fas fa-edit text-xs"></i>
+            </button>
+            <button onclick="openDeleteModal(${n.id})" class="p-2 text-slate-400 hover:text-brand hover:bg-red-50 rounded-lg transition" title="Xóa">
+              <i class="fas fa-trash-alt text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== FILTER =====
+function setTypeFilter(type, btn) {
+  currentTypeFilter = type;
+  document.querySelectorAll('.type-filter-btn').forEach(b => {
+    b.className = 'type-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition';
+  });
+  btn.className = 'type-filter-btn active text-xs font-bold px-3 py-2 rounded-xl border border-brand bg-brand text-white transition';
+  renderNews();
+}
+
+// ===== MODAL ADD/EDIT =====
+function openAddModal() {
+  document.getElementById('modal-title').textContent = '✏️ Viết bài viết mới';
+  document.getElementById('form-id').value = '';
+  document.getElementById('news-form').reset();
+  document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('form-error').classList.add('hidden');
+  document.getElementById('thumbnail-preview').classList.add('hidden');
+  updateCharCount();
+  document.getElementById('news-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('form-title').focus(), 100);
+}
+
+function openEditModal(id) {
+  const n = NEWS_DATA.find(x => x.id === id);
+  if (!n) return;
+  document.getElementById('modal-title').textContent = '✏️ Chỉnh sửa bài viết';
+  document.getElementById('form-id').value = n.id;
+  document.getElementById('form-title').value = n.title;
+  document.getElementById('form-content').value = n.content || '';
+  document.getElementById('form-type').value = n.type;
+  document.getElementById('form-status').value = n.status;
+  document.getElementById('form-date').value = n.publishDate;
+  document.getElementById('form-thumbnail').value = n.thumbnail || '';
+  document.getElementById('form-error').classList.add('hidden');
+  updateCharCount();
+  updateThumbnailPreview();
+  document.getElementById('news-modal').classList.remove('hidden');
+}
+
+function closeModal() { document.getElementById('news-modal').classList.add('hidden'); }
+
+function saveNews(e) {
+  e.preventDefault();
+  const id = document.getElementById('form-id').value;
+  const title = document.getElementById('form-title').value.trim();
+  const content = document.getElementById('form-content').value.trim();
+  const type = document.getElementById('form-type').value;
+  const status = document.getElementById('form-status').value;
+  const publishDate = document.getElementById('form-date').value;
+  const thumbnail = document.getElementById('form-thumbnail').value.trim();
+
+  const errEl = document.getElementById('form-error');
+  const errMsg = document.getElementById('form-error-msg');
+
+  if (!title) { errMsg.textContent = 'Vui lòng nhập tiêu đề bài viết.'; errEl.classList.remove('hidden'); return; }
+  if (!content) { errMsg.textContent = 'Vui lòng nhập nội dung bài viết.'; errEl.classList.remove('hidden'); return; }
+  if (!type) { errMsg.textContent = 'Vui lòng chọn loại bài viết.'; errEl.classList.remove('hidden'); return; }
+  errEl.classList.add('hidden');
+
+  if (id) {
+    const idx = NEWS_DATA.findIndex(x => x.id == id);
+    if (idx > -1) NEWS_DATA[idx] = { id: parseInt(id), title, content, type, status, publishDate, thumbnail };
+  } else {
+    NEWS_DATA.unshift({ id: nextId++, title, content, type, status, publishDate, thumbnail });
+  }
+
+  closeModal();
+  renderNews();
+}
+
+// ===== PREVIEW =====
+function previewPost() {
+  const title = document.getElementById('form-title').value || '(Chưa có tiêu đề)';
+  const content = document.getElementById('form-content').value || '(Chưa có nội dung)';
+  const thumb = document.getElementById('form-thumbnail').value;
+  const date = document.getElementById('form-date').value;
+
+  document.getElementById('preview-title').textContent = title;
+  document.getElementById('preview-content').textContent = content;
+  document.getElementById('preview-date').innerHTML = `<i class="fas fa-globe-asia"></i> ${date ? formatDate(date) : 'Hôm nay'}`;
+
+  const thumbWrap = document.getElementById('preview-thumb-wrap');
+  if (thumb) {
+    document.getElementById('preview-thumb').src = thumb;
+    thumbWrap.classList.remove('hidden');
+  } else {
+    thumbWrap.classList.add('hidden');
+  }
+  document.getElementById('preview-modal').classList.remove('hidden');
+}
+function closePreview() { document.getElementById('preview-modal').classList.add('hidden'); }
+
+// ===== VIEW MODAL =====
+function openViewModal(id) {
+  const n = NEWS_DATA.find(x => x.id === id);
+  if (!n) return;
+  currentViewId = id;
+  document.getElementById('view-title').textContent = n.title;
+  document.getElementById('view-content').textContent = n.content || '(Không có nội dung)';
+  document.getElementById('view-date').innerHTML = `<i class="fas fa-globe-asia"></i> ${formatDate(n.publishDate)}`;
+  const badge = document.getElementById('view-type-badge');
+  badge.textContent = (typeIcons[n.type]||'') + ' ' + n.type;
+  badge.className = `text-xs font-bold px-2.5 py-1 rounded-full border ${typeColors[n.type]||''}`;
+  const thumbWrap = document.getElementById('view-thumb-wrap');
+  if (n.thumbnail) { document.getElementById('view-thumb').src = n.thumbnail; thumbWrap.classList.remove('hidden'); }
+  else { thumbWrap.classList.add('hidden'); }
+  document.getElementById('view-modal').classList.remove('hidden');
+}
+function closeViewModal() { document.getElementById('view-modal').classList.add('hidden'); }
+
+// ===== DELETE =====
+function openDeleteModal(id) { deleteTargetId = id; document.getElementById('delete-modal').classList.remove('hidden'); }
+function closeDeleteModal() { deleteTargetId = null; document.getElementById('delete-modal').classList.add('hidden'); }
+function confirmDelete() { NEWS_DATA = NEWS_DATA.filter(n => n.id !== deleteTargetId); closeDeleteModal(); renderNews(); }
+
+// ===== HELPERS =====
+function updateCharCount() {
+  const len = (document.getElementById('form-content').value || '').length;
+  const el = document.getElementById('char-count');
+  el.textContent = len.toLocaleString() + ' ký tự';
+  el.className = len > 5000 ? 'text-xs text-amber-500 font-semibold' : 'text-xs text-slate-400';
+}
+
+function updateThumbnailPreview() {
+  const url = document.getElementById('form-thumbnail').value.trim();
+  const wrap = document.getElementById('thumbnail-preview');
+  if (url) { document.getElementById('thumb-img').src = url; wrap.classList.remove('hidden'); }
+  else { wrap.classList.add('hidden'); }
+}
+
+function insertEmoji(emoji) {
+  const ta = document.getElementById('form-content');
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  ta.value = ta.value.slice(0, start) + emoji + ta.value.slice(end);
+  ta.selectionStart = ta.selectionEnd = start + emoji.length;
+  ta.focus();
+  updateCharCount();
+}
+
+function insertSeparator() {
+  const ta = document.getElementById('form-content');
+  const sep = '\n-----------------------------\n';
+  const start = ta.selectionStart;
+  ta.value = ta.value.slice(0, start) + sep + ta.value.slice(start);
+  ta.selectionStart = ta.selectionEnd = start + sep.length;
+  ta.focus();
+  updateCharCount();
+}
+
+// Init
+renderNews();
+</script>

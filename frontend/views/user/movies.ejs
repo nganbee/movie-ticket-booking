@@ -1,0 +1,520 @@
+<!-- Movie Filter Page -->
+<div class="bg-bgSubtle min-h-screen pb-16">
+
+  <!-- Page Header -->
+  <div class="bg-white border-b border-borderSubtle pt-24 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-extrabold text-slate-800 flex items-center gap-3">
+            <span class="w-1.5 h-8 bg-brand rounded-full"></span>
+            Tất Cả Phim
+          </h1>
+          <p class="text-slate-500 mt-1 ml-5" id="result-count">Đang tải danh sách phim...</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="view-grid" onclick="setView('grid')" class="view-btn p-2.5 rounded-lg bg-brand text-white shadow transition" title="Dạng lưới">
+            <i class="fas fa-th-large text-sm"></i>
+          </button>
+          <button id="view-list" onclick="setView('list')" class="view-btn p-2.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition" title="Dạng danh sách">
+            <i class="fas fa-list text-sm"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col lg:flex-row gap-8">
+
+      <!-- ===== SIDEBAR FILTERS ===== -->
+      <aside class="lg:w-72 flex-shrink-0">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sticky top-24">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <i class="fas fa-sliders-h text-brand text-sm"></i> Bộ Lọc
+            </h2>
+            <button onclick="resetFilters()" class="text-xs text-brand hover:text-red-700 font-semibold transition flex items-center gap-1">
+              <i class="fas fa-redo text-[10px]"></i> Đặt lại
+            </button>
+          </div>
+
+          <!-- Search -->
+          <div class="mb-6">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tìm kiếm</label>
+            <div class="relative">
+              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input
+                id="search-input"
+                type="text"
+                placeholder="Tên phim..."
+                oninput="applyFilters()"
+                class="w-full border border-slate-200 bg-slate-50 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition"
+              >
+            </div>
+          </div>
+
+          <!-- Genre Filter -->
+          <div class="mb-6">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Thể Loại</label>
+            <div class="space-y-2" id="genre-filters">
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" value="all" checked class="genre-check w-4 h-4 accent-brand rounded">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition font-medium">Tất cả</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" value="Hành Động" class="genre-check w-4 h-4 accent-brand rounded">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Hành Động</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" value="Hài Hước" class="genre-check w-4 h-4 accent-brand rounded">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Hài Hước</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" value="Kinh Dị" class="genre-check w-4 h-4 accent-brand rounded">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Kinh Dị</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" value="Tâm Lý" class="genre-check w-4 h-4 accent-brand rounded">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Tâm Lý</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" value="Viễn Tưởng" class="genre-check w-4 h-4 accent-brand rounded">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Viễn Tưởng</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" value="Hoạt Hình" class="genre-check w-4 h-4 accent-brand rounded">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Hoạt Hình</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" value="Tình Cảm" class="genre-check w-4 h-4 accent-brand rounded">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Tình Cảm</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Format Filter -->
+          <div class="mb-6">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Định Dạng</label>
+            <div class="flex flex-wrap gap-2" id="format-filters">
+              <button onclick="toggleFormat(this, 'all')" data-format="all" class="format-btn active px-3 py-1.5 rounded-lg text-xs font-bold border border-brand bg-brand text-white transition">Tất cả</button>
+              <button onclick="toggleFormat(this, '2D')" data-format="2D" class="format-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">2D</button>
+              <button onclick="toggleFormat(this, '3D')" data-format="3D" class="format-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">3D</button>
+              <button onclick="toggleFormat(this, 'IMAX')" data-format="IMAX" class="format-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">IMAX</button>
+            </div>
+          </div>
+
+          <!-- Date Filter -->
+          <div class="mb-6">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ngày Chiếu</label>
+            <input
+              id="date-filter"
+              type="date"
+              onchange="applyFilters()"
+              class="w-full border border-slate-200 bg-slate-50 rounded-xl px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition"
+            >
+          </div>
+
+          <!-- Status Filter -->
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Trạng Thái</label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="radio" name="status" value="all" checked onchange="applyFilters()" class="w-4 h-4 accent-brand">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Tất cả</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="radio" name="status" value="now_showing" onchange="applyFilters()" class="w-4 h-4 accent-brand">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Đang Chiếu</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input type="radio" name="status" value="coming_soon" onchange="applyFilters()" class="w-4 h-4 accent-brand">
+                <span class="text-sm text-slate-600 group-hover:text-brand transition">Sắp Chiếu</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ===== MOVIE LIST ===== -->
+      <div class="flex-1">
+        <!-- Movie Grid -->
+        <div id="movie-container" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden flex flex-col items-center justify-center py-24 text-center">
+          <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-6">
+            <i class="fas fa-film text-4xl text-slate-300"></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-700 mb-2">Không tìm thấy phim</h3>
+          <p class="text-slate-400 mb-6 max-w-xs">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để tìm phim phù hợp.</p>
+          <button onclick="resetFilters()" class="bg-brand text-white px-6 py-2.5 rounded-xl font-bold hover:bg-red-700 transition shadow-md shadow-brand/20">
+            <i class="fas fa-redo mr-2"></i> Đặt lại bộ lọc
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ========== MOCK DATA ==========
+  const MOCK_MOVIES = [
+    {
+      id: 1,
+      title: 'Avengers: Endgame',
+      genre: 'Hành Động',
+      rating: '8.4',
+      duration: '181 phút',
+      format: ['2D', '3D', 'IMAX'],
+      status: 'now_showing',
+      poster: 'https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg',
+      showtimes: ['09:00', '13:30', '17:00', '20:45'],
+      releaseDate: '2024-04-26'
+    },
+    {
+      id: 2,
+      title: 'Inside Out 2',
+      genre: 'Hoạt Hình',
+      rating: '7.9',
+      duration: '100 phút',
+      format: ['2D', '3D'],
+      status: 'now_showing',
+      poster: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
+      showtimes: ['10:00', '14:00', '18:00'],
+      releaseDate: '2024-06-14'
+    },
+    {
+      id: 3,
+      title: 'Dune: Part Two',
+      genre: 'Viễn Tưởng',
+      rating: '8.5',
+      duration: '166 phút',
+      format: ['IMAX', '3D'],
+      status: 'now_showing',
+      poster: 'https://image.tmdb.org/t/p/w500/cdqLnri3NEGcmfnqwk2TSIYtddg.jpg',
+      showtimes: ['11:00', '15:30', '20:00'],
+      releaseDate: '2024-03-01'
+    },
+    {
+      id: 4,
+      title: 'Deadpool & Wolverine',
+      genre: 'Hành Động',
+      rating: '7.8',
+      duration: '128 phút',
+      format: ['2D', '3D', 'IMAX'],
+      status: 'now_showing',
+      poster: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg',
+      showtimes: ['09:30', '12:00', '15:00', '19:30', '22:00'],
+      releaseDate: '2024-07-26'
+    },
+    {
+      id: 5,
+      title: 'A Quiet Place: Day One',
+      genre: 'Kinh Dị',
+      rating: '7.0',
+      duration: '99 phút',
+      format: ['2D'],
+      status: 'now_showing',
+      poster: 'https://image.tmdb.org/t/p/w500/yrpPYKijwdMHyTGIOd1iK1h0Yo8.jpg',
+      showtimes: ['10:30', '13:00', '16:30', '21:00'],
+      releaseDate: '2024-06-28'
+    },
+    {
+      id: 6,
+      title: 'Alien: Romulus',
+      genre: 'Kinh Dị',
+      rating: '7.3',
+      duration: '119 phút',
+      format: ['2D', '3D'],
+      status: 'now_showing',
+      poster: 'https://image.tmdb.org/t/p/w500/b33nnKl1GSFbao4l3fZDDqsMx0F.jpg',
+      showtimes: ['11:30', '14:45', '18:30', '22:15'],
+      releaseDate: '2024-08-16'
+    },
+    {
+      id: 7,
+      title: 'Twisters',
+      genre: 'Hành Động',
+      rating: '7.2',
+      duration: '122 phút',
+      format: ['2D', 'IMAX'],
+      status: 'now_showing',
+      poster: 'https://image.tmdb.org/t/p/w500/pjnD08FlMAIXsfOLKQbIt9sXKnq.jpg',
+      showtimes: ['10:00', '13:30', '17:30', '21:00'],
+      releaseDate: '2024-07-19'
+    },
+    {
+      id: 8,
+      title: 'Moana 2',
+      genre: 'Hoạt Hình',
+      rating: '7.1',
+      duration: '100 phút',
+      format: ['2D', '3D'],
+      status: 'coming_soon',
+      poster: 'https://image.tmdb.org/t/p/w500/4YZgsHLBToZM8lnhiGlTXNB4pJE.jpg',
+      showtimes: [],
+      releaseDate: '2024-11-27'
+    },
+    {
+      id: 9,
+      title: 'Wicked',
+      genre: 'Tình Cảm',
+      rating: '7.6',
+      duration: '160 phút',
+      format: ['2D'],
+      status: 'coming_soon',
+      poster: 'https://image.tmdb.org/t/p/w500/xDGbZ0JJ3mYaGKy4Nzd9Kph6LQ.jpg',
+      showtimes: [],
+      releaseDate: '2024-11-22'
+    },
+    {
+      id: 10,
+      title: 'Gladiator II',
+      genre: 'Hành Động',
+      rating: '7.5',
+      duration: '148 phút',
+      format: ['2D', 'IMAX'],
+      status: 'coming_soon',
+      poster: 'https://image.tmdb.org/t/p/w500/2cxhvwyEwRlysAmRH4iodkvo0z5.jpg',
+      showtimes: [],
+      releaseDate: '2024-11-22'
+    },
+    {
+      id: 11,
+      title: 'Speak No Evil',
+      genre: 'Tâm Lý',
+      rating: '7.1',
+      duration: '110 phút',
+      format: ['2D'],
+      status: 'now_showing',
+      poster: 'https://image.tmdb.org/t/p/w500/oBIQDKcqNxKckjugtmzpIIOgoc4.jpg',
+      showtimes: ['12:00', '16:00', '20:30'],
+      releaseDate: '2024-09-13'
+    },
+    {
+      id: 12,
+      title: 'The Wild Robot',
+      genre: 'Hoạt Hình',
+      rating: '8.0',
+      duration: '102 phút',
+      format: ['2D', '3D'],
+      status: 'now_showing',
+      poster: 'https://image.tmdb.org/t/p/w500/wTnV3PCVW5O92JMrFvvrRcV39RU.jpg',
+      showtimes: ['09:30', '13:00', '17:00'],
+      releaseDate: '2024-09-27'
+    }
+  ];
+
+  let currentView = 'grid';
+  let selectedFormat = 'all';
+
+  // ========== RENDER ==========
+  function renderMovies(movies) {
+    const container = document.getElementById('movie-container');
+    const emptyState = document.getElementById('empty-state');
+    const resultCount = document.getElementById('result-count');
+
+    if (movies.length === 0) {
+      container.innerHTML = '';
+      emptyState.classList.remove('hidden');
+      resultCount.textContent = 'Không tìm thấy phim nào';
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+    resultCount.textContent = `Tìm thấy ${movies.length} phim`;
+
+    if (currentView === 'grid') {
+      container.className = 'grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5';
+      container.innerHTML = movies.map(m => renderGridCard(m)).join('');
+    } else {
+      container.className = 'flex flex-col gap-4';
+      container.innerHTML = movies.map(m => renderListCard(m)).join('');
+    }
+  }
+
+  function formatBadge(fmt) {
+    const colors = { 'IMAX': 'bg-yellow-100 text-yellow-700 border-yellow-200', '3D': 'bg-blue-100 text-blue-700 border-blue-200', '2D': 'bg-slate-100 text-slate-600 border-slate-200' };
+    return `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${colors[fmt] || 'bg-slate-100 text-slate-600'}">${fmt}</span>`;
+  }
+
+  function statusBadge(status) {
+    return status === 'now_showing'
+      ? `<span class="absolute top-3 left-3 bg-brand text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">Đang Chiếu</span>`
+      : `<span class="absolute top-3 left-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">Sắp Chiếu</span>`;
+  }
+
+  function renderGridCard(m) {
+    const showtimesHtml = m.showtimes.length > 0
+      ? m.showtimes.slice(0, 3).map(t => `<span class="text-xs border border-slate-200 text-slate-600 px-2 py-0.5 rounded-lg hover:border-brand hover:text-brand cursor-pointer transition">${t}</span>`).join('')
+      + (m.showtimes.length > 3 ? `<span class="text-xs text-slate-400">+${m.showtimes.length-3}</span>` : '')
+      : `<span class="text-xs text-slate-400 italic">Chưa mở bán</span>`;
+
+    return `
+      <a href="/movie/${m.id}" class="group cursor-pointer block bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+        <div class="relative aspect-[2/3] overflow-hidden">
+          <img src="${m.poster}" alt="${m.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+          ${statusBadge(m.status)}
+          <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-slate-800 text-xs font-bold px-2 py-1 rounded-lg shadow flex items-center gap-1">
+            <i class="fas fa-star text-yellow-500 text-[10px]"></i> ${m.rating}
+          </div>
+          <div class="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+            <span class="bg-brand text-white text-sm font-bold px-5 py-2 rounded-xl shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Xem chi tiết</span>
+          </div>
+        </div>
+        <div class="p-3">
+          <h3 class="font-bold text-sm text-slate-800 truncate group-hover:text-brand transition mb-1">${m.title}</h3>
+          <div class="flex items-center gap-1 mb-2 text-slate-400 text-xs">
+            <i class="fas fa-tag text-[10px]"></i> ${m.genre}
+            <span class="mx-1">•</span>
+            <i class="far fa-clock text-[10px]"></i> ${m.duration}
+          </div>
+          <div class="flex flex-wrap gap-1 mb-2">
+            ${m.format.map(formatBadge).join('')}
+          </div>
+          <div class="flex flex-wrap gap-1 pt-2 border-t border-slate-100">
+            ${showtimesHtml}
+          </div>
+        </div>
+      </a>
+    `;
+  }
+
+  function renderListCard(m) {
+    const showtimesHtml = m.showtimes.length > 0
+      ? m.showtimes.map(t => `<span class="text-xs border border-slate-200 text-slate-600 px-2 py-1 rounded-lg hover:border-brand hover:text-brand cursor-pointer transition">${t}</span>`).join('')
+      : `<span class="text-xs text-slate-400 italic">Chưa mở bán</span>`;
+
+    return `
+      <a href="/movie/${m.id}" class="group bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex gap-4 hover:shadow-lg hover:border-brand/20 transition-all duration-300">
+        <div class="relative flex-shrink-0 w-28 rounded-xl overflow-hidden aspect-[2/3]">
+          <img src="${m.poster}" alt="${m.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          ${statusBadge(m.status)}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <h3 class="font-bold text-lg text-slate-800 group-hover:text-brand transition leading-tight">${m.title}</h3>
+            <div class="flex-shrink-0 flex items-center gap-1 bg-yellow-50 text-yellow-600 text-xs font-bold px-2 py-1 rounded-lg border border-yellow-200">
+              <i class="fas fa-star text-[10px]"></i> ${m.rating}
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">
+            <span class="flex items-center gap-1"><i class="fas fa-tag text-slate-300 text-xs"></i> ${m.genre}</span>
+            <span class="flex items-center gap-1"><i class="far fa-clock text-slate-300 text-xs"></i> ${m.duration}</span>
+          </div>
+          <div class="flex flex-wrap gap-1 mb-3">
+            ${m.format.map(formatBadge).join('')}
+          </div>
+          <div class="flex flex-wrap gap-1.5 pt-3 border-t border-slate-100">
+            <span class="text-xs text-slate-400 mr-1 self-center">Suất chiếu:</span>
+            ${showtimesHtml}
+          </div>
+        </div>
+      </a>
+    `;
+  }
+
+  // ========== FILTERS ==========
+  function applyFilters() {
+    const search = document.getElementById('search-input').value.toLowerCase().trim();
+    const selectedGenres = [...document.querySelectorAll('.genre-check:checked')].map(cb => cb.value);
+    const status = document.querySelector('input[name="status"]:checked').value;
+    const date = document.getElementById('date-filter').value;
+
+    let filtered = MOCK_MOVIES.filter(m => {
+      // Search
+      if (search && !m.title.toLowerCase().includes(search)) return false;
+      // Date
+      if (date) {
+        if (!m.showDates || !m.showDates.includes(date)) return false;
+      }
+      // Genre
+      if (!selectedGenres.includes('all')) {
+        if (!selectedGenres.some(g => m.genre.includes(g))) return false;
+      }
+      // Format
+      if (selectedFormat !== 'all' && !m.format.includes(selectedFormat)) return false;
+      // Status
+      if (status !== 'all' && m.status !== status) return false;
+      return true;
+    });
+
+    renderMovies(filtered);
+  }
+
+  function toggleFormat(btn, fmt) {
+    document.querySelectorAll('.format-btn').forEach(b => {
+      b.classList.remove('active', 'bg-brand', 'text-white', 'border-brand');
+      b.classList.add('border-slate-200', 'text-slate-600');
+    });
+    btn.classList.add('active', 'bg-brand', 'text-white', 'border-brand');
+    btn.classList.remove('border-slate-200', 'text-slate-600');
+    selectedFormat = fmt;
+    applyFilters();
+  }
+
+  function resetFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('date-filter').value = '';
+    document.querySelectorAll('.genre-check').forEach(cb => {
+      cb.checked = cb.value === 'all';
+    });
+    document.querySelector('input[name="status"][value="all"]').checked = true;
+    document.querySelectorAll('.format-btn').forEach(b => {
+      b.classList.remove('active', 'bg-brand', 'text-white', 'border-brand');
+      b.classList.add('border-slate-200', 'text-slate-600');
+    });
+    const allFormatBtn = document.querySelector('.format-btn[data-format="all"]');
+    allFormatBtn.classList.add('active', 'bg-brand', 'text-white', 'border-brand');
+    allFormatBtn.classList.remove('border-slate-200', 'text-slate-600');
+    selectedFormat = 'all';
+    applyFilters();
+  }
+
+  function setView(v) {
+    currentView = v;
+    document.getElementById('view-grid').className = v === 'grid'
+      ? 'view-btn p-2.5 rounded-lg bg-brand text-white shadow transition'
+      : 'view-btn p-2.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition';
+    document.getElementById('view-list').className = v === 'list'
+      ? 'view-btn p-2.5 rounded-lg bg-brand text-white shadow transition'
+      : 'view-btn p-2.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition';
+    applyFilters();
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    // Generate mock showDates for movies
+    const todayStr = new Date().toISOString().split('T')[0];
+    const baseDate = new Date();
+    MOCK_MOVIES.forEach(m => {
+      m.showDates = [];
+      if (m.status === 'now_showing') {
+        for (let i = -7; i < 21; i++) {
+          let d = new Date(baseDate);
+          d.setDate(d.getDate() + i);
+          m.showDates.push(d.toISOString().split('T')[0]);
+        }
+      }
+    });
+
+    document.querySelectorAll('.genre-check').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const allCb = document.querySelector('.genre-check[value="all"]');
+        if (e.target.value === 'all' && e.target.checked) {
+          document.querySelectorAll('.genre-check:not([value="all"])').forEach(other => other.checked = false);
+        } else if (e.target.value !== 'all') {
+          if (e.target.checked) allCb.checked = false;
+          // check if no genre is selected
+          const anyChecked = [...document.querySelectorAll('.genre-check:not([value="all"])')].some(other => other.checked);
+          if (!anyChecked) allCb.checked = true;
+        }
+        applyFilters();
+      });
+    });
+    applyFilters();
+  });
+</script>
