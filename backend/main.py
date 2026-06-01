@@ -9,18 +9,36 @@ from src.models.news import NewsTable
 from src.models.user import UserTable  # Auth & User tables
 from src.models.theater import TheaterTable, RoomTable, SeatTable, ShowtimeTable, ShowSeatTable, PricingRuleTable
 from src.models.booking import BookingTable, PaymentTable, BookingItemTable, ETicketTable
+from src.models.showtime import ShowtimeTable, RoomTable, TheaterTable  # Showtime tables
+from src.routes import movies, news, auth, users, seats, bookings, payments, showtimes
 
-from src.routes import movies, news, auth, users, seats, bookings, payments
+from src.config.settings import settings
+import ngrok
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Khi ứng dụng chạy: Tự động quét Models và tạo bảng trên Supabase nếu chưa tồn tại
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("Ket noi Supabase on dinh va dong bo bang thanh cong!")
+    print("Connected Supabase successfully!")
+    
+    # Khởi tạo Ngrok tunnel
+    if settings.NGROK_AUTHTOKEN:
+        try:
+            listener = await ngrok.forward(
+                "localhost:8000", 
+                authtoken=settings.NGROK_AUTHTOKEN,
+                domain="gush-unafraid-regain.ngrok-free.dev"
+            )
+            print(f"Ngrok tunnel opened at: {listener.url()}")
+        except Exception as e:
+            print(f"Lỗi khởi tạo ngrok: {e}")
+            
     yield
     # Khi ứng dụng tắt
     await engine.dispose()
+    if settings.NGROK_AUTHTOKEN:
+        ngrok.disconnect()
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -53,3 +71,6 @@ app.include_router(news.router, prefix="/news", tags=["News"])
 app.include_router(seats.router, prefix="/seats", tags=["Seats"])
 app.include_router(bookings.router, prefix="/bookings", tags=["Bookings"])
 app.include_router(payments.router, prefix="/payments", tags=["Payments"])
+app.include_router(showtimes.router, prefix="/showtimes", tags=["Showtimes"])
+# ── Showtime routes ───────────────────────────────────────────────────────────
+app.include_router(showtimes.router, prefix="/showtimes", tags=["Showtimes"])

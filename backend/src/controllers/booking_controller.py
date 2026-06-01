@@ -3,6 +3,8 @@ from sqlalchemy import select
 from fastapi import HTTPException
 from typing import List
 from datetime import datetime, timezone
+import asyncio
+from src.config.db import AsyncSessionLocal
 
 from src.models.booking import BookingTable, BookingItemTable, BookingReserveRequest
 from src.models.theater import ShowSeatTable, SeatTable, PricingRuleTable, ShowtimeTable, RoomTable
@@ -93,11 +95,42 @@ class BookingController:
         await db.commit()
         await db.refresh(booking)
         
+        # Schedule timeout task
+        asyncio.create_task(BookingController.timeout_booking_task(booking.booking_id))
+        
         return {
             "booking_id": booking.booking_id,
             "total_price": booking.total_price,
             "status": booking.status
         }
+
+    @staticmethod
+    async def timeout_booking_task(booking_id: int):
+        # Wait for 10 minutes
+        await asyncio.sleep(600)
+        async with AsyncSessionLocal() as db:
+            await BookingController.cancel_booking(db, booking_id)
+
+    @staticmethod
+    async def cancel_booking(db: AsyncSession, booking_id: int):
+        res = await db.execute(select(BookingTable).where(BookingTable.booking_id == booking_id))
+        booking = res.scalars().first()
+        
+        if booking and booking.status == "pending":
+            booking.status = "cancelled"
+            
+            # Release seats
+            res_items = await db.execute(select(BookingItemTable).where(BookingItemTable.booking_id == booking_id))
+            items = res_items.scalars().all()
+            
+            for item in items:
+                res_ss = await db.execute(select(ShowSeatTable).where(ShowSeatTable.show_seat_id == item.show_seat_id))
+                show_seat = res_ss.scalars().first()
+                if show_seat:
+                    show_seat.status = "Available"
+                    show_seat.booking_id = None
+                    
+            await db.commit()
 
     @staticmethod
     async def get_booking_detail(db: AsyncSession, user_id: int, booking_id: int):
