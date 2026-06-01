@@ -1,0 +1,302 @@
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+  <!-- Total Revenue -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+    <div class="w-14 h-14 rounded-2xl bg-brand/10 flex items-center justify-center flex-shrink-0">
+      <i class="fas fa-dollar-sign text-2xl text-brand"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Doanh Thu</p>
+      <p class="text-2xl font-extrabold text-slate-800" id="kpi-revenue">482,500,000 ₫</p>
+      <p class="text-xs text-green-500 font-semibold mt-1"><i class="fas fa-arrow-up mr-1"></i>12.5% so với tháng trước</p>
+    </div>
+  </div>
+  <!-- Tickets Sold -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+    <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+      <i class="fas fa-ticket-alt text-2xl text-blue-500"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Vé Đã Bán</p>
+      <p class="text-2xl font-extrabold text-slate-800">9,240</p>
+      <p class="text-xs text-green-500 font-semibold mt-1"><i class="fas fa-arrow-up mr-1"></i>8.3% so với tháng trước</p>
+    </div>
+  </div>
+  <!-- Bookings -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+    <div class="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+      <i class="fas fa-receipt text-2xl text-purple-500"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Lượt Đặt Vé</p>
+      <p class="text-2xl font-extrabold text-slate-800">3,812</p>
+      <p class="text-xs text-red-400 font-semibold mt-1"><i class="fas fa-arrow-down mr-1"></i>2.1% so với tháng trước</p>
+    </div>
+  </div>
+  <!-- Avg Ticket Price -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+    <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+      <i class="fas fa-tags text-2xl text-amber-500"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Giá Vé TB</p>
+      <p class="text-2xl font-extrabold text-slate-800">52,200 ₫</p>
+      <p class="text-xs text-green-500 font-semibold mt-1"><i class="fas fa-arrow-up mr-1"></i>3.7% so với tháng trước</p>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+  <!-- Revenue Chart -->
+  <div class="xl:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-base font-bold text-slate-800" id="revenue-chart-title">Doanh Thu Theo Tháng</h2>
+      <div class="flex gap-2 items-center">
+        <input type="date" id="revenue-day-picker" onchange="handleDateChange()" class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-600 focus:outline-none focus:border-brand transition" style="display: none;">
+        <input type="week" id="revenue-week-picker" onchange="handleDateChange()" class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-600 focus:outline-none focus:border-brand transition" style="display: none;">
+        <input type="month" id="revenue-month-picker" onchange="handleDateChange()" class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-600 focus:outline-none focus:border-brand transition" style="display: none;">
+        <select id="revenue-decade-picker" onchange="handleDateChange()" class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-600 focus:outline-none focus:border-brand transition" style="display: none;">
+          <option value="1991">1991 - 2000</option>
+          <option value="2001">2001 - 2010</option>
+          <option value="2011">2011 - 2020</option>
+          <option value="2021" selected>2021 - 2030</option>
+          <option value="2031">2031 - 2040</option>
+        </select>
+        <button onclick="setChartPeriod('year')" id="btn-year" class="period-btn text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition">Năm</button>
+        <button onclick="setChartPeriod('month')" id="btn-month" class="period-btn text-xs font-bold px-3 py-1.5 rounded-lg bg-brand text-white transition">Tháng</button>
+        <button onclick="setChartPeriod('week')" id="btn-week" class="period-btn text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition">Tuần</button>
+        <button onclick="setChartPeriod('day')" id="btn-day" class="period-btn text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition">Ngày</button>
+      </div>
+    </div>
+    <canvas id="revenueChart" height="100"></canvas>
+  </div>
+
+  <!-- Ticket Format Pie -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+    <h2 class="text-base font-bold text-slate-800 mb-6">Tỷ Trọng Phim</h2>
+    <canvas id="formatChart" height="180"></canvas>
+    <div class="mt-4 space-y-2">
+      <div class="flex items-center justify-between text-sm">
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-brand inline-block"></span> 2D</span>
+        <span class="font-bold text-slate-700">48%</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> 3D</span>
+        <span class="font-bold text-slate-700">35%</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> IMAX</span>
+        <span class="font-bold text-slate-700">17%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Row -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+  <!-- Top Movies -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-base font-bold text-slate-800">🔥 Phim Bán Chạy</h2>
+      <a href="/admin/movies" class="text-xs text-brand hover:text-red-700 font-semibold transition">Xem tất cả →</a>
+    </div>
+    <div class="space-y-4" id="top-movies-list"></div>
+  </div>
+
+  <!-- Recent Bookings -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-base font-bold text-slate-800">📋 Đặt Vé Gần Đây</h2>
+      <a href="/admin/bookings" class="text-xs text-brand hover:text-red-700 font-semibold transition">Xem tất cả →</a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-slate-400 text-xs border-b border-slate-100">
+            <th class="text-left pb-3 font-bold uppercase tracking-wider">Mã vé</th>
+            <th class="text-left pb-3 font-bold uppercase tracking-wider">Khách hàng</th>
+            <th class="text-left pb-3 font-bold uppercase tracking-wider">Phim</th>
+            <th class="text-right pb-3 font-bold uppercase tracking-wider">Tiền</th>
+            <th class="text-right pb-3 font-bold uppercase tracking-wider">Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody id="recent-bookings" class="divide-y divide-slate-50">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== MOCK DATA =====
+const topMovies = [
+  { title: 'Deadpool & Wolverine', tickets: 1842, revenue: 95784000, poster: 'https://image.tmdb.org/t/p/w200/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg', genre: 'Hành Động' },
+  { title: 'Dune: Part Two', tickets: 1534, revenue: 87428000, poster: 'https://image.tmdb.org/t/p/w200/cdqLnri3NEGcmfnqwk2TSIYtddg.jpg', genre: 'Viễn Tưởng' },
+  { title: 'Inside Out 2', tickets: 1290, revenue: 62010000, poster: 'https://image.tmdb.org/t/p/w200/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg', genre: 'Hoạt Hình' },
+  { title: 'Avengers: Endgame', tickets: 1100, revenue: 58300000, poster: 'https://image.tmdb.org/t/p/w200/or06FN3Dka5tukK1e9sl16pB3iy.jpg', genre: 'Hành Động' },
+  { title: 'The Wild Robot', tickets: 980, revenue: 49000000, poster: 'https://image.tmdb.org/t/p/w200/wTnV3PCVW5O92JMrFvvrRcV39RU.jpg', genre: 'Hoạt Hình' },
+];
+
+const recentBookings = [
+  { id: '#BK-0891', customer: 'Nguyễn Văn A', movie: 'Deadpool & Wolverine', amount: 110000, status: 'confirmed' },
+  { id: '#BK-0890', customer: 'Trần Thị B', movie: 'Dune: Part Two', amount: 145000, status: 'confirmed' },
+  { id: '#BK-0889', customer: 'Lê Minh C', movie: 'Inside Out 2', amount: 90000, status: 'pending' },
+  { id: '#BK-0888', customer: 'Phạm Thu D', movie: 'Avengers: Endgame', amount: 195000, status: 'confirmed' },
+  { id: '#BK-0887', customer: 'Hoàng Văn E', movie: 'The Wild Robot', amount: 85000, status: 'cancelled' },
+];
+
+const revenueByYear  = [3500, 4200, 5100, 6800, 7200];
+const revenueByMonth = [320, 410, 385, 460, 520, 490, 580, 620, 570, 650, 720, 683];
+const revenueByWeek  = [82, 95, 78, 110, 99, 125, 118];
+const revenueByDay   = [12, 15, 18, 14, 20, 22, 25];
+
+// ===== RENDER TOP MOVIES =====
+const maxTickets = topMovies[0].tickets;
+document.getElementById('top-movies-list').innerHTML = topMovies.map((m, i) => `
+  <div class="flex items-center gap-3">
+    <span class="text-lg font-extrabold text-slate-200 w-6 text-center">${i + 1}</span>
+    <img src="${m.poster}" alt="${m.title}" class="w-10 h-14 object-cover rounded-lg flex-shrink-0 shadow">
+    <div class="flex-1 min-w-0">
+      <p class="font-bold text-sm text-slate-800 truncate">${m.title}</p>
+      <p class="text-xs text-slate-400">${m.genre} • ${m.tickets.toLocaleString()} vé</p>
+      <div class="mt-1.5 w-full bg-slate-100 rounded-full h-1.5">
+        <div class="h-1.5 rounded-full bg-brand" style="width:${Math.round(m.tickets/maxTickets*100)}%"></div>
+      </div>
+    </div>
+    <p class="text-sm font-bold text-brand flex-shrink-0">${(m.revenue/1000000).toFixed(1)}M</p>
+  </div>
+`).join('');
+
+// ===== RENDER RECENT BOOKINGS =====
+const statusMap = {
+  confirmed: '<span class="bg-green-50 text-green-600 text-xs font-bold px-2 py-0.5 rounded-full border border-green-200">Xác nhận</span>',
+  pending:   '<span class="bg-yellow-50 text-yellow-600 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-200">Chờ xử lý</span>',
+  cancelled: '<span class="bg-red-50 text-red-500 text-xs font-bold px-2 py-0.5 rounded-full border border-red-200">Đã hủy</span>',
+};
+document.getElementById('recent-bookings').innerHTML = recentBookings.map(b => `
+  <tr>
+    <td class="py-3 text-slate-500 font-mono text-xs">${b.id}</td>
+    <td class="py-3 font-medium text-slate-700">${b.customer}</td>
+    <td class="py-3 text-slate-500 truncate max-w-[120px]">${b.movie}</td>
+    <td class="py-3 text-right font-bold text-slate-800">${b.amount.toLocaleString()}₫</td>
+    <td class="py-3 text-right">${statusMap[b.status]}</td>
+  </tr>
+`).join('');
+
+// ===== CHARTS =====
+let revenueChart;
+function buildRevenueChart(data, labels) {
+  if (revenueChart) revenueChart.destroy();
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  revenueChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Doanh thu (triệu ₫)',
+          data,
+          backgroundColor: 'rgba(220,38,38,0.12)',
+          borderColor: '#DC2626',
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false,
+          type: 'bar'
+        },
+        {
+          label: 'Xu hướng',
+          data,
+          borderColor: '#DC2626',
+          borderWidth: 2,
+          tension: 0.4,
+          pointBackgroundColor: '#DC2626',
+          pointRadius: 4,
+          fill: false,
+          type: 'line'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#f1f5f9' }, ticks: { callback: v => v + 'M' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+function setChartPeriod(period) {
+  document.querySelectorAll('.period-btn').forEach(b => {
+    b.className = 'period-btn text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition';
+  });
+  document.getElementById(`btn-${period}`).className = 'period-btn text-xs font-bold px-3 py-1.5 rounded-lg bg-brand text-white transition';
+  
+  const title = document.getElementById('revenue-chart-title');
+  const dayPicker = document.getElementById('revenue-day-picker');
+  const weekPicker = document.getElementById('revenue-week-picker');
+  const monthPicker = document.getElementById('revenue-month-picker');
+  const decadePicker = document.getElementById('revenue-decade-picker');
+  
+  dayPicker.style.display = 'none';
+  weekPicker.style.display = 'none';
+  monthPicker.style.display = 'none';
+  decadePicker.style.display = 'none';
+  
+  if (period === 'year') {
+    title.textContent = 'Doanh Thu Theo Năm';
+    decadePicker.style.display = 'block';
+    handleDateChange(); // Load data based on selected decade
+  } else if (period === 'month') {
+    title.textContent = 'Doanh Thu Theo Tháng';
+    monthPicker.style.display = 'block';
+    buildRevenueChart(revenueByMonth, ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12']);
+  } else if (period === 'week') {
+    title.textContent = 'Doanh Thu Theo Tuần';
+    weekPicker.style.display = 'block';
+    buildRevenueChart(revenueByWeek, ['T2','T3','T4','T5','T6','T7','CN']);
+  } else if (period === 'day') {
+    title.textContent = 'Doanh Thu Theo Ngày';
+    dayPicker.style.display = 'block';
+    buildRevenueChart(revenueByDay, ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00']);
+  }
+}
+
+function handleDateChange() {
+  const decadePicker = document.getElementById('revenue-decade-picker');
+  
+  // Update year chart based on decade selection
+  if (decadePicker.style.display !== 'none') {
+    const startYear = parseInt(decadePicker.value);
+    const labels = Array.from({length: 10}, (_, i) => (startYear + i).toString());
+    
+    // Generate mock data for the selected 10 years
+    // In a real app, this would fetch from backend
+    const mockData = labels.map(year => {
+      // Use a fixed random seed based on year to make it consistent when switching back
+      const seed = parseInt(year);
+      return Math.floor(Math.abs(Math.sin(seed) * 5000)) + 2000;
+    });
+    
+    buildRevenueChart(mockData, labels);
+  }
+}
+
+// Pie chart
+new Chart(document.getElementById('formatChart').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['2D', '3D', 'IMAX'],
+    datasets: [{ data: [48, 35, 17], backgroundColor: ['#DC2626', '#3B82F6', '#F59E0B'], borderWidth: 0, hoverOffset: 6 }]
+  },
+  options: {
+    responsive: true,
+    cutout: '70%',
+    plugins: { legend: { display: false } }
+  }
+});
+
+setChartPeriod('month');
+</script>

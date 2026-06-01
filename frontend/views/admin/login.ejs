@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập Admin - CineBook</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { brand: '#DC2626', brandHover: '#B91C1C' } } }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .cinema-bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    }
+    .card-glow {
+      box-shadow: 0 0 60px rgba(220,38,38,0.15), 0 25px 50px rgba(0,0,0,0.5);
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .float-icon { animation: float 3s ease-in-out infinite; }
+  </style>
+</head>
+<body class="cinema-bg min-h-screen flex items-center justify-center px-4">
+
+  <!-- Background decorations -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-10 w-64 h-64 bg-brand/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand/3 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="relative w-full max-w-md">
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <div class="float-icon inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-brand/10 border border-brand/20 mb-4 backdrop-blur-sm">
+        <i class="fas fa-film text-4xl text-brand"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold text-white tracking-tight">
+        <span class="text-brand">Cine</span>Book
+      </h1>
+      <p class="text-slate-400 text-sm mt-1">Hệ thống quản trị nội bộ</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 card-glow">
+      <h2 class="text-xl font-bold text-white mb-1">Đăng nhập Admin</h2>
+      <p class="text-slate-400 text-sm mb-8">Chỉ dành cho quản trị viên được cấp quyền.</p>
+
+      <!-- Error alert -->
+      <% if (error) { %>
+      <div class="mb-5 flex items-center gap-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 text-sm">
+        <i class="fas fa-exclamation-circle flex-shrink-0"></i>
+        <span><%= error %></span>
+      </div>
+      <% } %>
+
+      <form method="POST" action="/admin/login" class="space-y-5">
+        <!-- Username -->
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+            Tên đăng nhập
+          </label>
+          <div class="relative">
+            <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input
+              type="text"
+              name="username"
+              id="username"
+              value="<%= username || '' %>"
+              placeholder="admin"
+              autocomplete="username"
+              class="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition placeholder-slate-500"
+            >
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+            Mật khẩu
+          </label>
+          <div class="relative">
+            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              class="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-11 pr-12 py-3.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition placeholder-slate-500"
+            >
+            <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition text-sm">
+              <i id="eye-icon" class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="w-full bg-brand hover:bg-brandHover text-white font-bold py-3.5 rounded-xl transition duration-300 shadow-lg shadow-brand/30 flex items-center justify-center gap-2 mt-2"
+        >
+          <i class="fas fa-sign-in-alt"></i>
+          Đăng nhập vào Admin Panel
+        </button>
+      </form>
+
+      <!-- Hint -->
+      <div class="mt-6 p-4 bg-white/5 border border-white/10 rounded-xl">
+        <p class="text-xs text-slate-400 font-medium mb-2 flex items-center gap-2">
+          <i class="fas fa-info-circle text-brand"></i> Thông tin đăng nhập mặc định:
+        </p>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <span class="text-slate-500">Username:</span>
+            <code class="text-brand font-bold ml-1 cursor-pointer hover:opacity-70" onclick="document.getElementById('username').value='admin'">admin</code>
+          </div>
+          <div>
+            <span class="text-slate-500">Password:</span>
+            <code class="text-brand font-bold ml-1 cursor-pointer hover:opacity-70" onclick="document.getElementById('password').value='cinebook2024'">cinebook2024</code>
+          </div>
+        </div>
+        <p class="text-[10px] text-slate-600 mt-2">💡 Click vào username/password để tự động điền</p>
+      </div>
+    </div>
+
+    <!-- Back to site -->
+    <div class="text-center mt-6">
+      <a href="/" class="text-slate-500 hover:text-white text-sm transition flex items-center justify-center gap-2">
+        <i class="fas fa-arrow-left text-xs"></i> Về trang chủ CineBook
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const input = document.getElementById('password');
+      const icon = document.getElementById('eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!-- Bulk Showtime Tool -->
+<div>
+  <!-- Header -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-extrabold text-slate-800">Tạo Lịch Chiếu Hàng Loạt</h2>
+    <p class="text-slate-400 text-sm mt-1">Thiết lập và tạo nhiều suất chiếu cùng lúc nhanh chóng.</p>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+
+    <!-- ===== LEFT: CONFIG PANEL ===== -->
+    <div class="xl:col-span-2 space-y-5">
+
+      <!-- Select Movie -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold">1</span>
+          Chọn Phim
+        </h3>
+        <select id="bs-movie" onchange="updatePreview()" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition appearance-none bg-white">
+          <option value="">-- Chọn phim --</option>
+          <option value="1">Deadpool & Wolverine (128 phút)</option>
+          <option value="2">Dune: Part Two (166 phút)</option>
+          <option value="3">Inside Out 2 (100 phút)</option>
+          <option value="4">Avengers: Endgame (181 phút)</option>
+          <option value="5">A Quiet Place: Day One (99 phút)</option>
+          <option value="6">Alien: Romulus (119 phút)</option>
+          <option value="7">The Wild Robot (102 phút)</option>
+        </select>
+        <p id="bs-movie-err" class="hidden text-xs text-brand mt-1.5 font-medium"><i class="fas fa-exclamation-circle mr-1"></i>Vui lòng chọn phim.</p>
+      </div>
+
+      <!-- Select Room -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold">2</span>
+          Chọn Phòng Chiếu
+        </h3>
+        <select id="bs-room" onchange="updatePreview()" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition appearance-none bg-white">
+          <option value="">-- Chọn phòng --</option>
+          <option value="R1">Phòng 1 - CineBook Nguyễn Du (120 ghế)</option>
+          <option value="R2">Phòng 2 - CineBook Nguyễn Du (80 ghế)</option>
+          <option value="R3">IMAX - CineBook Landmark 81 (200 ghế)</option>
+          <option value="R4">Phòng 3D - CineBook Landmark 81 (140 ghế)</option>
+          <option value="R5">Phòng VIP - CineBook Thảo Điền (60 ghế)</option>
+        </select>
+        <p id="bs-room-err" class="hidden text-xs text-brand mt-1.5 font-medium"><i class="fas fa-exclamation-circle mr-1"></i>Vui lòng chọn phòng chiếu.</p>
+      </div>
+
+      <!-- Date Range -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold">3</span>
+          Khoảng Thời Gian
+        </h3>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 font-bold mb-1">Từ ngày</label>
+            <input id="bs-date-from" type="date" onchange="updatePreview()" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand transition">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 font-bold mb-1">Đến ngày</label>
+            <input id="bs-date-to" type="date" onchange="updatePreview()" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand transition">
+          </div>
+        </div>
+      </div>
+
+      <!-- Time Slots -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold">4</span>
+          Suất Chiếu
+        </h3>
+        <div class="grid grid-cols-3 gap-2 mb-3" id="timeslot-grid">
+          <!-- built by JS -->
+        </div>
+        <p id="bs-time-err" class="hidden text-xs text-brand mt-1 font-medium"><i class="fas fa-exclamation-circle mr-1"></i>Chọn ít nhất một suất chiếu.</p>
+        <div class="mt-3 pt-3 border-t border-slate-100">
+          <label class="block text-xs text-slate-400 font-bold mb-1.5">Hoặc thêm suất tùy chỉnh</label>
+          <div class="flex gap-2">
+            <input id="custom-time-input" type="time" class="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand transition">
+            <button onclick="addCustomTime()" class="px-3 py-2 bg-slate-100 hover:bg-brand hover:text-white text-slate-600 rounded-xl text-sm font-bold transition"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Format & Price -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold">5</span>
+          Định Dạng & Giá Vé
+        </h3>
+        <div class="mb-4">
+          <label class="block text-xs text-slate-400 font-bold mb-2">Định dạng chiếu</label>
+          <div class="flex gap-2">
+            <button onclick="selectFormat(this,'2D')" data-fmt="2D" class="format-pick-btn flex-1 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">2D</button>
+            <button onclick="selectFormat(this,'3D')" data-fmt="3D" class="format-pick-btn flex-1 py-2 rounded-xl text-xs font-bold border border-brand bg-brand text-white transition">3D</button>
+            <button onclick="selectFormat(this,'IMAX')" data-fmt="IMAX" class="format-pick-btn flex-1 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">IMAX</button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 font-bold mb-1.5">Giá vé cơ bản (₫)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">₫</span>
+            <input id="bs-price" type="number" min="1" value="85000" oninput="updatePreview()"
+              class="w-full border border-slate-200 rounded-xl pl-7 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand transition">
+          </div>
+          <p id="bs-price-err" class="hidden text-xs text-brand mt-1 font-medium"><i class="fas fa-exclamation-circle mr-1"></i>Giá vé phải lớn hơn 0.</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-3">
+        <button onclick="generateShowtimes()" class="flex-1 bg-brand text-white py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-md shadow-brand/20 flex items-center justify-center gap-2">
+          <i class="fas fa-magic"></i> Tạo Lịch Chiếu
+        </button>
+        <button onclick="resetAll()" class="px-5 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition">
+          <i class="fas fa-redo"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT: PREVIEW / RESULT ===== -->
+    <div class="xl:col-span-3 space-y-5">
+
+      <!-- Summary Card -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <i class="fas fa-eye text-brand text-xs"></i> Tóm Tắt Cấu Hình
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="summary-grid">
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-slate-400 font-bold uppercase mb-1">Phim</p>
+            <p class="text-sm font-bold text-slate-800 truncate" id="sum-movie">—</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-slate-400 font-bold uppercase mb-1">Phòng</p>
+            <p class="text-sm font-bold text-slate-800 truncate" id="sum-room">—</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-slate-400 font-bold uppercase mb-1">Định dạng</p>
+            <p class="text-sm font-bold text-slate-800" id="sum-format">3D</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-slate-400 font-bold uppercase mb-1">Từ ngày</p>
+            <p class="text-sm font-bold text-slate-800" id="sum-from">—</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-slate-400 font-bold uppercase mb-1">Đến ngày</p>
+            <p class="text-sm font-bold text-slate-800" id="sum-to">—</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <p class="text-xs text-slate-400 font-bold uppercase mb-1">Giá vé</p>
+            <p class="text-sm font-bold text-brand" id="sum-price">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generated Showtimes Table -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+          <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+            <i class="fas fa-list-alt text-brand text-xs"></i>
+            Danh Sách Suất Chiếu Được Tạo
+            <span id="showtime-badge" class="hidden bg-brand text-white text-xs font-bold px-2 py-0.5 rounded-full"></span>
+          </h3>
+          <div class="flex gap-2">
+            <button id="edit-btn" onclick="toggleEditMode()" class="hidden flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition">
+              <i class="fas fa-edit"></i> Sửa
+            </button>
+            <button id="delete-selected-btn" onclick="deleteSelected()" class="hidden flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-600 transition shadow-md">
+              <i class="fas fa-trash"></i> Xóa Đã Chọn
+            </button>
+            <button id="save-btn" onclick="saveSchedule()" class="hidden flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-green-600 transition shadow-md">
+              <i class="fas fa-save"></i> Lưu Lịch Chiếu
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="showtime-empty" class="py-20 text-center text-slate-300">
+          <i class="fas fa-calendar-plus text-5xl mb-4"></i>
+          <p class="text-sm font-medium text-slate-400">Nhấn "Tạo Lịch Chiếu" để xem kết quả tại đây</p>
+        </div>
+
+        <!-- Table -->
+        <div id="showtime-table-wrap" class="hidden overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th class="checkbox-col hidden text-left px-5 py-3 w-10"><input type="checkbox" id="check-all" class="w-4 h-4 accent-brand" onchange="toggleCheckAll(this)"></th>
+                <th class="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">#</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Ngày</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Giờ chiếu</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Phim</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Phòng</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Định dạng</th>
+                <th class="text-right px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Giá vé</th>
+                <th class="text-right px-4 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider"></th>
+              </tr>
+            </thead>
+            <tbody id="showtime-tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+
+        <!-- Save success -->
+        <div id="save-success" class="hidden px-5 py-4 bg-green-50 border-t border-green-100 text-sm text-green-700 font-medium flex items-center gap-2">
+          <i class="fas fa-check-circle text-green-500"></i> Đã lưu thành công <span id="save-count"></span> suất chiếu!
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== TIME SLOTS =====
+const DEFAULT_TIMES = ['08:30','10:00','11:30','13:00','14:30','16:00','17:30','19:00','20:30','22:00','23:30'];
+let selectedTimes = new Set(['13:00','16:00','19:00']);
+let selectedFormat = '3D';
+let generatedShowtimes = [];
+let allTimes = [...DEFAULT_TIMES];
+
+function buildTimeslotGrid() {
+  const grid = document.getElementById('timeslot-grid');
+  grid.innerHTML = allTimes.map(t => `
+    <button
+      onclick="toggleTime('${t}', this)"
+      class="timeslot-btn ${selectedTimes.has(t) ? 'active bg-brand text-white border-brand' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-brand hover:text-brand'} border rounded-xl py-2 text-xs font-bold transition"
+    >${t}</button>
+  `).join('');
+}
+
+function toggleTime(time, btn) {
+  if (selectedTimes.has(time)) {
+    selectedTimes.delete(time);
+    btn.className = 'timeslot-btn bg-slate-50 text-slate-600 border-slate-200 hover:border-brand hover:text-brand border rounded-xl py-2 text-xs font-bold transition';
+  } else {
+    selectedTimes.add(time);
+    btn.className = 'timeslot-btn active bg-brand text-white border-brand border rounded-xl py-2 text-xs font-bold transition';
+  }
+  updatePreview();
+}
+
+function addCustomTime() {
+  const input = document.getElementById('custom-time-input');
+  const t = input.value;
+  if (!t) return;
+  if (!allTimes.includes(t)) {
+    allTimes.push(t);
+    allTimes.sort();
+    selectedTimes.add(t);
+    buildTimeslotGrid();
+  } else {
+    selectedTimes.add(t);
+    buildTimeslotGrid();
+  }
+  input.value = '';
+  updatePreview();
+}
+
+function selectFormat(btn, fmt) {
+  selectedFormat = fmt;
+  document.querySelectorAll('.format-pick-btn').forEach(b => {
+    b.className = 'format-pick-btn flex-1 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition';
+  });
+  btn.className = 'format-pick-btn flex-1 py-2 rounded-xl text-xs font-bold border border-brand bg-brand text-white transition';
+  updatePreview();
+}
+
+// ===== UPDATE SUMMARY =====
+const movieNames = {
+  '1':'Deadpool & Wolverine','2':'Dune: Part Two','3':'Inside Out 2',
+  '4':'Avengers: Endgame','5':'A Quiet Place: Day One','6':'Alien: Romulus','7':'The Wild Robot'
+};
+const roomNames = {
+  'R1':'Phòng 1 - Nguyễn Du','R2':'Phòng 2 - Nguyễn Du',
+  'R3':'IMAX - Landmark 81','R4':'3D - Landmark 81','R5':'VIP - Thảo Điền'
+};
+
+function updatePreview() {
+  const movie = document.getElementById('bs-movie').value;
+  const room = document.getElementById('bs-room').value;
+  const from = document.getElementById('bs-date-from').value;
+  const to = document.getElementById('bs-date-to').value;
+  const price = document.getElementById('bs-price').value;
+
+  document.getElementById('sum-movie').textContent = movie ? movieNames[movie] : '—';
+  document.getElementById('sum-room').textContent = room ? roomNames[room] : '—';
+  document.getElementById('sum-format').textContent = selectedFormat;
+  document.getElementById('sum-from').textContent = from ? formatDate(from) : '—';
+  document.getElementById('sum-to').textContent = to ? formatDate(to) : '—';
+  document.getElementById('sum-price').textContent = price > 0 ? parseInt(price).toLocaleString('vi-VN') + ' ₫' : '—';
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('vi-VN');
+}
+
+function getDayLabel(d) {
+  const days = ['CN','T2','T3','T4','T5','T6','T7'];
+  return days[new Date(d + 'T00:00:00').getDay()];
+}
+
+// ===== VALIDATE =====
+function validate() {
+  let valid = true;
+  const movie = document.getElementById('bs-movie').value;
+  const room = document.getElementById('bs-room').value;
+  const price = parseFloat(document.getElementById('bs-price').value);
+
+  const movieErr = document.getElementById('bs-movie-err');
+  const roomErr = document.getElementById('bs-room-err');
+  const timeErr = document.getElementById('bs-time-err');
+  const priceErr = document.getElementById('bs-price-err');
+
+  movieErr.classList.toggle('hidden', !!movie);
+  if (!movie) valid = false;
+
+  roomErr.classList.toggle('hidden', !!room);
+  if (!room) valid = false;
+
+  timeErr.classList.toggle('hidden', selectedTimes.size > 0);
+  if (selectedTimes.size === 0) valid = false;
+
+  priceErr.classList.toggle('hidden', price > 0);
+  if (!price || price <= 0) valid = false;
+
+  return valid;
+}
+
+// ===== GENERATE =====
+function generateShowtimes() {
+  if (!validate()) return;
+
+  const movie = document.getElementById('bs-movie').value;
+  const room = document.getElementById('bs-room').value;
+  const from = document.getElementById('bs-date-from').value;
+  const to = document.getElementById('bs-date-to').value;
+  const price = parseInt(document.getElementById('bs-price').value);
+
+  // Build date array
+  let dates = [];
+  if (from && to && from <= to) {
+    let cur = new Date(from + 'T00:00:00');
+    const end = new Date(to + 'T00:00:00');
+    while (cur <= end) {
+      dates.push(cur.toISOString().split('T')[0]);
+      cur.setDate(cur.getDate() + 1);
+    }
+  } else if (from) {
+    dates = [from];
+  } else {
+    // Use today + next 3 days as default
+    for (let i = 0; i < 4; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      dates.push(d.toISOString().split('T')[0]);
+    }
+  }
+
+  const sortedTimes = [...selectedTimes].sort();
+
+  generatedShowtimes = [];
+  let idx = 1;
+  dates.forEach(date => {
+    sortedTimes.forEach(time => {
+      generatedShowtimes.push({
+        idx: idx++,
+        date, time,
+        movie: movieNames[movie],
+        room: roomNames[room],
+        format: selectedFormat,
+        price
+      });
+    });
+  });
+
+  renderShowtimeTable();
+  document.getElementById('save-success').classList.add('hidden');
+}
+
+function renderShowtimeTable() {
+  const tbody = document.getElementById('showtime-tbody');
+  const wrap = document.getElementById('showtime-table-wrap');
+  const empty = document.getElementById('showtime-empty');
+  const badge = document.getElementById('showtime-badge');
+  const saveBtn = document.getElementById('save-btn');
+  const editBtn = document.getElementById('edit-btn');
+  const fmtColor = { '2D': 'bg-slate-100 text-slate-600', '3D': 'bg-blue-50 text-blue-600', 'IMAX': 'bg-amber-50 text-amber-600' };
+
+  if (generatedShowtimes.length === 0) {
+    wrap.classList.add('hidden');
+    empty.classList.remove('hidden');
+    badge.classList.add('hidden');
+    saveBtn.classList.add('hidden');
+    editBtn.classList.add('hidden');
+    document.getElementById('delete-selected-btn').classList.add('hidden');
+    editMode = false;
+    editBtn.className = 'hidden flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition';
+    return;
+  }
+
+  empty.classList.add('hidden');
+  wrap.classList.remove('hidden');
+  badge.classList.remove('hidden');
+  badge.textContent = generatedShowtimes.length + ' suất';
+  saveBtn.classList.remove('hidden');
+  editBtn.classList.remove('hidden');
+  
+  if (editMode) {
+    document.getElementById('delete-selected-btn').classList.remove('hidden');
+  }
+
+  tbody.innerHTML = generatedShowtimes.map(s => `
+    <tr class="hover:bg-slate-50 transition">
+      <td class="checkbox-col ${editMode ? '' : 'hidden'} px-5 py-3"><input type="checkbox" class="row-check w-4 h-4 accent-brand" value="${s.idx}"></td>
+      <td class="px-5 py-3 text-slate-400 text-xs font-mono">${String(s.idx).padStart(3,'0')}</td>
+      <td class="px-4 py-3">
+        <span class="font-semibold text-slate-800 text-sm">${formatDate(s.date)}</span>
+        <span class="ml-1 text-xs text-slate-400">${getDayLabel(s.date)}</span>
+      </td>
+      <td class="px-4 py-3"><span class="font-bold text-brand text-sm">${s.time}</span></td>
+      <td class="px-4 py-3 text-slate-700 text-sm font-medium">${s.movie}</td>
+      <td class="px-4 py-3 text-slate-500 text-sm">${s.room}</td>
+      <td class="px-4 py-3">
+        <span class="text-xs font-bold px-2 py-0.5 rounded-full ${fmtColor[s.format] || 'bg-slate-100 text-slate-600'}">${s.format}</span>
+      </td>
+      <td class="px-5 py-3 text-right font-bold text-slate-800 text-sm">${s.price.toLocaleString('vi-VN')}₫</td>
+      <td class="px-4 py-3 text-right">
+        <button onclick="removeShowtime(${s.idx-1})" class="text-slate-300 hover:text-brand transition text-xs p-1">
+          <i class="fas fa-times"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function removeShowtime(index) {
+  generatedShowtimes.splice(index, 1);
+  generatedShowtimes.forEach((s, i) => s.idx = i + 1);
+  renderShowtimeTable();
+  if(editMode) {
+    document.querySelectorAll('.checkbox-col').forEach(el => el.classList.remove('hidden'));
+  }
+}
+
+let editMode = false;
+function toggleEditMode() {
+  editMode = !editMode;
+  document.querySelectorAll('.checkbox-col').forEach(el => el.classList.toggle('hidden', !editMode));
+  document.getElementById('delete-selected-btn').classList.toggle('hidden', !editMode);
+  
+  const editBtn = document.getElementById('edit-btn');
+  if (editMode) {
+    editBtn.classList.add('bg-brand', 'text-white');
+    editBtn.classList.remove('bg-slate-100', 'text-slate-600');
+  } else {
+    editBtn.classList.remove('bg-brand', 'text-white');
+    editBtn.classList.add('bg-slate-100', 'text-slate-600');
+  }
+}
+
+function toggleCheckAll(source) {
+  document.querySelectorAll('.row-check').forEach(cb => cb.checked = source.checked);
+}
+
+function deleteSelected() {
+  const selectedIdx = [...document.querySelectorAll('.row-check:checked')].map(cb => parseInt(cb.value));
+  if (selectedIdx.length === 0) return;
+  generatedShowtimes = generatedShowtimes.filter(s => !selectedIdx.includes(s.idx));
+  generatedShowtimes.forEach((s, i) => s.idx = i + 1);
+  renderShowtimeTable();
+  if(editMode) {
+    document.querySelectorAll('.checkbox-col').forEach(el => el.classList.remove('hidden'));
+  }
+  document.getElementById('check-all').checked = false;
+}
+
+function saveSchedule() {
+  if (generatedShowtimes.length === 0) return;
+  const count = generatedShowtimes.length;
+  generatedShowtimes = [];
+  renderShowtimeTable();
+  document.getElementById('save-count').textContent = count;
+  document.getElementById('save-success').classList.remove('hidden');
+  document.getElementById('save-btn').classList.add('hidden');
+}
+
+function resetAll() {
+  document.getElementById('bs-movie').value = '';
+  document.getElementById('bs-room').value = '';
+  document.getElementById('bs-date-from').value = '';
+  document.getElementById('bs-date-to').value = '';
+  document.getElementById('bs-price').value = '85000';
+  selectedTimes = new Set(['13:00','16:00','19:00']);
+  selectedFormat = '3D';
+  generatedShowtimes = [];
+  allTimes = [...DEFAULT_TIMES];
+  buildTimeslotGrid();
+  selectFormat(document.querySelector('.format-pick-btn[data-fmt="3D"]'), '3D');
+  updatePreview();
+  renderShowtimeTable();
+  document.getElementById('save-success').classList.add('hidden');
+  ['bs-movie-err','bs-room-err','bs-time-err','bs-price-err'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+}
+
+// Init
+buildTimeslotGrid();
+const today = new Date().toISOString().split('T')[0];
+const nextWeek = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
+document.getElementById('bs-date-from').value = today;
+document.getElementById('bs-date-to').value = nextWeek;
+updatePreview();
+</script>
