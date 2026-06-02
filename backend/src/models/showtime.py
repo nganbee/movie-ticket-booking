@@ -45,6 +45,7 @@ class ShowtimeCreate(BaseModel):
     start_time: datetime
     end_time: datetime
     day_type: str  # 'Weekday' | 'Weekend' | 'Holiday'
+    format: str = "2D"
 
 
 class ShowtimeBulkCreate(BaseModel):
@@ -59,6 +60,7 @@ class ShowtimeResponse(BaseModel):
     start_time: datetime
     end_time: datetime
     day_type: str
+    format: str = "2D"
 
     class Config:
         from_attributes = True
@@ -72,6 +74,7 @@ class ShowtimeDetailResponse(BaseModel):
     start_time: datetime
     end_time: datetime
     day_type: str
+    format: str = "2D"
     room: Optional[RoomResponse] = None
 
     class Config:
