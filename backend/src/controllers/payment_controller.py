@@ -85,11 +85,20 @@ class PaymentController:
             )
             db.add(payment)
             
-            # Generate ETickets for each booking item
+            # Generate ETickets for each booking item and mark seats as Sold
             res_items = await db.execute(select(BookingItemTable).where(BookingItemTable.booking_id == booking.booking_id))
             items = res_items.scalars().all()
             
+            from src.models.theater import ShowSeatTable
+            
             for item in items:
+                # Đổi trạng thái ghế thành Sold
+                res_ss = await db.execute(select(ShowSeatTable).where(ShowSeatTable.show_seat_id == item.show_seat_id))
+                show_seat = res_ss.scalars().first()
+                if show_seat:
+                    show_seat.status = "Sold"
+                    show_seat.hold_expires_at = None
+                    
                 eticket = ETicketTable(
                     item_id=item.item_id,
                     qr_code=str(uuid.uuid4()), # Generate a unique ID for the QR
