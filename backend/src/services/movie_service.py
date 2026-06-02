@@ -1,24 +1,41 @@
 # src/services/movie_service.py
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
-from typing import List, Optional
+from sqlalchemy import select, delete, func
+from typing import List, Optional, Tuple
 from src.models.movie import MovieTable, MovieCreate
 
 class MovieService:
     @staticmethod
-    async def get_all(db: AsyncSession, status: Optional[str] = None, genre: Optional[str] = None) -> List[MovieTable]:
-        stmt = select(MovieTable)
-        
-        # Lọc theo trạng thái phim (đang chiếu / sắp chiếu)
+    async def get_all(
+        db: AsyncSession,
+        status: Optional[str] = None,
+        genre: Optional[str] = None,
+        page: int = 1,
+        limit: int = 12
+    ) -> Tuple[List[MovieTable], int]:
+        """
+        Trả về (danh_sách_phim, tổng_số_phim).
+        page bắt đầu từ 1, limit là số phần tử mỗi trang.
+        """
+        # --- Base condition ---
+        base_stmt = select(MovieTable)
         if status:
-            stmt = stmt.where(MovieTable.status == status)
-            
-        # Lọc theo thể loại phim
+            base_stmt = base_stmt.where(MovieTable.status == status)
         if genre:
-            stmt = stmt.where(MovieTable.genre.ilike(f"%{genre}%"))
-            
-        result = await db.execute(stmt)
-        return result.scalars().all()
+            base_stmt = base_stmt.where(MovieTable.genre.ilike(f"%{genre}%"))
+
+        # --- Đếm tổng số bản ghi (cho frontend biết tổng số trang) ---
+        count_stmt = select(func.count()).select_from(base_stmt.subquery())
+        total_result = await db.execute(count_stmt)
+        total = total_result.scalar_one()
+
+        # --- Lấy dữ liệu theo trang ---
+        offset = (page - 1) * limit
+        paged_stmt = base_stmt.offset(offset).limit(limit)
+        result = await db.execute(paged_stmt)
+        movies = result.scalars().all()
+
+        return movies, total
 
     @staticmethod
     async def get_by_id(db: AsyncSession, movie_id: int) -> Optional[MovieTable]:
