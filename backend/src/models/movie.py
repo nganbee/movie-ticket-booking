@@ -44,6 +44,7 @@ class MovieCreate(MovieBase):
 
 class MovieResponse(MovieBase):
     movie_id: int
+    showtimes: list[str] = []
 
     class Config:
         from_attributes = True
