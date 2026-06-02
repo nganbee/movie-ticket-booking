@@ -131,14 +131,14 @@
                 </h2>
                 <p class="text-slate-500 text-sm ml-4">Đặt vé ngay cho các bộ phim đang làm mưa làm gió</p>
             </div>
-            <a href="#"
+            <a href="/movies?status=now_showing"
                 class="text-brand hover:text-brandHover transition text-sm font-semibold flex items-center group">
                 Xem tất cả <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
             </a>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
-            <% nowShowing.forEach(movie=> { %>
+            <% nowShowing.slice(0, 4).forEach(movie=> { %>
                 <a href="/movie/<%= movie.id %>" class="group cursor-pointer block">
                     <!-- Poster -->
                     <div
@@ -187,14 +187,14 @@
                 </h2>
                 <p class="text-slate-500 text-sm ml-4">Những siêu phẩm sắp đổ bộ rạp chiếu</p>
             </div>
-            <a href="#"
+            <a href="/movies?status=coming_soon"
                 class="text-blue-600 hover:text-blue-700 transition text-sm font-semibold flex items-center group">
                 Xem tất cả <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
             </a>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
-            <% comingSoon.forEach(movie=> { %>
+            <% comingSoon.slice(0, 4).forEach(movie=> { %>
                 <a href="/movie/<%= movie.id %>" class="group cursor-pointer block">
                     <!-- Poster -->
                     <div
