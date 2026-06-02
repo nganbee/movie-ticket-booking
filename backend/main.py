@@ -11,6 +11,7 @@ from src.models.theater import TheaterTable, RoomTable, SeatTable, ShowtimeTable
 from src.models.booking import BookingTable, PaymentTable, BookingItemTable, ETicketTable
 from src.models.showtime import ShowtimeTable, RoomTable, TheaterTable  # Showtime tables
 from src.routes import movies, news, auth, users, seats, bookings, payments, showtimes
+from src.routes import analytics
 
 from src.config.settings import settings
 import ngrok
@@ -74,3 +75,5 @@ app.include_router(payments.router, prefix="/payments", tags=["Payments"])
 app.include_router(showtimes.router, prefix="/showtimes", tags=["Showtimes"])
 # ── Showtime routes ───────────────────────────────────────────────────────────
 app.include_router(showtimes.router, prefix="/showtimes", tags=["Showtimes"])
+# ── Analytics routes ──────────────────────────────────────────────────────────
+app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
