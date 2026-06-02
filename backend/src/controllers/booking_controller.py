@@ -46,7 +46,8 @@ class BookingController:
         stmt_rules = select(PricingRuleTable).where(
             PricingRuleTable.effective_from <= now.date(),
             PricingRuleTable.effective_to >= now.date(),
-            PricingRuleTable.day_type == day_type
+            PricingRuleTable.day_type == day_type,
+            PricingRuleTable.format == showtime.format
         )
         res_rules = await db.execute(stmt_rules)
         rules = res_rules.scalars().all()

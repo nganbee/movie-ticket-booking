@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from src.models.theater import SeatTable, ShowSeatTable, ShowtimeTable
 from typing import List
 from datetime import datetime, timezone, timedelta
+from src.models.theater import SeatTable, ShowSeatTable, ShowtimeTable, PricingRuleTable
 
 class SeatController:
     @staticmethod
@@ -31,8 +32,19 @@ class SeatController:
         if not rows:
             raise HTTPException(status_code=404, detail="Sơ đồ ghế không tồn tại hoặc phòng chiếu chưa có ghế.")
             
-        seat_map = []
+        # Lấy luật giá cho suất chiếu này
         now = datetime.now(timezone.utc)
+        stmt_rules = select(PricingRuleTable).where(
+            PricingRuleTable.effective_from <= now.date(),
+            PricingRuleTable.effective_to >= now.date(),
+            PricingRuleTable.day_type == showtime.day_type,
+            PricingRuleTable.format == showtime.format
+        )
+        res_rules = await db.execute(stmt_rules)
+        rules = res_rules.scalars().all()
+        rule_map = {r.seat_type: int(r.base_price * r.multiplier) for r in rules}
+            
+        seat_map = []
         for seat, show_seat in rows:
             status = show_seat.status if show_seat else "Available"
             
@@ -45,7 +57,8 @@ class SeatController:
                 "seat_row": seat.seat_row,
                 "seat_num": seat.seat_num,
                 "seat_type": seat.seat_type,
-                "status": status
+                "status": status,
+                "price": rule_map.get(seat.seat_type, 70000)
             })
         return seat_map
 
