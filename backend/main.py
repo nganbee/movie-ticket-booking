@@ -5,7 +5,7 @@ from src.config.db import engine, Base
 
 # Phải import tất cả Table models để SQLAlchemy nhận diện và tạo bảng
 from src.models.movie import MovieTable
-from src.models.news import NewsTable
+from src.models.news import MovieNewsTable, PromotionTable, UserNotificationTable
 from src.models.user import UserTable  # Auth & User tables
 from src.models.theater import TheaterTable, RoomTable, SeatTable, ShowtimeTable, ShowSeatTable, PricingRuleTable
 from src.models.booking import BookingTable, PaymentTable, BookingItemTable, ETicketTable
