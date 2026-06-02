@@ -2,13 +2,27 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
+import math
 from src.services.movie_service import MovieService
 from src.models.movie import MovieCreate
 
 class MovieController:
     @staticmethod
-    async def get_movies(db: AsyncSession, status_filter: Optional[str], genre_filter: Optional[str]):
-        return await MovieService.get_all(db, status_filter, genre_filter)
+    async def get_movies(
+        db: AsyncSession,
+        status_filter: Optional[str],
+        genre_filter: Optional[str],
+        page: int = 1,
+        limit: int = 12
+    ):
+        movies, total = await MovieService.get_all(db, status_filter, genre_filter, page, limit)
+        return {
+            "items": movies,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "total_pages": math.ceil(total / limit) if limit > 0 else 1
+        }
 
     @staticmethod
     async def get_movie_by_id(db: AsyncSession, movie_id: int):

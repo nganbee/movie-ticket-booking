@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi import HTTPException
 from typing import List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import asyncio
 from src.config.db import AsyncSessionLocal
 
@@ -46,7 +46,8 @@ class BookingController:
         stmt_rules = select(PricingRuleTable).where(
             PricingRuleTable.effective_from <= now.date(),
             PricingRuleTable.effective_to >= now.date(),
-            PricingRuleTable.day_type == day_type
+            PricingRuleTable.day_type == day_type,
+            PricingRuleTable.format == showtime.format
         )
         res_rules = await db.execute(stmt_rules)
         rules = res_rules.scalars().all()
@@ -67,7 +68,10 @@ class BookingController:
                 "rule_id": rule.rule_id
             })
             
-            ss.status = "Sold"
+            # Chuyển từ Available sang Holding (nếu gọi trực tiếp reserve mà chưa hold),
+            # hoặc gia hạn thời gian Holding. 
+            # KHÔNG ĐỔI THÀNH SOLD KHI CHƯA THANH TOÁN
+            ss.status = "Holding" 
             ss.booking_id = None 
             
         booking = BookingTable(
@@ -131,6 +135,41 @@ class BookingController:
                     show_seat.booking_id = None
                     
             await db.commit()
+
+    @staticmethod
+    async def start_background_cleanup_task():
+        """
+        Background task chạy mỗi 2 phút.
+        Tìm các booking 'pending' đã quá hạn 10 phút và tự động huỷ.
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        while True:
+            try:
+                async with AsyncSessionLocal() as db:
+                    # Tính mốc thời gian cách đây 10 phút
+                    threshold = datetime.now(timezone.utc) - timedelta(minutes=10)
+                    
+                    # Tìm các booking pending quá hạn
+                    stmt = select(BookingTable).where(
+                        BookingTable.status == "pending",
+                        BookingTable.booking_date <= threshold
+                    )
+                    res = await db.execute(stmt)
+                    expired_bookings = res.scalars().all()
+                    
+                    for b in expired_bookings:
+                        logger.info(f"Background Sweeper: Đang huỷ đơn hàng quá hạn {b.booking_id}")
+                        await BookingController.cancel_booking(db, b.booking_id)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error(f"Lỗi trong Background Sweeper: {e}")
+                
+            try:
+                await asyncio.sleep(120)  # Ngủ 2 phút rồi mới chạy lại
+            except asyncio.CancelledError:
+                break
 
     @staticmethod
     async def get_booking_detail(db: AsyncSession, user_id: int, booking_id: int):

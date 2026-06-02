@@ -72,6 +72,36 @@ class ShowtimeService:
         return result.scalar_one_or_none()
 
     @staticmethod
+    async def check_movie_conflict_in_theater(
+        db: AsyncSession,
+        movie_id: int,
+        room_id: int,
+        start_time: datetime,
+        end_time: datetime,
+        format: str,
+    ) -> Optional[ShowtimeTable]:
+        """
+        Kiểm tra xem bộ phim có đang chiếu song song ở phòng khác trong cùng một Rạp không.
+        """
+        stmt_room = select(RoomTable.theater_id).where(RoomTable.room_id == room_id)
+        result_room = await db.execute(stmt_room)
+        theater_id = result_room.scalar_one_or_none()
+        if not theater_id:
+            return None
+
+        stmt = select(ShowtimeTable).join(RoomTable).where(
+            and_(
+                RoomTable.theater_id == theater_id,
+                ShowtimeTable.movie_id == movie_id,
+                ShowtimeTable.format == format,
+                ShowtimeTable.start_time < end_time,
+                ShowtimeTable.end_time > start_time,
+            )
+        )
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()
+
+    @staticmethod
     async def bulk_create(
         db: AsyncSession,
         showtimes_data: list[ShowtimeCreate],
@@ -86,11 +116,21 @@ class ShowtimeService:
 
         # 1. Kiểm tra xung đột với DB
         for i, s in enumerate(showtimes_data):
+            # Check 1: Trùng giờ vật lý (2 phim chung 1 phòng)
             conflict = await ShowtimeService.check_conflict(db, s.room_id, s.start_time, s.end_time)
             if conflict:
                 errors.append(
                     f"Suất chiếu #{i+1} (phòng {s.room_id}, {s.start_time} - {s.end_time}) "
                     f"bị trùng với suất chiếu ID={conflict.showtime_id} đã tồn tại trong hệ thống."
+                )
+            
+            # Check 2: Trùng giờ nghiệp vụ (1 phim không chiếu song song 2 phòng cùng 1 rạp)
+            movie_conflict = await ShowtimeService.check_movie_conflict_in_theater(
+                db, s.movie_id, s.room_id, s.start_time, s.end_time, s.format
+            )
+            if movie_conflict:
+                errors.append(
+                    f"Suất chiếu #{i+1} vi phạm: Phim này (bản {s.format}) đang được chiếu song song tại phòng {movie_conflict.room_id} cùng rạp."
                 )
 
         # 2. Kiểm tra xung đột chéo trong chính danh sách gửi lên
@@ -117,31 +157,17 @@ class ShowtimeService:
                 start_time=s.start_time,
                 end_time=s.end_time,
                 day_type=s.day_type,
+                format=s.format,
             )
             db.add(row)
             new_showtimes.append(row)
 
         await db.flush()  # Lưu Showtime để sinh ra showtime_id
 
-        # 4. Sinh ra các ShowSeat (Trạng thái ghế) cho mỗi suất chiếu dựa trên Seat của Room
-        from src.models.theater import SeatTable, ShowSeatTable
-        for showtime in new_showtimes:
-            # Lấy tất cả ghế cố định của phòng chiếu này
-            seats_result = await db.execute(select(SeatTable).where(SeatTable.room_id == showtime.room_id))
-            room_seats = seats_result.scalars().all()
+        # Sparse Seating Optimization: Không pre-allocate các dòng 'Available' trong bảng show_seats.
+        # Hệ thống sẽ ngầm hiểu các ghế không có dữ liệu là 'Available'.
 
-            # Tạo ShowSeat với trạng thái 'Available' cho từng ghế
-            show_seats = [
-                ShowSeatTable(
-                    showtime_id=showtime.showtime_id,
-                    seat_id=seat.seat_id,
-                    status="Available"
-                )
-                for seat in room_seats
-            ]
-            db.add_all(show_seats)
-
-        await db.flush()
+        await db.commit()
         return new_showtimes
 
     @staticmethod

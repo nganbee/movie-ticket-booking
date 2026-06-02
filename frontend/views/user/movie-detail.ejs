@@ -158,32 +158,59 @@ document.addEventListener('DOMContentLoaded', async function() {
             return;
         }
 
-        // Gom nhóm theo rạp (Theater)
+        // Gom nhóm theo rạp (Theater) và Format
         const theaterMap = {};
         showtimes.forEach(st => {
             const theaterName = st.room.theater.name;
-            if (!theaterMap[theaterName]) theaterMap[theaterName] = [];
-            theaterMap[theaterName].push(st);
+            const formatName = st.format || '2D';
+            
+            if (!theaterMap[theaterName]) {
+                theaterMap[theaterName] = {};
+            }
+            if (!theaterMap[theaterName][formatName]) {
+                theaterMap[theaterName][formatName] = [];
+            }
+            theaterMap[theaterName][formatName].push(st);
         });
 
         // Tạo HTML
         showtimesContainer.innerHTML = '';
-        for (const [theater, times] of Object.entries(theaterMap)) {
+        for (const [theater, formats] of Object.entries(theaterMap)) {
             const theaterDiv = document.createElement('div');
             theaterDiv.className = 'border-b border-slate-100 pb-6 mb-6';
             
-            let buttonsHtml = times.map(st => {
-                const startTime = new Date(st.start_time);
-                const timeStr = startTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                // Note: Thực tế cần check số ghế trống của suất chiếu để biết sold-out hay không.
-                // Ở đây mặc định available cho tất cả các suất trả về từ API.
-                return `<button data-id="${st.showtime_id}" class="showtime-btn available border border-slate-300 text-slate-700 hover:border-brand hover:text-brand px-4 py-2 rounded-lg font-medium transition">${timeStr}</button>`;
-            }).join('');
+            let formatsHtml = '';
+            for (const [format, times] of Object.entries(formats)) {
+                let buttonsHtml = times.map(st => {
+                    const startTime = new Date(st.start_time);
+                    const timeStr = startTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                    // Note: Thực tế cần check số ghế trống của suất chiếu để biết sold-out hay không.
+                    return `<button data-id="${st.showtime_id}" class="showtime-btn available border border-slate-300 text-slate-700 hover:border-brand hover:text-brand px-4 py-2 rounded-lg font-medium transition flex flex-col items-center">
+                               <span>${timeStr}</span>
+                            </button>`;
+                }).join('');
+                
+                // Chọn màu badge cho format
+                let badgeColor = 'bg-slate-100 text-slate-600';
+                if (format === '3D') badgeColor = 'bg-blue-100 text-blue-700';
+                if (format === 'IMAX') badgeColor = 'bg-amber-100 text-amber-700';
+
+                formatsHtml += `
+                    <div class="mb-4 last:mb-0 flex gap-4">
+                        <div class="w-16 flex-shrink-0 pt-1">
+                            <span class="px-2 py-1 rounded-md text-xs font-bold ${badgeColor}">${format}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-3 flex-1">
+                            ${buttonsHtml}
+                        </div>
+                    </div>
+                `;
+            }
 
             theaterDiv.innerHTML = `
-                <h3 class="text-lg font-bold text-slate-800 mb-4">${theater}</h3>
-                <div class="flex flex-wrap gap-3">
-                    ${buttonsHtml}
+                <h3 class="text-lg font-bold text-slate-800 mb-4 border-l-4 border-brand pl-3">${theater}</h3>
+                <div class="pl-4 ml-1.5 mt-2">
+                    ${formatsHtml}
                 </div>
             `;
             showtimesContainer.appendChild(theaterDiv);

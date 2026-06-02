@@ -318,12 +318,10 @@
   const showtimeId = parseInt('<%= showtimeId %>');
   const API_BASE_URL = 'http://localhost:8000';
   
-  const PRICE_NORMAL = 70000;
-  const PRICE_VIP = 100000;
   const TOTAL_SECONDS = 10 * 60; // 10 minutes
 
   /* ── State ── */
-  let selectedSeats = new Map(); // seat_id -> {label, type, element}
+  let selectedSeats = new Map(); // seat_id -> {label, type, element, price}
   let secondsLeft = TOTAL_SECONDS;
   let timerInterval = null;
   let expired = false;
@@ -386,6 +384,7 @@
         btn.dataset.id = s.seat_id;
         btn.dataset.label = s.seat_row + s.seat_num;
         btn.dataset.type = s.seat_type.toLowerCase() === 'vip' ? 'vip' : 'normal';
+        btn.dataset.price = s.price;
         
         let statusClass = '';
         if (s.status !== 'Available') {
@@ -488,7 +487,8 @@
       selectSeat(btn);
       selectedSeats.set(id, {
         label: btn.dataset.label,
-        type: btn.dataset.type
+        type: btn.dataset.type,
+        price: parseInt(btn.dataset.price)
       });
       if (limitWarning) limitWarning.classList.add('hidden');
     }
@@ -527,89 +527,13 @@
     const pricingBreakdownEl = document.getElementById('pricing-breakdown');
     pricingBreakdownEl.innerHTML = '';
 
-    let total = 0;
-    
-    if (selectedSeats.size > 0) {
-      pricingBreakdownEl.classList.remove('hidden');
-      
-      let vipCount = 0;
-      let normalCount = 0;
-      
-      selectedSeats.forEach(seat => {
-        if (seat.type === 'vip') vipCount++;
-        else normalCount++;
-      });
-      
-      if (vipCount > 0) {
-        const vipTotal = vipCount * PRICE_VIP;
-        total += vipTotal;
-        
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'flex items-center justify-between py-1 font-medium';
-        rowDiv.style.color = '#4b5563';
-        
-        const leftDiv = document.createElement('div');
-        leftDiv.className = 'flex items-center gap-2';
-        
-        const badge = document.createElement('span');
-        badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold border flex-shrink-0';
-        badge.style.backgroundColor = '#fef3c7';
-        badge.style.color = '#92400e';
-        badge.style.borderColor = '#fcd34d';
-        badge.textContent = 'VIP seat';
-        
-        const countSpan = document.createElement('span');
-        countSpan.textContent = `x${vipCount}`;
-        
-        leftDiv.appendChild(badge);
-        leftDiv.appendChild(countSpan);
-        
-        const priceSpan = document.createElement('span');
-        priceSpan.className = 'font-semibold text-right';
-        priceSpan.textContent = `${vipTotal.toLocaleString('vi-VN')} đ`;
-        
-        rowDiv.appendChild(leftDiv);
-        rowDiv.appendChild(priceSpan);
-        pricingBreakdownEl.appendChild(rowDiv);
-      }
-      
-      if (normalCount > 0) {
-        const normalTotal = normalCount * PRICE_NORMAL;
-        total += normalTotal;
-        
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'flex items-center justify-between py-1 font-medium';
-        rowDiv.style.color = '#4b5563';
-        
-        const leftDiv = document.createElement('div');
-        leftDiv.className = 'flex items-center gap-2';
-        
-        const badge = document.createElement('span');
-        badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold border flex-shrink-0';
-        badge.style.backgroundColor = '#f4f4f5';
-        badge.style.color = '#27272a';
-        badge.style.borderColor = '#e4e4e7';
-        badge.textContent = 'Normal seat';
-        
-        const countSpan = document.createElement('span');
-        countSpan.textContent = `x${normalCount}`;
-        
-        leftDiv.appendChild(badge);
-        leftDiv.appendChild(countSpan);
-        
-        const priceSpan = document.createElement('span');
-        priceSpan.className = 'font-semibold text-right';
-        priceSpan.textContent = `${normalTotal.toLocaleString('vi-VN')} đ`;
-        
-        rowDiv.appendChild(leftDiv);
-        rowDiv.appendChild(priceSpan);
-        pricingBreakdownEl.appendChild(rowDiv);
-      }
-    } else {
-      pricingBreakdownEl.classList.add('hidden');
+    // Calculate total price based on seat.price
+    let sum = 0;
+    for (const s of selectedSeats.values()) {
+      sum += s.price;
     }
-
-    totalPriceEl.textContent = total.toLocaleString('vi-VN') + 'đ';
+    
+    totalPriceEl.textContent = new Intl.NumberFormat('vi-VN').format(sum) + 'đ';
     confirmBtn.disabled = selectedSeats.size === 0;
   }
 

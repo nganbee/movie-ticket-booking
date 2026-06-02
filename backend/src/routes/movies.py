@@ -1,7 +1,8 @@
 # src/routes/movies.py
 from fastapi import APIRouter, Query, Depends, status
-from typing import List, Optional
+from typing import List, Optional, Any
 from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import BaseModel
 from src.models.movie import MovieResponse, MovieCreate
 from src.controllers.movie_controller import MovieController
 from src.config.db import get_db
@@ -9,15 +10,28 @@ from src.middlewares.auth import verify_admin
 
 router = APIRouter()
 
+# --- Schema phân trang ---
+class MoviePageResponse(BaseModel):
+    items: List[MovieResponse]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+
+    class Config:
+        from_attributes = True
+
 # --- PUBLIC ENDPOINTS ---
 
-@router.get("/", response_model=List[MovieResponse])
+@router.get("/", response_model=MoviePageResponse)
 async def get_movies(
     status: Optional[str] = Query(None, description="now_showing hoặc coming_soon"),
     genre: Optional[str] = Query(None, description="Thể loại phim"),
+    page: int = Query(1, ge=1, description="Số trang (bắt đầu từ 1)"),
+    limit: int = Query(12, ge=1, le=100, description="Số phim mỗi trang (tối đa 100)"),
     db: AsyncSession = Depends(get_db)
 ):
-    return await MovieController.get_movies(db, status, genre)
+    return await MovieController.get_movies(db, status, genre, page, limit)
 
 @router.get("/{id}", response_model=MovieResponse)
 async def get_movie_detail(id: int, db: AsyncSession = Depends(get_db)):

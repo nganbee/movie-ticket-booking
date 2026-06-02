@@ -41,7 +41,8 @@ class ShowtimeTable(Base):
     room_id: Mapped[int] = mapped_column(ForeignKey("rooms.room_id"), nullable=False)
     start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    day_type: Mapped[str] = mapped_column(Text, nullable=False) # Weekday, Weekend
+    day_type: Mapped[str] = mapped_column(Text, nullable=False) # 'Weekday', 'Weekend'
+    format: Mapped[str] = mapped_column(Text, nullable=False, server_default="2D")
 
     room: Mapped["RoomTable"] = relationship("RoomTable", back_populates="showtimes")
 
@@ -59,6 +60,7 @@ class PricingRuleTable(Base):
     rule_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     seat_type: Mapped[str] = mapped_column(Text, nullable=False)
     day_type: Mapped[str] = mapped_column(Text, nullable=False)
+    format: Mapped[str] = mapped_column(Text, nullable=False, server_default='2D')
     multiplier: Mapped[float] = mapped_column(Float, nullable=False)
     base_price: Mapped[int] = mapped_column(Integer, nullable=False)
     effective_from: Mapped[date] = mapped_column(Date, nullable=False)
@@ -71,6 +73,7 @@ class SeatResponse(BaseModel):
     seat_num: int
     seat_type: str
     status: str
+    price: int = 70000
     
     class Config:
         from_attributes = True
