@@ -120,15 +120,15 @@
             <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Trạng Thái</label>
             <div class="space-y-2">
               <label class="flex items-center gap-2.5 cursor-pointer group">
-                <input type="radio" name="status" value="all" checked onchange="applyFilters()" class="w-4 h-4 accent-brand">
+                <input type="radio" name="status" value="all" checked onchange="onStatusChange()" class="w-4 h-4 accent-brand">
                 <span class="text-sm text-slate-600 group-hover:text-brand transition">Tất cả</span>
               </label>
               <label class="flex items-center gap-2.5 cursor-pointer group">
-                <input type="radio" name="status" value="now_showing" onchange="applyFilters()" class="w-4 h-4 accent-brand">
+                <input type="radio" name="status" value="now_showing" onchange="onStatusChange()" class="w-4 h-4 accent-brand">
                 <span class="text-sm text-slate-600 group-hover:text-brand transition">Đang Chiếu</span>
               </label>
               <label class="flex items-center gap-2.5 cursor-pointer group">
-                <input type="radio" name="status" value="coming_soon" onchange="applyFilters()" class="w-4 h-4 accent-brand">
+                <input type="radio" name="status" value="coming_soon" onchange="onStatusChange()" class="w-4 h-4 accent-brand">
                 <span class="text-sm text-slate-600 group-hover:text-brand transition">Sắp Chiếu</span>
               </label>
             </div>
@@ -154,162 +154,133 @@
             <i class="fas fa-redo mr-2"></i> Đặt lại bộ lọc
           </button>
         </div>
+
+        <!-- Pagination -->
+        <div id="pagination-container"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // ========== MOCK DATA ==========
-  const MOCK_MOVIES = [
-    {
-      id: 1,
-      title: 'Avengers: Endgame',
-      genre: 'Hành Động',
-      rating: '8.4',
-      duration: '181 phút',
-      format: ['2D', '3D', 'IMAX'],
-      status: 'now_showing',
-      poster: 'https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg',
-      showtimes: ['09:00', '13:30', '17:00', '20:45'],
-      releaseDate: '2024-04-26'
-    },
-    {
-      id: 2,
-      title: 'Inside Out 2',
-      genre: 'Hoạt Hình',
-      rating: '7.9',
-      duration: '100 phút',
-      format: ['2D', '3D'],
-      status: 'now_showing',
-      poster: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
-      showtimes: ['10:00', '14:00', '18:00'],
-      releaseDate: '2024-06-14'
-    },
-    {
-      id: 3,
-      title: 'Dune: Part Two',
-      genre: 'Viễn Tưởng',
-      rating: '8.5',
-      duration: '166 phút',
-      format: ['IMAX', '3D'],
-      status: 'now_showing',
-      poster: 'https://image.tmdb.org/t/p/w500/cdqLnri3NEGcmfnqwk2TSIYtddg.jpg',
-      showtimes: ['11:00', '15:30', '20:00'],
-      releaseDate: '2024-03-01'
-    },
-    {
-      id: 4,
-      title: 'Deadpool & Wolverine',
-      genre: 'Hành Động',
-      rating: '7.8',
-      duration: '128 phút',
-      format: ['2D', '3D', 'IMAX'],
-      status: 'now_showing',
-      poster: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg',
-      showtimes: ['09:30', '12:00', '15:00', '19:30', '22:00'],
-      releaseDate: '2024-07-26'
-    },
-    {
-      id: 5,
-      title: 'A Quiet Place: Day One',
-      genre: 'Kinh Dị',
-      rating: '7.0',
-      duration: '99 phút',
-      format: ['2D'],
-      status: 'now_showing',
-      poster: 'https://image.tmdb.org/t/p/w500/yrpPYKijwdMHyTGIOd1iK1h0Yo8.jpg',
-      showtimes: ['10:30', '13:00', '16:30', '21:00'],
-      releaseDate: '2024-06-28'
-    },
-    {
-      id: 6,
-      title: 'Alien: Romulus',
-      genre: 'Kinh Dị',
-      rating: '7.3',
-      duration: '119 phút',
-      format: ['2D', '3D'],
-      status: 'now_showing',
-      poster: 'https://image.tmdb.org/t/p/w500/b33nnKl1GSFbao4l3fZDDqsMx0F.jpg',
-      showtimes: ['11:30', '14:45', '18:30', '22:15'],
-      releaseDate: '2024-08-16'
-    },
-    {
-      id: 7,
-      title: 'Twisters',
-      genre: 'Hành Động',
-      rating: '7.2',
-      duration: '122 phút',
-      format: ['2D', 'IMAX'],
-      status: 'now_showing',
-      poster: 'https://image.tmdb.org/t/p/w500/pjnD08FlMAIXsfOLKQbIt9sXKnq.jpg',
-      showtimes: ['10:00', '13:30', '17:30', '21:00'],
-      releaseDate: '2024-07-19'
-    },
-    {
-      id: 8,
-      title: 'Moana 2',
-      genre: 'Hoạt Hình',
-      rating: '7.1',
-      duration: '100 phút',
-      format: ['2D', '3D'],
-      status: 'coming_soon',
-      poster: 'https://image.tmdb.org/t/p/w500/4YZgsHLBToZM8lnhiGlTXNB4pJE.jpg',
-      showtimes: [],
-      releaseDate: '2024-11-27'
-    },
-    {
-      id: 9,
-      title: 'Wicked',
-      genre: 'Tình Cảm',
-      rating: '7.6',
-      duration: '160 phút',
-      format: ['2D'],
-      status: 'coming_soon',
-      poster: 'https://image.tmdb.org/t/p/w500/xDGbZ0JJ3mYaGKy4Nzd9Kph6LQ.jpg',
-      showtimes: [],
-      releaseDate: '2024-11-22'
-    },
-    {
-      id: 10,
-      title: 'Gladiator II',
-      genre: 'Hành Động',
-      rating: '7.5',
-      duration: '148 phút',
-      format: ['2D', 'IMAX'],
-      status: 'coming_soon',
-      poster: 'https://image.tmdb.org/t/p/w500/2cxhvwyEwRlysAmRH4iodkvo0z5.jpg',
-      showtimes: [],
-      releaseDate: '2024-11-22'
-    },
-    {
-      id: 11,
-      title: 'Speak No Evil',
-      genre: 'Tâm Lý',
-      rating: '7.1',
-      duration: '110 phút',
-      format: ['2D'],
-      status: 'now_showing',
-      poster: 'https://image.tmdb.org/t/p/w500/oBIQDKcqNxKckjugtmzpIIOgoc4.jpg',
-      showtimes: ['12:00', '16:00', '20:30'],
-      releaseDate: '2024-09-13'
-    },
-    {
-      id: 12,
-      title: 'The Wild Robot',
-      genre: 'Hoạt Hình',
-      rating: '8.0',
-      duration: '102 phút',
-      format: ['2D', '3D'],
-      status: 'now_showing',
-      poster: 'https://image.tmdb.org/t/p/w500/wTnV3PCVW5O92JMrFvvrRcV39RU.jpg',
-      showtimes: ['09:30', '13:00', '17:00'],
-      releaseDate: '2024-09-27'
-    }
-  ];
-
+  // ========== STATE ==========
+  let ALL_MOVIES = [];   // Cache phim của trang hiện tại
   let currentView = 'grid';
   let selectedFormat = 'all';
+  let currentPage = 1;
+  const PAGE_LIMIT = 12;
+  let totalPages = 1;
+  let totalMovies = 0;
+  let lastStatus = 'all'; // Theo dõi status được gửi lên backend
+
+  // ========== MAP BACKEND → FRONTEND FORMAT ==========
+  function mapMovie(m) {
+    return {
+      id: m.movie_id,
+      title: m.title,
+      genre: m.genre || 'Khác',
+      rating: m.imdb_rating ? m.imdb_rating.toFixed(1) : 'N/A',
+      duration: `${m.duration} phút`,
+      format: m.format ? m.format : [],
+      status: m.status,
+      poster: m.poster_url || 'https://via.placeholder.com/500x750?text=No+Poster',
+      showtimes: m.showtimes || [],
+      releaseDate: m.release_date || '',
+      // Gán showDates động cho phim đang chiếu
+      showDates: (() => {
+        const dates = [];
+        if (m.status === 'now_showing') {
+          const base = new Date();
+          for (let i = -7; i < 21; i++) {
+            const d = new Date(base);
+            d.setDate(d.getDate() + i);
+            dates.push(d.toISOString().split('T')[0]);
+          }
+        }
+        return dates;
+      })()
+    };
+  }
+
+  // ========== LẤY FILTER HIỆN TẠI ==========
+  function getCurrentFilters() {
+    return {
+      search: document.getElementById('search-input').value.toLowerCase().trim(),
+      genres: [...document.querySelectorAll('.genre-check:checked')].map(cb => cb.value),
+      status: document.querySelector('input[name="status"]:checked').value,
+      date: document.getElementById('date-filter').value,
+    };
+  }
+
+  // ========== FETCH TỪ BACKEND (chỉ khi đổi trang / đổi status) ==========
+  async function loadMovies(page = 1) {
+    const container = document.getElementById('movie-container');
+    const resultCount = document.getElementById('result-count');
+    const status = document.querySelector('input[name="status"]:checked').value;
+
+    lastStatus = status;
+
+    // Hiển thị loading spinner
+    container.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-24 text-slate-400">
+        <svg class="animate-spin h-10 w-10 mb-4 text-brand" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        <p class="text-sm">Đang tải danh sách phim...</p>
+      </div>`;
+    document.getElementById('pagination-container').innerHTML = '';
+
+    try {
+      const params = new URLSearchParams({ page, limit: PAGE_LIMIT });
+      if (status !== 'all') params.append('status', status);
+
+      const response = await fetch(`/api/movies?${params.toString()}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data = await response.json();
+      currentPage = data.page;
+      totalPages  = data.total_pages;
+      totalMovies = data.total;
+
+      // Lưu cache — genre/search/format/date sẽ lọc trên mảng này
+      ALL_MOVIES = data.items.map(mapMovie);
+
+      // Sau khi fetch xong, lọc client-side rồi render
+      applyFilters();
+    } catch (err) {
+      console.error('Lỗi tải phim:', err);
+      container.innerHTML = `
+        <div class="col-span-full flex flex-col items-center justify-center py-24 text-center">
+          <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-exclamation-triangle text-2xl text-red-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-700 mb-1">Không thể tải danh sách phim</h3>
+          <p class="text-slate-400 text-sm mb-4">Vui lòng kiểm tra kết nối hoặc thử lại sau.</p>
+          <button onclick="loadMovies(currentPage)" class="bg-brand text-white px-5 py-2 rounded-xl font-bold hover:bg-red-700 transition">
+            <i class="fas fa-redo mr-2"></i>Thử lại
+          </button>
+        </div>`;
+      resultCount.textContent = 'Lỗi tải dữ liệu';
+    }
+  }
+
+
+  // ========== LỌC CLIENT-SIDE (search, genre, format, date) ==========
+  // Không gọi backend, chỉ lọc trên ALL_MOVIES đã cache
+  function clientFilter(movies) {
+    const search = document.getElementById('search-input').value.toLowerCase().trim();
+    const genres = [...document.querySelectorAll('.genre-check:checked')].map(cb => cb.value);
+    const date   = document.getElementById('date-filter').value;
+
+    return movies.filter(m => {
+      if (search && !m.title.toLowerCase().includes(search)) return false;
+      if (date && (!m.showDates || !m.showDates.includes(date))) return false;
+      if (!genres.includes('all') && !genres.some(g => m.genre.includes(g))) return false;
+      if (selectedFormat !== 'all' && m.format.length > 0 && !m.format.includes(selectedFormat)) return false;
+      return true;
+    });
+  }
 
   // ========== RENDER ==========
   function renderMovies(movies) {
@@ -321,11 +292,12 @@
       container.innerHTML = '';
       emptyState.classList.remove('hidden');
       resultCount.textContent = 'Không tìm thấy phim nào';
+      document.getElementById('pagination-container').innerHTML = '';
       return;
     }
 
     emptyState.classList.add('hidden');
-    resultCount.textContent = `Tìm thấy ${movies.length} phim`;
+    resultCount.textContent = `Hiển thị ${movies.length} / ${totalMovies} phim`;
 
     if (currentView === 'grid') {
       container.className = 'grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5';
@@ -417,32 +389,73 @@
     `;
   }
 
-  // ========== FILTERS ==========
-  function applyFilters() {
-    const search = document.getElementById('search-input').value.toLowerCase().trim();
-    const selectedGenres = [...document.querySelectorAll('.genre-check:checked')].map(cb => cb.value);
-    const status = document.querySelector('input[name="status"]:checked').value;
-    const date = document.getElementById('date-filter').value;
+  // ========== PAGINATION UI ==========
+  function renderPagination() {
+    const container = document.getElementById('pagination-container');
+    if (totalPages <= 1) { container.innerHTML = ''; return; }
 
-    let filtered = MOCK_MOVIES.filter(m => {
-      // Search
-      if (search && !m.title.toLowerCase().includes(search)) return false;
-      // Date
-      if (date) {
-        if (!m.showDates || !m.showDates.includes(date)) return false;
+    const btnBase = 'w-9 h-9 rounded-lg text-sm font-semibold flex items-center justify-center transition';
+    const btnActive = `${btnBase} bg-brand text-white shadow`;
+    const btnNormal = `${btnBase} bg-white border border-slate-200 text-slate-600 hover:border-brand hover:text-brand`;
+    const btnDisabled = `${btnBase} bg-slate-50 border border-slate-100 text-slate-300 cursor-not-allowed`;
+
+    // Tạo danh sách số trang hiển thị (dạng: 1 ... 4 5 6 ... 10)
+    function pageNumbers() {
+      const pages = [];
+      const delta = 2;
+      for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+        pages.push(i);
       }
-      // Genre
-      if (!selectedGenres.includes('all')) {
-        if (!selectedGenres.some(g => m.genre.includes(g))) return false;
+      if (pages.length && pages[0] > 2) pages.unshift('...');
+      if (pages.length && pages[pages.length - 1] < totalPages - 1) pages.push('...');
+      pages.unshift(1);
+      if (totalPages > 1) pages.push(totalPages);
+      return [...new Set(pages)];
+    }
+
+    const pages = pageNumbers();
+    let html = `<div class="flex items-center gap-1.5 mt-8 justify-center">`;
+
+    // Nút Prev
+    html += currentPage > 1
+      ? `<button onclick="goToPage(${currentPage - 1})" class="${btnNormal} px-3"><i class="fas fa-chevron-left text-xs"></i></button>`
+      : `<span class="${btnDisabled} px-3"><i class="fas fa-chevron-left text-xs"></i></span>`;
+
+    // Số trang
+    pages.forEach(p => {
+      if (p === '...') {
+        html += `<span class="${btnBase} text-slate-400">...</span>`;
+      } else {
+        html += `<button onclick="goToPage(${p})" class="${p === currentPage ? btnActive : btnNormal}">${p}</button>`;
       }
-      // Format
-      if (selectedFormat !== 'all' && !m.format.includes(selectedFormat)) return false;
-      // Status
-      if (status !== 'all' && m.status !== status) return false;
-      return true;
     });
 
+    html += currentPage < totalPages
+      ? `<button onclick="goToPage(${currentPage + 1})" class="${btnNormal} px-3"><i class="fas fa-chevron-right text-xs"></i></button>`
+      : `<span class="${btnDisabled} px-3"><i class="fas fa-chevron-right text-xs"></i></span>`;
+
+    html += `</div>`;
+    container.innerHTML = html;
+  }
+
+  function goToPage(p) {
+    if (p < 1 || p > totalPages || p === currentPage) return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    loadMovies(p);
+  }
+
+  // ========== FILTERS ==========
+  // applyFilters: chỉ lọc client-side trên cache, KHÔNG gọi backend
+  function applyFilters() {
+    const filtered = clientFilter(ALL_MOVIES);
     renderMovies(filtered);
+    renderPagination();
+  }
+
+  // onStatusChange: status thay đổi → phải fetch lại từ backend
+  function onStatusChange() {
+    currentPage = 1;
+    loadMovies(1);
   }
 
   function toggleFormat(btn, fmt) {
@@ -471,7 +484,13 @@
     allFormatBtn.classList.add('active', 'bg-brand', 'text-white', 'border-brand');
     allFormatBtn.classList.remove('border-slate-200', 'text-slate-600');
     selectedFormat = 'all';
-    applyFilters();
+    // Nếu status vừa reset về 'all' nhưng trước đó là giá trị khác → cần fetch lại
+    if (lastStatus !== 'all') {
+      currentPage = 1;
+      loadMovies(1);
+    } else {
+      applyFilters();
+    }
   }
 
   function setView(v) {
@@ -485,22 +504,9 @@
     applyFilters();
   }
 
-  // Init
+  // ========== INIT ==========
   document.addEventListener('DOMContentLoaded', () => {
-    // Generate mock showDates for movies
-    const todayStr = new Date().toISOString().split('T')[0];
-    const baseDate = new Date();
-    MOCK_MOVIES.forEach(m => {
-      m.showDates = [];
-      if (m.status === 'now_showing') {
-        for (let i = -7; i < 21; i++) {
-          let d = new Date(baseDate);
-          d.setDate(d.getDate() + i);
-          m.showDates.push(d.toISOString().split('T')[0]);
-        }
-      }
-    });
-
+    // Gắn event cho các checkbox genre
     document.querySelectorAll('.genre-check').forEach(cb => {
       cb.addEventListener('change', (e) => {
         const allCb = document.querySelector('.genre-check[value="all"]');
@@ -508,13 +514,14 @@
           document.querySelectorAll('.genre-check:not([value="all"])').forEach(other => other.checked = false);
         } else if (e.target.value !== 'all') {
           if (e.target.checked) allCb.checked = false;
-          // check if no genre is selected
           const anyChecked = [...document.querySelectorAll('.genre-check:not([value="all"])')].some(other => other.checked);
           if (!anyChecked) allCb.checked = true;
         }
         applyFilters();
       });
     });
-    applyFilters();
+
+    // Fetch dữ liệu thật từ backend
+    loadMovies();
   });
 </script>

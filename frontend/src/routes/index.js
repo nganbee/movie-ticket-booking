@@ -22,16 +22,17 @@ router.get('/', async (req, res) => {
     let comingSoon = [];
     try {
         const [nowShowingRes, comingSoonRes] = await Promise.all([
-            fetch(`${API_BASE_URL}/movies/?status=now_showing`),
-            fetch(`${API_BASE_URL}/movies/?status=coming_soon`)
+            fetch(`${API_BASE_URL}/movies/?status=now_showing&limit=100`),
+            fetch(`${API_BASE_URL}/movies/?status=coming_soon&limit=100`)
         ]);
         if (nowShowingRes.ok) {
             const data = await nowShowingRes.json();
-            nowShowing = data.map(mapMovie);
+            // Backend trả về { items: [...], total, ... } sau khi thêm phân trang
+            nowShowing = (data.items ?? data).map(mapMovie);
         }
         if (comingSoonRes.ok) {
             const data = await comingSoonRes.json();
-            comingSoon = data.map(mapMovie);
+            comingSoon = (data.items ?? data).map(mapMovie);
         }
     } catch (error) {
         console.error("Error fetching movies from backend:", error);
@@ -83,6 +84,31 @@ router.get('/movies', async (req, res) => {
     });
 });
 
+// API Proxy: Trả về danh sách phim từ backend cho client-side fetch
+router.get('/api/movies', async (req, res) => {
+    try {
+        // Chuyển tiếp các query params (status, genre, page, limit) sang backend
+        const params = new URLSearchParams();
+        if (req.query.status) params.append('status', req.query.status);
+        if (req.query.genre)  params.append('genre',  req.query.genre);
+        if (req.query.page)   params.append('page',   req.query.page);
+        if (req.query.limit)  params.append('limit',  req.query.limit);
+
+        const url = `${API_BASE_URL}/movies/${params.toString() ? '?' + params.toString() : ''}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            return res.status(response.status).json({ error: 'Backend error' });
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error proxying /api/movies:', error);
+        res.status(500).json({ error: 'Không thể kết nối tới backend' });
+    }
+});
+
 // ── Admin Routes ──────────────────────────────────────────────────────────────
 // Admin Dashboard
 router.get('/admin/dashboard', (req, res) => {
@@ -92,6 +118,24 @@ router.get('/admin/dashboard', (req, res) => {
         pageTitle: 'Dashboard',
         currentPage: 'dashboard'
     });
+});
+
+// API Proxy: Analytics Dashboard (chuyển tiếp token admin từ client)
+router.get('/api/admin/dashboard', async (req, res) => {
+    try {
+        const authHeader = req.headers['authorization'] || '';
+        const response = await fetch(`${API_BASE_URL}/analytics/dashboard`, {
+            headers: { 'Authorization': authHeader }
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            return res.status(response.status).json(err);
+        }
+        res.json(await response.json());
+    } catch (error) {
+        console.error('Error proxying /api/admin/dashboard:', error);
+        res.status(500).json({ error: 'Không thể kết nối tới backend' });
+    }
 });
 
 // Admin News Management
