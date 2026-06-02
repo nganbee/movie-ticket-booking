@@ -138,6 +138,37 @@ router.get('/api/admin/dashboard', async (req, res) => {
     }
 });
 
+// API Proxy: News Management
+router.all('/api/admin/news*', async (req, res) => {
+    try {
+        const authHeader = req.headers['authorization'] || '';
+        const path = req.originalUrl.replace('/api/admin/news', ''); // vd: /1?type=Tin Phim
+        
+        const options = {
+            method: req.method,
+            headers: { 
+                'Authorization': authHeader,
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        if (req.method !== 'GET' && req.method !== 'HEAD' && Object.keys(req.body || {}).length > 0) {
+            options.body = JSON.stringify(req.body);
+        }
+
+        const response = await fetch(`${API_BASE_URL}/news${path}`, options);
+        if (response.status === 204) {
+             return res.status(204).send();
+        }
+        
+        const data = await response.json().catch(() => ({}));
+        res.status(response.status).json(data);
+    } catch (error) {
+        console.error('Error proxying /api/admin/news:', error);
+        res.status(500).json({ error: 'Không thể kết nối tới backend' });
+    }
+});
+
 // Admin News Management
 router.get('/admin/news', (req, res) => {
     res.render('admin/news-management', {
