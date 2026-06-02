@@ -10,7 +10,7 @@ from src.models.user import UserTable  # Auth & User tables
 from src.models.theater import TheaterTable, RoomTable, SeatTable, ShowtimeTable, ShowSeatTable, PricingRuleTable
 from src.models.booking import BookingTable, PaymentTable, BookingItemTable, ETicketTable
 from src.models.showtime import ShowtimeTable, RoomTable, TheaterTable  # Showtime tables
-from src.routes import movies, news, auth, users, seats, bookings, payments, showtimes
+from src.routes import movies, news, auth, users, seats, bookings, payments, showtimes, theaters
 from src.routes import analytics
 
 from src.config.settings import settings
@@ -35,8 +35,14 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"Lỗi khởi tạo ngrok: {e}")
             
+    # Bật Background Sweeper dọn dẹp ghế quá hạn
+    import asyncio
+    from src.controllers.booking_controller import BookingController
+    cleanup_task = asyncio.create_task(BookingController.start_background_cleanup_task())
+            
     yield
     # Khi ứng dụng tắt
+    cleanup_task.cancel()
     await engine.dispose()
     if settings.NGROK_AUTHTOKEN:
         ngrok.disconnect()
@@ -77,3 +83,6 @@ app.include_router(showtimes.router, prefix="/showtimes", tags=["Showtimes"])
 app.include_router(showtimes.router, prefix="/showtimes", tags=["Showtimes"])
 # ── Analytics routes ──────────────────────────────────────────────────────────
 app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
+
+# ── Theaters routes ──────────────────────────────────────────────────────────
+app.include_router(theaters.router, prefix="/theaters", tags=["Theaters"])
