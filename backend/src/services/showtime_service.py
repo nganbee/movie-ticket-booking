@@ -123,25 +123,10 @@ class ShowtimeService:
 
         await db.flush()  # Lưu Showtime để sinh ra showtime_id
 
-        # 4. Sinh ra các ShowSeat (Trạng thái ghế) cho mỗi suất chiếu dựa trên Seat của Room
-        from src.models.theater import SeatTable, ShowSeatTable
-        for showtime in new_showtimes:
-            # Lấy tất cả ghế cố định của phòng chiếu này
-            seats_result = await db.execute(select(SeatTable).where(SeatTable.room_id == showtime.room_id))
-            room_seats = seats_result.scalars().all()
+        # Sparse Seating Optimization: Không pre-allocate các dòng 'Available' trong bảng show_seats.
+        # Hệ thống sẽ ngầm hiểu các ghế không có dữ liệu là 'Available'.
 
-            # Tạo ShowSeat với trạng thái 'Available' cho từng ghế
-            show_seats = [
-                ShowSeatTable(
-                    showtime_id=showtime.showtime_id,
-                    seat_id=seat.seat_id,
-                    status="Available"
-                )
-                for seat in room_seats
-            ]
-            db.add_all(show_seats)
-
-        await db.flush()
+        await db.commit()
         return new_showtimes
 
     @staticmethod
