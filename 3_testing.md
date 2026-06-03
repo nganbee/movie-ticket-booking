@@ -104,11 +104,58 @@ Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testi
 
 #### 3.2.12 TC12
 
+| Test case | Khách hàng thanh toán đặt vé thành công qua cổng VNPAY |
+| :--- | :--- |
+| **Related feature** | Thanh toán (Payment) |
+| **Context** | Người dùng đã đăng nhập, đã chọn ghế và đang ở trang Checkout. |
+| **Input Data** | Tài khoản đã đăng nhập, đơn hàng đang chờ thanh toán, thẻ test VNPAY Sandbox (NCB: `9704198526191432198` / `NGUYEN VAN A` / `07/15` / OTP `123456`) |
+| **Expected Output** | Trình duyệt chuyển sang trang VNPAY Sandbox → sau khi nhập thẻ và xác nhận → tự động quay về trang Receipt hiển thị "Đặt vé Thành công!" kèm thông tin phim, ghế và tổng tiền. |
+| **Test steps** | **Bước 1:** Vào trang Checkout, quan sát thông tin đơn hàng và nút "Thanh toán qua VNPAY" <br> **Bước 2:** Click nút "Thanh toán qua VNPAY" → trình duyệt chuyển sang trang VNPAY Sandbox <br> **Bước 3:** Chọn phương thức Thẻ ATM, chọn ngân hàng NCB, nhập thông tin thẻ test → nhập OTP `123456` → xác nhận <br> **Bước 4:** Quan sát trang tự động quay về → hiển thị trang Receipt "Đặt vé Thành công!" với đầy đủ thông tin vé |
+| **Actual Output** | Bước 1-3 thành công: trang Checkout hiển thị đúng, nút VNPAY hoạt động, chuyển sang trang VNPAY Sandbox và nhập thẻ NCB thành công. Sau khi thanh toán, trình duyệt bị điều hướng đến URL ngrok (`https://gush-unafraid-regain.ngrok-free.dev/payments/vnpay-return?vnp_ResponseCode=00&...`) thay vì trang Receipt. Tuy nhiên, khi vào trang Profile thì vé đã được đặt thành công và hiển thị đúng trạng thái đã thanh toán. |
+| **Result** | Failed |
+
+---
+
 #### 3.2.13 TC13
+
+| Test case | Khách hàng thoát khỏi trang thanh toán VNPAY mà không hoàn tất |
+| :--- | :--- |
+| **Related feature** | Thanh toán (Payment) |
+| **Context** | Người dùng đã đăng nhập, đã click "Thanh toán qua VNPAY" và đang ở trang VNPAY Sandbox. Có 2 cách thoát: nhấn nút **"Hủy thanh toán"** (cancel chủ động) hoặc nhấn nút **"Quay lại"** (back navigation về trang trước). |
+| **Input Data** | Tài khoản đã đăng nhập, đang ở trang thanh toán VNPAY Sandbox |
+| **Expected Output** | Cả 2 trường hợp: sau khi thoát khỏi trang VNPAY → ghế đã chọn phải được hoàn trả về trạng thái trống để người khác có thể đặt. |
+| **Test steps** | **Trường hợp A — Nhấn "Hủy thanh toán":** <br> Bước 1: Click "Thanh toán qua VNPAY" → vào trang VNPAY Sandbox <br> Bước 2: Nhấn nút "Hủy thanh toán" <br> Bước 3: Quan sát trang tự động quay về → kiểm tra ghế đã chọn có trở về trạng thái trống không <br><br> **Trường hợp B — Nhấn "Quay lại" (back):** <br> Bước 1: Click "Thanh toán qua VNPAY" → vào trang VNPAY Sandbox <br> Bước 2: Nhấn nút "← Quay lại" ở góc trên trang VNPAY (back navigation) <br> Bước 3: Vào lại trang chọn ghế → kiểm tra ghế đã chọn có trở về trạng thái trống không |
+| **Actual Output** | **Trường hợp A ("Hủy thanh toán"):** Trình duyệt quay về trang Profile, ghế được hoàn trả về trạng thái trống. Hoạt động đúng. <br><br> **Trường hợp B ("Quay lại"):** Trình duyệt điều hướng ngược lại nhưng ghế KHÔNG được hoàn trả — vẫn ở trạng thái đã giữ. Người dùng không thể chọn lại các ghế đó cho đến khi hết 10 phút timeout. |
+| **Result** | Trường hợp A: Passed — Trường hợp B: Failed |
+
+
+---
 
 #### 3.2.14 TC14
 
+| Test case | Hệ thống tự động hủy giữ ghế khi hết thời gian chờ thanh toán |
+| :--- | :--- |
+| **Related feature** | Thanh toán (Payment) |
+| **Context** | Người dùng đã đăng nhập, vừa xác nhận chọn ghế và đang ở trang Checkout. Đồng hồ đếm ngược 10 phút bắt đầu chạy. |
+| **Input Data** | Tài khoản đã đăng nhập, đã chọn ghế, không thực hiện thanh toán trong 10 phút |
+| **Expected Output** | Sau 10 phút không thanh toán → hệ thống hiển thị thông báo hết thời gian và tự động hủy phiên giữ ghế. Quay lại trang chọn ghế, các ghế đã chọn trước đó trở về trạng thái trống. |
+| **Test steps** | **Bước 1:** Chọn ghế → xác nhận đặt vé → chuyển sang trang Checkout, quan sát đồng hồ đếm ngược <br> **Bước 2:** Không thực hiện thanh toán, chờ hết 10 phút <br> **Bước 3:** Quan sát thông báo hết thời gian xuất hiện <br> **Bước 4:** Quay lại trang chọn ghế → kiểm tra các ghế đã chọn trước đó đã trở về trạng thái trống |
+| **Actual Output** | Sau 10 phút không thanh toán, hệ thống hiển thị thông báo hết thời gian và tự động hủy phiên giữ ghế. Quay lại trang chọn ghế, các ghế đã chọn trước đó trở về trạng thái trống, có thể chọn lại bình thường. |
+| **Result** | Passed |
+
+---
+
 #### 3.2.15 TC15
+
+| Test case | Xem vé điện tử và mã QR sau khi thanh toán thành công |
+| :--- | :--- |
+| **Related feature** | Xuất vé (Ticketing) |
+| **Context** | Người dùng đã hoàn thành thanh toán thành công (TC12), có ít nhất một đơn hàng đã thanh toán. |
+| **Input Data** | Tài khoản đã đăng nhập, có đơn hàng đã thanh toán thành công |
+| **Expected Output** | Trang Profile hiển thị đơn hàng với nhãn "Đã thanh toán" và nút "Xem mã QR vé". Khi click → popup hiển thị mã QR cho từng ghế đã đặt. Trang Receipt hiển thị đầy đủ thông tin vé và cho phép tải hóa đơn về máy. |
+| **Test steps** | **Bước 1:** Vào trang Profile → tìm đơn hàng có nhãn "Đã thanh toán" <br> **Bước 2:** Click nút "Xem mã QR vé" → quan sát popup hiện ra với mã QR <br> **Bước 3:** Kiểm tra số lượng QR hiển thị khớp với số ghế đã đặt <br> **Bước 4:** Vào trang Receipt → click "Tải hóa đơn" → kiểm tra file ảnh được tải về máy |
+| **Actual Output** | Trang Profile hiển thị đơn hàng với nhãn "Đã thanh toán" và nút "Xem mã QR vé". Click vào nút → popup hiển thị đúng số mã QR khớp với số ghế đã đặt. Trang Receipt hiển thị đầy đủ thông tin vé. Click "Tải hóa đơn" → file ảnh được tải về máy thành công. |
+| **Result** | Passed |
 
 ## 4. AI Usage Declaration
 
