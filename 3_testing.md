@@ -80,13 +80,81 @@ Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testi
 
 ### 3.2 Test case specifications
 
-#### 3.2.1 TC01
+Dựa trên ảnh bạn gửi thì **TC01, TC02, TC03 đã có Actual Output cụ thể**, nên mình sẽ cập nhật lại cho đúng với kết quả thực tế thay vì để chung chung.
 
-#### 3.2.2 TC02
+---
 
-#### 3.2.3 TC03
+### 3.2.1 TC01 – Đăng ký tài khoản khách hàng thất bại khi trùng Email/SĐT
 
-#### 3.2.4 TC04
+**Written by:** 23120038 - Lê Hoàng Mỹ Hạ  
+**Edited by:**  
+**Reviewed by:**  
+
+| Test case           | Content                                                                                                                           |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Related feature** | Quản lý tài khoản (Account Management)                                                                                            |
+| **Context**         | Người dùng đăng ký tài khoản mới bằng Email đã tồn tại trong hệ thống.                                                            |
+| **Input Data**      | Họ tên: Nguyễn Văn A <br> Email: [miha@gmail.com](mailto:miha@gmail.com) <br> Mật khẩu: miha1234 <br> Xác nhận mật khẩu: miha1234 |
+| **Expected Output** | Hệ thống từ chối tạo tài khoản và hiển thị thông báo lỗi: "Email này đã được sử dụng".                                            |
+| **Test steps**      | 1. Mở form Đăng ký. <br> 2. Nhập thông tin hợp lệ nhưng Email đã tồn tại. <br> 3. Nhấn nút "Tạo Tài Khoản".                       |
+| **Actual Output**   | Hệ thống hiển thị thông báo lỗi màu đỏ: **"Email này đã được sử dụng"** và không tạo tài khoản mới.                               |
+| **Result**          | Passed                                                                                                                            |  
+
+![TC01](data/image_template_3/3.1.1.png)
+---
+
+### 3.2.2 TC02 – Đăng nhập hệ thống thất bại khi nhập sai mật khẩu
+
+**Written by:** 23120038 - Lê Hoàng Mỹ Hạ  
+**Edited by:**  
+**Reviewed by:**  
+
+| Test case           | Content                                                                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Related feature** | Quản lý tài khoản (Account Management)                                                                                 |
+| **Context**         | Người dùng đã có tài khoản hợp lệ nhưng nhập sai mật khẩu khi đăng nhập.                                               |
+| **Input Data**      | Email: [miha@gmail.com](mailto:miha@gmail.com) <br> Mật khẩu: admin123                                                 |
+| **Expected Output** | Hệ thống từ chối đăng nhập và hiển thị thông báo lỗi: "Email hoặc mật khẩu không chính xác".                           |
+| **Test steps**      | 1. Mở form Đăng nhập. <br> 2. Nhập Email hợp lệ. <br> 3. Nhập mật khẩu không đúng. <br> 4. Nhấn nút "Đăng Nhập".       |
+| **Actual Output**   | Hệ thống hiển thị thông báo lỗi màu đỏ: **"Email hoặc mật khẩu không chính xác"** và không cho phép truy cập hệ thống. |
+| **Result**          | Passed                                                                                                                 |
+![TC01](data/image_template_3/3.1.2.png)
+---
+
+### 3.2.3 TC03 – Đăng nhập tài khoản Admin hệ thống thành công
+
+**Written by:** 23120038 - Lê Hoàng Mỹ Hạ
+**Edited by:**
+**Reviewed by:**
+
+| Test case           | Content                                                                                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Related feature** | Quản lý tài khoản (Account Management)                                                                                                                                          |
+| **Context**         | Quản trị viên đăng nhập bằng tài khoản Admin hợp lệ để truy cập khu vực quản trị.                                                                                               |
+| **Input Data**      | Username: [admin@gmail.com](mailto:admin@gmail.com) <br> Password: admin123                                                                                                     |
+| **Expected Output** | Hệ thống xác thực thành công và chuyển hướng đến Dashboard Admin.                                                                                                               |
+| **Test steps**      | 1. Truy cập trang Admin Login. <br> 2. Nhập Username: [admin@gmail.com](mailto:admin@gmail.com). <br> 3. Nhập Password: admin123. <br> 4. Nhấn nút "Đăng nhập vào Admin Panel". |
+| **Actual Output**   | Hệ thống xác thực thành công và điều hướng đến giao diện Dashboard Admin.                                                                                                       |
+| **Result**          | Passed                                                                                                                                                                          |
+![TC01](data/image_template_3/3.1.3a.png)
+![TC01](data/image_template_3/3.1.3b.png)
+---
+
+### 3.2.4 TC04 – Admin thêm phim mới thất bại do sai định dạng file poster
+
+**Written by:** 23120038 - Lê Hoàng Mỹ Hạ
+**Edited by:**
+**Reviewed by:**
+
+| Test case           | Content                                                                                                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Related feature** | Quản lý phim và suất chiếu (Movie & Showtime Admin-control)                                                                                                     |
+| **Context**         | Quản trị viên thực hiện thêm phim mới nhưng tải lên file poster không phải định dạng hình ảnh hợp lệ.                                                           |
+| **Input Data**      | Tên phim: Avengers Endgame <br> Poster: poster.docx hoặc poster.pdf                                                                                             |
+| **Expected Output** | Hệ thống từ chối upload file và hiển thị thông báo lỗi định dạng.                                                                                               |
+| **Test steps**      | 1. Đăng nhập Admin. <br> 2. Mở chức năng Thêm phim mới. <br> 3. Nhập đầy đủ thông tin phim. <br> 4. Chọn file .pdf hoặc .docx làm poster. <br> 5. Nhấn nút Lưu. |
+| **Actual Output**   | Hệ thống chặn thao tác lưu phim và hiển thị thông báo: **"Chỉ chấp nhận file JPG, PNG hoặc JPEG"**.                                                             |
+| **Result**          | Passed                                                                                                                                                          |
 
 #### 3.2.5 TC05
 
