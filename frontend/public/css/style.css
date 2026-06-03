@@ -2715,6 +2715,10 @@ body {
   color: rgb(220 38 38 / var(--tw-text-opacity, 1));
 }
 
+.text-brand\/80 {
+  color: rgb(220 38 38 / 0.8);
+}
+
 .text-green-100 {
   --tw-text-opacity: 1;
   color: rgb(220 252 231 / var(--tw-text-opacity, 1));
