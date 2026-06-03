@@ -36,6 +36,9 @@
 
 ## 2. Test plan
 
+> Written by: 23120060 - Trần Kim Ngân       
+Reviewed by:  23120047 - Nguyễn Gia Huy
+
 Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testing) tập trung chủ yếu vào việc xác minh các chức năng nghiệp vụ và luồng dữ liệu của hệ thống đặt vé phim CineBook. 
 
 * **Đối tượng kiểm thử (Testing Objects):**
@@ -52,6 +55,9 @@ Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testi
 ## 3. Test cases
 
 ### 3.1 List of test cases
+
+> Written by: 23120060 - Trần Kim Ngân       
+Reviewed by:  23120049 - Nguyễn Thanh Huyền
 
 **Danh sách feature chính được chọn để kiểm thử**
 1. **Quản lý tài khoản (Account Management):** Xác thực thông tin, phân quyền Admin/Customer và bảo mật đăng nhập.
@@ -98,6 +104,9 @@ Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testi
 
 #### 3.2.9 TC09
 
+> Written by: 23120060 - Trần Kim Ngân       
+Reviewed by:  23120047 - Nguyễn Gia Huy
+
 | Test case | TC09 |
 | :-------- | :----------|
 | Related feature| Đặt vé xem phim / Sơ đồ ghế ngồi |
@@ -139,6 +148,9 @@ Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testi
 </p>
 
 #### 3.2.10 TC10
+
+> Written by: 23120060 - Trần Kim Ngân       
+Reviewed by:  23120038 - Lê Hoàng Mỹ Hạ
 
 | Test case | TC10 |
 | :-------- | :----------|
@@ -182,6 +194,9 @@ Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testi
 </p>
 
 #### 3.2.11 TC11
+
+> Written by: 23120060 - Trần Kim Ngân       
+Reviewed by:  23120049 - Nguyễn Thanh Huyền
 
 | Test case | TC11 |
 | :-------- | :----------|
@@ -233,6 +248,23 @@ Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testi
 
 ## 4. AI Usage Declaration
 
+Gemini, Google, gemini.google.com, truy cập lúc 16:27, 02/06/2026, prompt: “Lên kế hoạch kiểm thử (Test Plan) và lập danh sách 15 kịch bản kiểm thử (Test Cases) cho hệ thống đặt vé phim CineBook tập trung vào 5 feature chính, bao gồm luồng Admin và đặt ghế real-time.”, sử dụng cho việc hoàn thiện Mục 2. Test Plan và Mục 3.1 List of test cases; AI đã hỗ trợ xây dựng chiến lược kiểm thử hộp đen và liệt kê các kịch bản bao phủ luồng ngoại lệ, nhóm đã tinh chỉnh lại luồng nghiệp vụ cho khớp với sơ đồ ERD thực tế và tự thực hiện kiểm thử thủ công
+
 ## 5. Presentation
 
+Video thuyết trình: [LINK](https://youtu.be/IcsHp-PFUWs)
+
 ## 6. Reflective Report
+
+### Các phần hữu ích
+
+#### A. Đối tượng kiểm thử gắn liền với trạng thái dữ liệu
+- Lý do hữu ích: Giúp Backend định hình chính xác logic xử lý xung đột trong Database và giúp Frontend thiết kế UI linh hoạt.
+- Ví dụ cụ thể: Trong tính năng Đặt ghế trực quan Real-time (TC09, TC10, TC11), việc định nghĩa rõ luồng chuyển trạng thái ghế (Trống $\rightarrow$ Đang chọn $\rightarrow$ Đã bán) ép buộc đội ngũ Backend phải hiện thực hóa cơ chế khóa dữ liệu (Locking mechanism/Websocket) để xử lý việc hai người dùng cùng nhấn chọn một ghế tại một thời điểm. Nếu không có định hướng này từ Test Plan, hệ thống rất dễ gặp lỗi bất đồng bộ dữ liệu (Race Condition).
+
+#### B. Đặc tả kịch bản ngoại lệ / Luồng lỗi
+- Lý do hữu ích: Giúp đội ngũ lập trình xây dựng các hàm bắt lỗi (Error Handling / Validation) chặt chẽ, ngăn chặn hệ thống bị sập khi vận hành thực tế.
+- Ví dụ cụ thể: Kịch bản TC14 (Tự động hủy giữ ghế khi hết thời gian chờ thanh toán) và TC06 (Admin tạo suất chiếu thất bại do trùng lịch phòng). Các kịch bản này chỉ ra rằng hệ thống không chỉ chạy luồng đúng, mà Backend bắt buộc phải cài đặt một cơ chế lắng nghe sự kiện để tự động giải phóng ghế trong database sau 5-10 phút, hoặc viết câu lệnh IF-ELSE để check trùng giờ chiếu trước khi lưu một Showtime mới.
+
+#### C. Bảng danh sách rút gọn phân loại theo Feature
+- Lý do hữu ích: Tạo ra một góc nhìn tổng quan giúp trưởng nhóm theo dõi tiến độ và kiểm tra độ bao phủ của mã nguồn xem đã code đủ tính năng chưa.
