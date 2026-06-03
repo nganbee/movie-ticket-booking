@@ -29,7 +29,8 @@ async def lifespan(app: FastAPI):
             listener = await ngrok.forward(
                 "localhost:8000", 
                 authtoken=settings.NGROK_AUTHTOKEN,
-                domain="gush-unafraid-regain.ngrok-free.dev"
+                domain="gush-unafraid-regain.ngrok-free.dev",
+                response_header_add=["ngrok-skip-browser-warning: true"]
             )
             print(f"Ngrok tunnel opened at: {listener.url()}")
         except Exception as e:
