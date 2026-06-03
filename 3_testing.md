@@ -39,15 +39,15 @@
 Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testing) tập trung chủ yếu vào việc xác minh các chức năng nghiệp vụ và luồng dữ liệu của hệ thống đặt vé phim CineBook. 
 
 * **Đối tượng kiểm thử (Testing Objects):**
-  * **Về mặt Chức năng (Functions):** Kiểm thử toàn bộ 5 phân hệ tính năng cốt lõi của hệ thống bao gồm: Quản lý tài khoản (Đăng ký, đăng nhập, phân quyền); Quản lý phim và suất chiếu phía Admin; Tìm kiếm & Bộ lọc phim/suất chiếu; Đặt ghế trực quan theo thời gian thực (Real-time); Thanh toán tích hợp cổng MoMo/VNPAY và Xuất vé điện tử (ETicket) chứa mã QR.
-  * **Về mặt Tài liệu (Documents):** Kiểm thử tính đúng đắn, logic của hệ thống dựa trên tài liệu Đặc tả yêu cầu phần mềm (SRS), sơ đồ thiết kế cơ sở dữ liệu (ERD), và các bản thiết kế giao diện người dùng (UI/UX) trên Figma.
+  * **Về mặt Chức năng:** Kiểm thử toàn bộ 5 phân hệ tính năng cốt lõi của hệ thống bao gồm: Quản lý tài khoản (Đăng ký, đăng nhập, phân quyền); Quản lý phim và suất chiếu phía Admin; Tìm kiếm & Bộ lọc phim/suất chiếu; Đặt ghế trực quan theo thời gian thực; Thanh toán tích hợp cổng MoMo/VNPAY và Xuất vé điện tử (ETicket) chứa mã QR.
+  * **Về mặt Tài liệu:** Kiểm thử tính đúng đắn, logic của hệ thống dựa trên tài liệu Đặc tả yêu cầu phần mềm (SRS), sơ đồ thiết kế cơ sở dữ liệu (ERD), và các bản thiết kế giao diện người dùng (UI/UX) trên Figma.
 * **Kỹ thuật kiểm thử áp dụng (Testing Techniques):**
-  * **Kiểm thử phân vùng tương đương (Equivalence Partitioning) & Phân tích giá trị biên (Boundary Value Analysis):** Áp dụng để bắt lỗi và kiểm tra tính hợp lệ của các trường nhập liệu đầu vào (Form validation) như: định dạng Email, độ dài Số điện thoại, tính bảo mật của Mật khẩu, hoặc kiểm tra giới hạn số lượng ghế được chọn trong một giao dịch.
-  * **Kiểm thử dựa trên luồng nghiệp vụ (Use Case Testing):** Thiết kế các kịch bản kiểm thử đi hết một vòng quy trình trải nghiệm của khách hàng từ lúc chọn phim, lọc suất chiếu, giữ ghế cho đến khi thực hiện giao dịch thanh toán trực tuyến thành công và nhận vé điện tử.
-  * **Kiểm thử chuyển trạng thái (State Transition Testing):** Áp dụng đặc biệt cho logic đặt ghế trực quan real-time (Trạng thái ghế chuyển đổi động giữa Trống - Đang chọn - Đã bán) và trạng thái của hóa đơn đặt vé (Chờ thanh toán - Đã thanh toán - Đã hủy do quá thời gian giữ ghế).
-* **Độ bao phủ kiểm thử (Test Coverage):** 
-  * Nhóm cam kết thiết kế bộ kiểm thử bao phủ tất cả các kịch bản có thể xảy ra (all possible scenarios) cho từng tính năng cốt lõi được chọn. 
-  * Bộ kịch bản không chỉ tập trung vào luồng vận hành thành công (Happy Path), mà còn bao phủ chặt chẽ các luồng ngoại lệ và xử lý lỗi hệ thống (Negative Scenarios) như: chặn trùng lặp tài khoản, chặn Admin xếp trùng lịch phòng chiếu, xử lý xung đột giữ ghế đồng thời giữa hai người dùng, và hoàn tác giải phóng trạng thái ghế khi người dùng chủ động hủy giao dịch hoặc hết thời gian chờ thanh toán (Timeout).
+  * **Kiểm thử phân vùng tương đương & Phân tích giá trị biên:** Áp dụng để bắt lỗi và kiểm tra tính hợp lệ của các trường nhập liệu đầu vào (Form validation) như: định dạng Email, độ dài Số điện thoại, tính bảo mật của Mật khẩu, hoặc kiểm tra giới hạn số lượng ghế được chọn trong một giao dịch.
+  * **Kiểm thử dựa trên luồng nghiệp vụ:** Thiết kế các kịch bản kiểm thử đi hết một vòng quy trình trải nghiệm của khách hàng từ lúc chọn phim, lọc suất chiếu, giữ ghế cho đến khi thực hiện giao dịch thanh toán trực tuyến thành công và nhận vé điện tử.
+  * **Kiểm thử chuyển trạng thái:** Áp dụng đặc biệt cho logic đặt ghế trực quan real-time (Trạng thái ghế chuyển đổi động giữa Trống - Đang chọn - Đã bán) và trạng thái của hóa đơn đặt vé (Chờ thanh toán - Đã thanh toán - Đã hủy do quá thời gian giữ ghế).
+* **Độ bao phủ kiểm thử:** 
+  * Nhóm cam kết thiết kế bộ kiểm thử bao phủ tất cả các kịch bản có thể xảy ra cho từng tính năng được chọn. 
+  * Bộ kịch bảntập trung vào luồng vận hành thành công và bao phủ chặt chẽ các luồng ngoại lệ và xử lý lỗi hệ thống như: chặn trùng lặp tài khoản, chặn Admin xếp trùng lịch phòng chiếu, xử lý xung đột giữ ghế đồng thời giữa hai người dùng, và hoàn tác giải phóng trạng thái ghế khi người dùng chủ động hủy giao dịch hoặc hết thời gian chờ thanh toán.
 
 ## 3. Test cases
 
@@ -98,9 +98,130 @@ Hệ thống áp dụng chiến lược kiểm thử hộp đen (Black-box Testi
 
 #### 3.2.9 TC09
 
+| Test case | TC09 |
+| :-------- | :----------|
+| Related feature| Đặt vé xem phim / Sơ đồ ghế ngồi |
+| Context | User đã chọn phim, rạp, suất chiếu và đang ở màn hình sơ đồ phòng chiếu. |
+| Input Data| - Click chọn 1 ghế Thường <br> - Click chọn tiếp 1 ghế VIP <br> - Click nút "Xác nhận thanh toán".|
+| Expected Output| 1. Khi click chọn ghế: Các ghế lập tức đổi sang màu "Đang chọn". Ô tổng số tiền cập nhật theo thời gian thực (Real-time UI) và tính đúng: 70.000 + 85.000 = 154.000 VNĐ. <br> 2. Khi bấm "Xác nhận thanh toán": Hệ thống chuyển hướng sang trang thanh toán VNPay thành công, đồng thời gửi tín hiệu kích hoạt trạng thái "Holding" cho 2 ghế A5, G6 trên sơ đồ để các user khác không đặt được. |
+| Test steps| Bước 1: Truy cập giao diện chọn ghế của một suất chiếu còn trống nhiều ghế. <br> Bước 2: Click chọn lần lượt 1 ghế Thường và 1 ghế VIP. Kiểm tra màu sắc ghế và phần hiển thị tổng tiền xem có cập nhật ngay lập tức và tính đúng hay không. <br> Bước 3: Bấm nút "Xác nhận thanh toán". <br>Bước 4: Xác nhận hệ thống chuyển hướng sang cổng VNPay thành công và các ghế vừa chọn đã chuyển sang trạng thái bị block.|
+| Actual Output | Hệ thống hoạt động đúng như mong đợi. |
+| Result | Passed |
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc9-tc11/tc9_1.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.9.1: Sau khi chọn 2 ghế</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc9-tc11/tc9_2.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.9.2: Sau khi bấm chọn thanh toán -> chuyển sang màn hình đặt vé -> các vé đánh dấu holding</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc9-tc11/tc9_3.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.9.3: Người dùng khác xem sẽ thấy ghế đã được bán</em>
+</p>
+
 #### 3.2.10 TC10
 
+| Test case | TC10 |
+| :-------- | :----------|
+| Related feature| Đặt vé xem phim / Sơ đồ ghế ngồi |
+| Context | Cả User A và User B đều đang ở màn hình sơ đồ ghế của cùng một suất chiếu. Cả hai đang cùng nhắm vào một ghế trống |
+| Input Data| - User A chọn ghế F6 và bấm "Xác nhận thanh toán" trước một bước.<br>- Ngay lập tức sau đó, User B cũng click chọn ghế F6 trên màn hình của mình.|
+| Expected Output| 1. Ngay khi User A bấm thanh toán, ghế F6 trên màn hình của User B phải lập tức đổi sang màu "Đã khoá".<br> 2. User B không thể click vào ghế F6 nữa (Ghế bị disable). <br> 3. Trường hợp mạng chậm: Nếu User B vẫn kịp bấm chọn và gửi request lên, Backend FastAPI phải check database và trả về lỗi: "Ghế đã có người giữ, vui lòng chọn ghế khác" chứ không được ghi đè dữ liệu. |
+| Test steps| Bước 1: Mở 2 trình duyệt đại diện cho User A và User B cùng vào một suất chiếu. <br>Bước 2: User A click chọn ghế F6 và bấm "Xác nhận thanh toán". <br>Bước 3: Quan sát màn hình của User B xem ghế F6 có đổi trạng thái hay không. <br>Bước 4: Thử dùng tài khoản User B click vào ghế F6 và kiểm tra xem hệ thống có chặn lại hoặc hiển thị thông báo lỗi hay không.|
+| Actual Output | Các trường hợp đều giống như mong đợi. Nhưng khi User A bấm thanh toán, User B phải load lại trang mới thấy ghế đó "Đã khoá" nhưng User B vẫn cố bấm thanh toán -> Báo lỗi do có người khác đã đặt |
+| Result | Passed |
+
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc9-tc11/tc10_1.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.10.1: User B khi bấm chọn cùng lúc với vé đã mua của User A</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc9-tc11/tc10_2.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.10.2: Hiện thông báo ghế đã được bán</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc9-tc11/tc10_3.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.10.3: Nếu User B bấm F5 load lại trang sẽ hiện ghế đã được bán</em>
+</p>
+
 #### 3.2.11 TC11
+
+| Test case | TC11 |
+| :-------- | :----------|
+| Related feature| Đặt vé xem phim / Sơ đồ ghế ngồi |
+| Context | User đã chọn sẵn một hoặc nhiều ghế trên sơ đồ phòng chiếu (ghế đang có màu "Đang chọn") và đang ở màn hình sơ đồ. |
+| Input Data| - Giả định trạng thái ban đầu: Đang chọn 2 ghế: D2 (Thường: 70k) và D3 (VIP: 84k). Tổng tiền hiện tại là 154.000 VNĐ. <br>- Hành động đầu vào: Click lại một lần nữa vào ghế VIP để hủy chọn.|
+| Expected Output| 1. Ghế G10 lập tức chuyển từ màu "Đang chọn" quay về màu trắng (Ghế trống). <br>2. Ô hiển thị danh sách vé cập nhật giảm xuống, chỉ còn hiển thị: "Ghế đã chọn: A5". <br>3. Tổng số tiền thanh toán nhảy real-time, trừ đi 110k của ghế G10 và hiển thị đúng: 80.000 VNĐ. <br>4. Trường hợp đặc biệt: Nếu hủy chọn nốt ghế cuối cùng (không còn ghế nào được chọn), nút "Xác nhận thanh toán" phải tự động bị vô hiệu hóa (Disable). |
+| Test steps| Bước 1: Truy cập giao diện chọn ghế và click chọn 2 ghế bất kỳ (Ví dụ: D2 giá 70k và D3 giá 84k). Kiểm tra tổng tiền hiển thị 154k. <br>Bước 2: Click lại vào ghế D3 trên sơ đồ. <br>Bước 3: Quan sát màu sắc của ghế D3 xem đã đổi về màu trắng (ghế trống) chưa, và kiểm tra xem tổng tiền có giảm ngay lập tức về 70k hay không. <br>Bước 4: Click tiếp vào ghế D2 để hủy chọn nốt ghế cuối cùng. Kiểm tra xem nút "Xác nhận thanh toán" có bị disable hay không.|
+| Actual Output | Hệ thống hoạt động đúng như mong đợi. |
+| Result | Passed |
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc9-tc11/tc11_1.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.11.1: User đang chọn 2 ghế</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc9-tc11/tc11_2.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.11.2: User bỏ chọn 1 ghế VIP, tiền tự cập nhật</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc9-tc11/tc11_3.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.11.3: User bỏ chọn ghế còn lại, tiền trả về 0, không thể xác nhận thanh toán</em>
+</p>
 
 #### 3.2.12 TC12
 
