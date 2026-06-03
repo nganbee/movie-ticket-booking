@@ -110,6 +110,20 @@ router.get('/api/movies', async (req, res) => {
 });
 
 // ── Admin Routes ──────────────────────────────────────────────────────────────
+// Admin Login
+router.get('/admin/login', (req, res) => {
+    res.render('admin/login', { layout: false, error: null, username: '' });
+});
+
+router.post('/admin/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username === 'admin@gmail.com' && password === 'admin123') {
+        res.redirect('/admin/dashboard');
+    } else {
+        res.render('admin/login', { layout: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác.', username });
+    }
+});
+
 // Admin Dashboard
 router.get('/admin/dashboard', (req, res) => {
     res.render('admin/dashboard', {
@@ -189,9 +203,9 @@ router.get('/admin/bulk-showtime', (req, res) => {
     });
 });
 
-// Redirect /admin to dashboard
+// Redirect /admin to login
 router.get('/admin', (req, res) => {
-    res.redirect('/admin/dashboard');
+    res.redirect('/admin/login');
 });
 
 // Find your existing path rule inside src/routes/index.js and swap it:
