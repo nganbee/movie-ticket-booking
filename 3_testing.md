@@ -182,7 +182,7 @@ Reviewed by:  23120047 - Nguyễn Gia Huy
 | Related feature| Đặt vé xem phim / Sơ đồ ghế ngồi |
 | Context | User đã chọn phim, rạp, suất chiếu và đang ở màn hình sơ đồ phòng chiếu. |
 | Input Data| - Click chọn 1 ghế Thường <br> - Click chọn tiếp 1 ghế VIP <br> - Click nút "Xác nhận thanh toán".|
-| Expected Output| 1. Khi click chọn ghế: Các ghế lập tức đổi sang màu "Đang chọn". Ô tổng số tiền cập nhật theo thời gian thực (Real-time UI) và tính đúng: 70.000 + 85.000 = 154.000 VNĐ. <br> 2. Khi bấm "Xác nhận thanh toán": Hệ thống chuyển hướng sang trang thanh toán VNPay thành công, đồng thời gửi tín hiệu kích hoạt trạng thái "Holding" cho 2 ghế A5, G6 trên sơ đồ để các user khác không đặt được. |
+| Expected Output| 1. Khi click chọn ghế: Các ghế lập tức đổi sang màu "Đang chọn". Ô tổng số tiền cập nhật theo thời gian thực (Real-time UI) và tính đúng: 70.000 + 85.000 = 155.000 VNĐ. <br> 2. Khi bấm "Xác nhận thanh toán": Hệ thống chuyển hướng sang trang thanh toán VNPay thành công, đồng thời gửi tín hiệu kích hoạt trạng thái "Holding" cho 2 ghế A5, G6 trên sơ đồ để các user khác không đặt được. |
 | Test steps| Bước 1: Truy cập giao diện chọn ghế của một suất chiếu còn trống nhiều ghế. <br> Bước 2: Click chọn lần lượt 1 ghế Thường và 1 ghế VIP. Kiểm tra màu sắc ghế và phần hiển thị tổng tiền xem có cập nhật ngay lập tức và tính đúng hay không. <br> Bước 3: Bấm nút "Xác nhận thanh toán". <br>Bước 4: Xác nhận hệ thống chuyển hướng sang cổng VNPay thành công và các ghế vừa chọn đã chuyển sang trạng thái bị block.|
 | Actual Output | Hệ thống hoạt động đúng như mong đợi. |
 | Result | Passed |

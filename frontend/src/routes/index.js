@@ -203,6 +203,41 @@ router.get('/admin/bulk-showtime', (req, res) => {
     });
 });
 
+// Admin Movie Management
+router.get('/admin/movies', (req, res) => {
+    res.render('admin/movies', {
+        layout: 'layouts/admin-layout',
+        title: 'Quản lý Phim - CineBook',
+        pageTitle: 'Quản lý Phim',
+        currentPage: 'movies'
+    });
+});
+
+// Admin Room & Seat Management
+router.get('/admin/rooms', (req, res) => {
+    res.render('admin/rooms', {
+        layout: 'layouts/admin-layout',
+        title: 'Quản lý Phòng & Ghế - CineBook',
+        pageTitle: 'Quản lý Phòng & Ghế',
+        currentPage: 'rooms'
+    });
+});
+
+// Admin Transaction Management
+router.get('/admin/transactions', (req, res) => {
+    res.render('admin/transactions', {
+        layout: 'layouts/admin-layout',
+        title: 'Quản lý Giao dịch - CineBook',
+        pageTitle: 'Quản lý Giao dịch',
+        currentPage: 'transactions'
+    });
+});
+
+// Redirect old bookings path to transactions page
+router.get('/admin/bookings', (req, res) => {
+    res.redirect('/admin/transactions');
+});
+
 // Redirect /admin to login
 router.get('/admin', (req, res) => {
     res.redirect('/admin/login');
