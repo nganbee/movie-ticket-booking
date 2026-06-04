@@ -317,8 +317,38 @@ Reviewed by:  23120049 - Nguyễn Thanh Huyền
 | **Input Data** | Tài khoản đã đăng nhập, đơn hàng đang chờ thanh toán, thẻ test VNPAY Sandbox (NCB: `9704198526191432198` / `NGUYEN VAN A` / `07/15` / OTP `123456`) |
 | **Expected Output** | Trình duyệt chuyển sang trang VNPAY Sandbox → sau khi nhập thẻ và xác nhận → tự động quay về trang Receipt hiển thị "Đặt vé Thành công!" kèm thông tin phim, ghế và tổng tiền. |
 | **Test steps** | **Bước 1:** Vào trang Checkout, quan sát thông tin đơn hàng và nút "Thanh toán qua VNPAY" <br> **Bước 2:** Click nút "Thanh toán qua VNPAY" → trình duyệt chuyển sang trang VNPAY Sandbox <br> **Bước 3:** Chọn phương thức Thẻ ATM, chọn ngân hàng NCB, nhập thông tin thẻ test → nhập OTP `123456` → xác nhận <br> **Bước 4:** Quan sát trang tự động quay về → hiển thị trang Receipt "Đặt vé Thành công!" với đầy đủ thông tin vé |
-| **Actual Output** | Bước 1-3 thành công: trang Checkout hiển thị đúng, nút VNPAY hoạt động, chuyển sang trang VNPAY Sandbox và nhập thẻ NCB thành công. Sau khi thanh toán, trình duyệt bị điều hướng đến URL ngrok (`https://gush-unafraid-regain.ngrok-free.dev/payments/vnpay-return?vnp_ResponseCode=00&...`) thay vì trang Receipt. Tuy nhiên, khi vào trang Profile thì vé đã được đặt thành công và hiển thị đúng trạng thái đã thanh toán. |
-| **Result** | Failed |
+| **Actual Output** | Tất cả các bước thực hiện thành công. Trang Checkout hiển thị đúng thông tin đơn hàng. Nút "Thanh toán qua VNPAY" hoạt động, trình duyệt chuyển sang trang VNPAY Sandbox. Sau khi nhập thông tin thẻ NCB và OTP `123456`, trình duyệt tự động quay về trang Receipt hiển thị "Đặt vé Thành công!" kèm đầy đủ thông tin phim, ghế và tổng tiền. Trạng thái đơn hàng cập nhật "Đã thanh toán" trong trang Profile. |
+| **Result** | Passed |
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc12_1.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.12.1: Trang Checkout hiển thị thông tin đơn hàng và nút thanh toán VNPAY</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc12_2.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.12.2: Trang VNPAY Sandbox - nhập thông tin thẻ NCB thành công</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc12_3.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.12.3: Trang Receipt hiển thị "Đặt vé Thành công!" sau khi thanh toán</em>
+</p>
 
 ---
 
@@ -333,6 +363,46 @@ Reviewed by:  23120049 - Nguyễn Thanh Huyền
 | **Test steps** | **Trường hợp A — Nhấn "Hủy thanh toán":** <br> Bước 1: Click "Thanh toán qua VNPAY" → vào trang VNPAY Sandbox <br> Bước 2: Nhấn nút "Hủy thanh toán" <br> Bước 3: Quan sát trang tự động quay về → kiểm tra ghế đã chọn có trở về trạng thái trống không <br><br> **Trường hợp B — Nhấn "Quay lại" (back):** <br> Bước 1: Click "Thanh toán qua VNPAY" → vào trang VNPAY Sandbox <br> Bước 2: Nhấn nút "← Quay lại" ở góc trên trang VNPAY (back navigation) <br> Bước 3: Vào lại trang chọn ghế → kiểm tra ghế đã chọn có trở về trạng thái trống không |
 | **Actual Output** | **Trường hợp A ("Hủy thanh toán"):** Trình duyệt quay về trang Profile, ghế được hoàn trả về trạng thái trống. Hoạt động đúng. <br><br> **Trường hợp B ("Quay lại"):** Trình duyệt điều hướng ngược lại nhưng ghế KHÔNG được hoàn trả — vẫn ở trạng thái đã giữ. Người dùng không thể chọn lại các ghế đó cho đến khi hết 10 phút timeout. |
 | **Result** | Trường hợp A: Passed — Trường hợp B: Failed |
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc_13_1.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.13.1: Trang VNPAY Sandbox - người dùng đang ở màn hình thanh toán</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc_13_2a.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.13.2a: Trường hợp A - Nhấn "Hủy thanh toán", trình duyệt quay về và ghế được hoàn trả trạng thái trống</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc_13_2b.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.13.2b: Trường hợp B - Nhấn "Quay lại", ghế vẫn ở trạng thái đã giữ</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc_13_3a.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.13.3a: Ghế được hoàn trả ở Trường hợp A</em>
+</p>
 
 
 ---
@@ -349,6 +419,25 @@ Reviewed by:  23120049 - Nguyễn Thanh Huyền
 | **Actual Output** | Sau 10 phút không thanh toán, hệ thống hiển thị thông báo hết thời gian và tự động hủy phiên giữ ghế. Quay lại trang chọn ghế, các ghế đã chọn trước đó trở về trạng thái trống, có thể chọn lại bình thường. |
 | **Result** | Passed |
 
+<p align="center">
+  <img 
+    src="data/image_template_3/tc_14_1.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.14.1: Hệ thống hiển thị thông báo hết thời gian và tự động hủy phiên giữ ghế sau 10 phút không thanh toán</em>
+</p>
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc_14_2.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.14.2: Hết hạn thanh toán - Trang web gửi thông báo cho người dùng </em>
+</p>
 ---
 
 #### 3.2.15 TC15
@@ -362,6 +451,16 @@ Reviewed by:  23120049 - Nguyễn Thanh Huyền
 | **Test steps** | **Bước 1:** Vào trang Profile → tìm đơn hàng có nhãn "Đã thanh toán" <br> **Bước 2:** Click nút "Xem mã QR vé" → quan sát popup hiện ra với mã QR <br> **Bước 3:** Kiểm tra số lượng QR hiển thị khớp với số ghế đã đặt <br> **Bước 4:** Vào trang Receipt → click "Tải hóa đơn" → kiểm tra file ảnh được tải về máy |
 | **Actual Output** | Trang Profile hiển thị đơn hàng với nhãn "Đã thanh toán" và nút "Xem mã QR vé". Click vào nút → popup hiển thị đúng số mã QR khớp với số ghế đã đặt. Trang Receipt hiển thị đầy đủ thông tin vé. Click "Tải hóa đơn" → file ảnh được tải về máy thành công. |
 | **Result** | Passed |
+
+<p align="center">
+  <img 
+    src="data/image_template_3/tc_15.png"
+    style="width:70%; height:auto;"
+  />
+</p>
+<p align="center">
+  <em>Hình 3.2.15.1: Trang Profile hiển thị đơn hàng "Đã thanh toán" và cho phép download vé điện tử</em>
+</p>
 
 ## 4. AI Usage Declaration
 
