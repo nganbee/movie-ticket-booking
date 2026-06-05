@@ -397,6 +397,8 @@ Reviewed by:  23120049 - Nguyễn Thanh Huyền
 ---
 
 ### 3.2.12 TC12
+> Written by: 23120047 - Nguyễn Gia Huy      
+Reviewed by:  23120060 - Trần Kim Ngân
 
 | Test case | Khách hàng thanh toán đặt vé thành công qua cổng VNPAY |
 | :--- | :--- |
@@ -441,6 +443,8 @@ Reviewed by:  23120049 - Nguyễn Thanh Huyền
 ---
 
 ### 3.2.13 TC13
+> Written by: 23120047 - Nguyễn Gia Huy      
+Reviewed by: 23120060 - Trần Kim Ngân
 
 | Test case | Khách hàng thoát khỏi trang thanh toán VNPAY mà không hoàn tất |
 | :--- | :--- |
@@ -496,7 +500,8 @@ Reviewed by:  23120049 - Nguyễn Thanh Huyền
 ---
 
 ### 3.2.14 TC14
-
+> Written by: 23120047 - Nguyễn Gia Huy      
+Reviewed by: 23120060 - Trần Kim Ngân
 | Test case | Hệ thống tự động hủy giữ ghế khi hết thời gian chờ thanh toán |
 | :--- | :--- |
 | **Related feature** | Thanh toán (Payment) |
@@ -530,6 +535,8 @@ Reviewed by:  23120049 - Nguyễn Thanh Huyền
 ---
 
 ### 3.2.15 TC15
+> Written by: 23120047 - Nguyễn Gia Huy      
+Reviewed by: 23120049 - Nguyễn Thanh Huyền
 
 | Test case | Xem vé điện tử và mã QR sau khi thanh toán thành công |
 | :--- | :--- |
