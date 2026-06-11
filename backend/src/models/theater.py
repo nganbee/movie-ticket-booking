@@ -19,6 +19,8 @@ class RoomTable(Base):
     theater_id: Mapped[int] = mapped_column(ForeignKey("theaters.theater_id"), nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     seat_capacity: Mapped[int] = mapped_column(Integer, nullable=False)
+    grid_rows: Mapped[int] = mapped_column(Integer, nullable=False, server_default="10")
+    grid_cols: Mapped[int] = mapped_column(Integer, nullable=False, server_default="12")
 
     theater: Mapped["TheaterTable"] = relationship("TheaterTable", back_populates="rooms")
     seats: Mapped[List["SeatTable"]] = relationship("SeatTable", back_populates="room")
