@@ -64,13 +64,32 @@
       <!-- Basic Info -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Tên phim <span class="text-brand">*</span></label>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Tên phim <span class="text-brand">*</span></label>
+            <button type="button" onclick="syncMovieData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-brand font-bold px-2 py-1 rounded flex items-center gap-1 transition">
+              <i class="fas fa-sync-alt" id="sync-icon"></i> Đồng bộ từ TMDB
+            </button>
+          </div>
           <input id="form-title" type="text" required placeholder="VD: Lật Mặt 7: Một Điều Ước"
             class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition font-medium">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Thể loại <span class="text-brand">*</span></label>
           <input id="form-genre" type="text" required placeholder="VD: Hành động, Kịch tính"
+            class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition font-medium">
+        </div>
+      </div>
+
+      <!-- Language & Release Date -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Ngôn ngữ <span class="text-brand">*</span></label>
+          <input id="form-language" type="text" required placeholder="VD: EN, VI"
+            class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition font-medium">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Ngày phát hành <span class="text-brand">*</span></label>
+          <input id="form-release-date" type="date" required
             class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition font-medium">
         </div>
       </div>
@@ -173,7 +192,7 @@
     <!-- Modal Footer -->
     <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 flex-shrink-0 bg-slate-50 rounded-b-2xl">
       <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition">Hủy</button>
-      <button type="button" onclick="document.getElementById('movie-form').requestSubmit()" class="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-brandHover transition shadow-md shadow-brand/20 flex items-center gap-2">
+      <button type="button" id="save-movie-btn" onclick="document.getElementById('movie-form').requestSubmit()" class="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-brandHover transition shadow-md shadow-brand/20 flex items-center gap-2">
         <i class="fas fa-check text-xs"></i> Lưu phim
       </button>
     </div>
@@ -205,76 +224,51 @@
 </div>
 
 <script>
-// Mock default posters and backdrops
-const DEFAULT_POSTERS = [
-  "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=80",
-];
-
 let MOVIE_DATA = [];
 let deleteTargetId = null;
 
-// Initial Seed Data (if localStorage is empty)
-const SEED_MOVIES = [
-  {
-    id: 1,
-    title: "Lật Mặt 7: Một Điều Ước",
-    genre: "Gia đình, Kịch tính",
-    rating: 8.8,
-    duration: 138,
-    director: "Lý Hải",
-    cast: "Thanh Hằng, Trương Minh Cường, Đinh Y Nhung, Quách Ngọc Tuyên",
-    description: "Câu chuyện gia đình đầy cảm xúc xoay quanh người mẹ già và 5 người con trưởng thành đã rời quê hương. Khi biến cố xảy đến, ai sẽ là người quay về chăm sóc mẹ?",
-    trailer: "https://www.youtube.com/watch?v=0k5G6jH6_1M",
-    poster: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=80",
-    backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1000&auto=format&fit=crop&q=80",
-    status: "now_showing"
-  },
-  {
-    id: 2,
-    title: "Mai",
-    genre: "Tâm lý, Tình cảm",
-    rating: 8.2,
-    duration: 131,
-    director: "Trấn Thành",
-    cast: "Phương Anh Đào, Tuấn Trần, Hồng Đào, Uyển Ân",
-    description: "Bộ phim tâm lý sâu sắc nói về hành trình tìm kiếm hạnh phúc của Mai - một cô gái làm nghề massage trị liệu chịu nhiều định kiến, và Dương - một chàng nhạc công trẻ kém tuổi đầy khát vọng.",
-    trailer: "https://www.youtube.com/watch?v=HKN854lI6zY",
-    poster: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=80",
-    backdrop: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1000&auto=format&fit=crop&q=80",
-    status: "now_showing"
-  },
-  {
-    id: 3,
-    title: "Dune: Phần Hai",
-    genre: "Khoa học viễn tưởng, Hành động",
-    rating: 9.0,
-    duration: 166,
-    director: "Denis Villeneuve",
-    cast: "Timothée Chalamet, Zendaya, Rebecca Ferguson, Josh Brolin",
-    description: "Paul Atreides hội ngộ cùng Chani và tộc người Fremen khi anh tìm kiếm sự báo thù chống lại những kẻ đã hủy diệt gia đình mình, cố gắng ngăn chặn một tương lai khủng khiếp mà chỉ anh mới thấy trước.",
-    trailer: "https://www.youtube.com/watch?v=Way9Dexny3w",
-    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80",
-    backdrop: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1000&auto=format&fit=crop&q=80",
-    status: "coming_soon"
-  }
-];
+// API Helpers
+const API_URL = 'http://localhost:8000/movies';
+function getAuthHeader() {
+  const token = localStorage.getItem('access_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Load from localStorage or set seed
-  const stored = localStorage.getItem('cinebook_movies');
-  if (stored) {
-    MOVIE_DATA = JSON.parse(stored);
-  } else {
-    MOVIE_DATA = SEED_MOVIES;
-    localStorage.setItem('cinebook_movies', JSON.stringify(MOVIE_DATA));
-  }
-  
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadMovies();
   initDragAndDrop('poster');
   initDragAndDrop('backdrop');
-  renderMovies();
 });
+
+async function loadMovies() {
+  try {
+    const res = await fetch(`${API_URL}/?limit=100`);
+    if (!res.ok) throw new Error('Failed to load movies');
+    const data = await res.json();
+    // Assuming data is { items: [...], total: ... }
+    MOVIE_DATA = data.items.map(m => ({
+      id: m.movie_id,
+      title: m.title,
+      genre: m.genre,
+      rating: m.imdb_rating,
+      duration: m.duration,
+      director: m.director,
+      cast: 'Đang cập nhật...', // Tạm thời
+      description: m.description,
+      trailer: 'https://youtube.com', // Tạm thời
+      poster: m.poster_url,
+      backdrop: m.backdrop_url || m.poster_url,
+      status: m.status,
+      language: m.language,
+      release_date: m.release_date
+    }));
+    renderMovies();
+  } catch (err) {
+    console.error(err);
+    showFormError('Không thể tải dữ liệu từ máy chủ.');
+  }
+}
+
 
 // Drag and drop setup helper
 function initDragAndDrop(type) {
@@ -462,6 +456,8 @@ function openEditModal(id) {
   document.getElementById('form-description').value = m.description;
   document.getElementById('form-trailer').value = m.trailer;
   document.getElementById('form-status').value = m.status;
+  document.getElementById('form-language').value = m.language || 'EN';
+  document.getElementById('form-release-date').value = m.release_date || '';
 
   // Set file urls & previews
   if (m.poster) {
@@ -499,65 +495,134 @@ function showFormError(msg) {
   document.getElementById('movie-form').scrollTop = document.getElementById('movie-form').scrollHeight;
 }
 
-function saveMovie(e) {
+async function syncMovieData() {
+  const title = document.getElementById('form-title').value.trim();
+  if (!title) {
+    showFormError("Vui lòng nhập tên phim để đồng bộ.");
+    return;
+  }
+  
+  const syncBtn = document.getElementById('sync-icon');
+  syncBtn.classList.add('fa-spin');
+  document.getElementById('form-error').classList.add('hidden');
+  
+  try {
+    const res = await fetch(`${API_URL}/sync/?title=${encodeURIComponent(title)}`, {
+      headers: getAuthHeader()
+    });
+    
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Không thể đồng bộ thông tin phim.");
+    }
+    
+    const data = await res.json();
+    
+    if (data.title) document.getElementById('form-title').value = data.title;
+    if (data.genre) document.getElementById('form-genre').value = data.genre;
+    if (data.duration) document.getElementById('form-duration').value = data.duration;
+    if (data.director) document.getElementById('form-director').value = data.director;
+    if (data.description) document.getElementById('form-description').value = data.description;
+    if (data.imdb_rating) document.getElementById('form-rating').value = data.imdb_rating;
+    if (data.language) document.getElementById('form-language').value = data.language;
+    if (data.release_date) document.getElementById('form-release-date').value = data.release_date;
+    
+    if (data.poster_url) {
+      document.getElementById('form-poster-url').value = data.poster_url;
+      document.getElementById('poster-preview').src = data.poster_url;
+      document.getElementById('poster-preview-container').classList.remove('hidden');
+      document.getElementById('poster-upload-icon').classList.add('hidden');
+    }
+    
+    if (data.backdrop_url) {
+      document.getElementById('form-backdrop-url').value = data.backdrop_url;
+      document.getElementById('backdrop-preview').src = data.backdrop_url;
+      document.getElementById('backdrop-preview-container').classList.remove('hidden');
+      document.getElementById('backdrop-upload-icon').classList.add('hidden');
+    }
+    
+    showToast("Đã đồng bộ thông tin thành công!");
+  } catch (err) {
+    showFormError(err.message);
+  } finally {
+    syncBtn.classList.remove('fa-spin');
+  }
+}
+
+async function saveMovie(e) {
   e.preventDefault();
   const id = document.getElementById('form-id').value;
-  const title = document.getElementById('form-title').value.trim();
-  const genre = document.getElementById('form-genre').value.trim();
-  const rating = parseFloat(document.getElementById('form-rating').value);
-  const duration = parseInt(document.getElementById('form-duration').value);
-  const director = document.getElementById('form-director').value.trim();
-  const cast = document.getElementById('form-cast').value.trim();
-  const description = document.getElementById('form-description').value.trim();
-  const trailer = document.getElementById('form-trailer').value.trim();
-  const status = document.getElementById('form-status').value;
   
-  let posterUrl = document.getElementById('form-poster-url').value;
-  let backdropUrl = document.getElementById('form-backdrop-url').value;
+  const moviePayload = {
+    title: document.getElementById('form-title').value.trim(),
+    genre: document.getElementById('form-genre').value.trim(),
+    description: document.getElementById('form-description').value.trim(),
+    director: document.getElementById('form-director').value.trim(),
+    duration: parseInt(document.getElementById('form-duration').value),
+    imdb_rating: parseFloat(document.getElementById('form-rating').value),
+    status: document.getElementById('form-status').value,
+    language: document.getElementById('form-language').value.trim(),
+    release_date: document.getElementById('form-release-date').value,
+    poster_url: document.getElementById('form-poster-url').value,
+    backdrop_url: document.getElementById('form-backdrop-url').value
+  };
 
   // Validation
-  if (rating < 0 || rating > 10) {
+  if (moviePayload.imdb_rating < 0 || moviePayload.imdb_rating > 10) {
     showFormError("Điểm đánh giá phải thuộc phạm vi 0.0 - 10.0.");
     return;
   }
-  if (duration <= 0) {
+  if (moviePayload.duration <= 0) {
     showFormError("Thời lượng phim phải lớn hơn 0 phút.");
     return;
   }
-  if (!posterUrl) {
+  if (!moviePayload.poster_url) {
     showFormError("Vui lòng tải lên ảnh Poster cho phim.");
     return;
   }
-  if (!backdropUrl) {
+  if (!moviePayload.backdrop_url) {
     showFormError("Vui lòng tải lên ảnh Banner/Backdrop cho phim.");
     return;
   }
 
   document.getElementById('form-error').classList.add('hidden');
+  const btn = document.getElementById('save-movie-btn');
+  const oldHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
 
-  if (id) {
-    // Edit
-    const index = MOVIE_DATA.findIndex(x => x.id === parseInt(id));
-    if (index !== -1) {
-      MOVIE_DATA[index] = {
-        id: parseInt(id),
-        title, genre, rating, duration, director, cast, description, trailer, poster: posterUrl, backdrop: backdropUrl, status
-      };
-      showToast("Đã cập nhật thông tin phim thành công!");
+  try {
+    let url = `${API_URL}/`;
+    let method = 'POST';
+    if (id) {
+      url = `${API_URL}/${id}`;
+      method = 'PUT';
     }
-  } else {
-    // Add
-    const newId = MOVIE_DATA.length > 0 ? Math.max(...MOVIE_DATA.map(m => m.id)) + 1 : 1;
-    MOVIE_DATA.push({
-      id: newId,
-      title, genre, rating, duration, director, cast, description, trailer, poster: posterUrl, backdrop: backdropUrl, status
-    });
-    showToast("Đã thêm phim mới thành công!");
-  }
 
-  localStorage.setItem('cinebook_movies', JSON.stringify(MOVIE_DATA));
-  closeModal();
-  renderMovies();
+    const res = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(moviePayload)
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || 'Failed to save movie');
+    }
+
+    showToast(id ? "Đã cập nhật thông tin phim thành công!" : "Đã thêm phim mới thành công!");
+    closeModal();
+    await loadMovies();
+  } catch (err) {
+    console.error(err);
+    showFormError(err.message || 'Lỗi kết nối tới máy chủ.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = oldHtml;
+  }
 }
 
 // Delete Movie
@@ -571,15 +636,35 @@ function closeDeleteModal() {
   document.getElementById('delete-modal').classList.add('hidden');
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (!deleteTargetId) return;
   
-  MOVIE_DATA = MOVIE_DATA.filter(x => x.id !== deleteTargetId);
-  localStorage.setItem('cinebook_movies', JSON.stringify(MOVIE_DATA));
-  
-  showToast("Đã xóa phim thành công!");
-  closeDeleteModal();
-  renderMovies();
+  const btn = document.querySelector('#delete-modal button.bg-brand');
+  const oldHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xóa...';
+
+  try {
+    const res = await fetch(`${API_URL}/${deleteTargetId}`, {
+      method: 'DELETE',
+      headers: getAuthHeader()
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || 'Failed to delete movie');
+    }
+
+    showToast("Đã xóa phim thành công!");
+    closeDeleteModal();
+    await loadMovies();
+  } catch (err) {
+    console.error(err);
+    alert(err.message || 'Lỗi khi xóa phim');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = oldHtml;
+  }
 }
 
 function showToast(text) {

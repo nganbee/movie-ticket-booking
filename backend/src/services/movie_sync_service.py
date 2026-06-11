@@ -31,7 +31,7 @@ class MovieSyncService:
 
     @staticmethod
     async def get_tmdb_details(tmdb_id: int):
-        url = f"https://api.themoviedb.org/3/movie/{tmdb_id}?language=vi-VN"
+        url = f"https://api.themoviedb.org/3/movie/{tmdb_id}?language=vi-VN&append_to_response=credits"
         async with httpx.AsyncClient() as client:
             res = await client.get(url, headers=get_tmdb_headers())
             if res.status_code == 200:
