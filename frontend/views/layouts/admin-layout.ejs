@@ -65,9 +65,13 @@
         <i class="fas fa-layer-group w-5 text-center <%- currentPage === 'bulk-showtime' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
         Tạo Lịch Hàng Loạt
       </a>
-      <a href="/admin/bookings" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'bookings' ? 'bg-brand text-white' : '' %>">
-        <i class="fas fa-ticket-alt w-5 text-center <%- currentPage === 'bookings' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
-        Đặt Vé
+      <a href="/admin/rooms" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'rooms' ? 'bg-brand text-white' : '' %>">
+        <i class="fas fa-couch w-5 text-center <%- currentPage === 'rooms' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
+        Quản lý Phòng & Ghế
+      </a>
+      <a href="/admin/transactions" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'transactions' ? 'bg-brand text-white' : '' %>">
+        <i class="fas fa-history w-5 text-center <%- currentPage === 'transactions' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
+        Quản lý Giao dịch
       </a>
       <a href="/admin/users" class="admin-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition group <%- currentPage === 'users' ? 'bg-brand text-white' : '' %>">
         <i class="fas fa-users w-5 text-center <%- currentPage === 'users' ? 'text-white' : 'text-slate-400 group-hover:text-brand' %>"></i>
@@ -87,8 +91,8 @@
           <p class="text-sm font-semibold text-white truncate">Admin</p>
           <p class="text-xs text-slate-400 truncate">admin@cinebook.vn</p>
         </div>
-        <a href="/" class="text-slate-400 hover:text-brand transition text-sm" title="Về trang chủ">
-          <i class="fas fa-external-link-alt"></i>
+        <a href="/admin/login" class="text-slate-400 hover:text-red-500 transition text-sm" title="Đăng xuất">
+          <i class="fas fa-sign-out-alt"></i>
         </a>
       </div>
     </div>
@@ -128,5 +132,8 @@
       main.classList.toggle('ml-0');
     }
   </script>
+
+  <!-- Chatbot Widget -->
+  <%- include('../partials/chatbot-widget') %>
 </body>
 </html>

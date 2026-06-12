@@ -1,0 +1,597 @@
+<!-- Movie Management Page -->
+<div>
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <h2 class="text-2xl font-extrabold text-slate-800">Quản lý Phim</h2>
+      <p class="text-slate-400 text-sm mt-1">Thêm mới, cập nhật thông tin chi tiết của phim và hiển thị lên giao diện người dùng.</p>
+    </div>
+    <button onclick="openAddModal()" class="flex items-center gap-2 bg-brand text-white px-5 py-2.5 rounded-xl font-bold hover:bg-brandHover transition shadow-md shadow-brand/20">
+      <i class="fas fa-plus"></i> Thêm phim mới
+    </button>
+  </div>
+
+  <!-- Filter & Search Bar -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+    <div class="relative flex-1 w-full">
+      <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+      <input id="movie-search" type="text" placeholder="Tìm kiếm tên phim, đạo diễn, thể loại..." oninput="renderMovies()"
+        class="w-full border border-slate-200 bg-slate-50 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+    </div>
+    <div class="flex items-center gap-3 w-full sm:w-auto">
+      <label class="text-xs font-bold text-slate-500 uppercase whitespace-nowrap">Trạng thái:</label>
+      <select id="status-filter" onchange="renderMovies()" class="border border-slate-200 bg-slate-50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition">
+        <option value="all">Tất cả</option>
+        <option value="now_showing">🎬 Đang chiếu</option>
+        <option value="coming_soon">📅 Sắp chiếu</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Movie Cards Table/Grid -->
+  <div id="movie-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+
+  <!-- Empty State -->
+  <div id="movie-empty" class="hidden py-20 text-center bg-white rounded-2xl border border-slate-200">
+    <i class="fas fa-film text-5xl text-slate-300 mb-4"></i>
+    <p class="text-slate-400 font-medium">Không tìm thấy phim nào phù hợp</p>
+  </div>
+
+  <div class="mt-4">
+    <p id="movie-count" class="text-xs text-slate-400 font-medium"></p>
+  </div>
+</div>
+
+<!-- ===================================================================
+     MODAL: THÊM / CHỈNH SỬA PHIM
+=================================================================== -->
+<div id="movie-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-10 flex flex-col max-h-[92vh]">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
+      <h3 id="modal-title" class="text-lg font-bold text-slate-800">Thêm Phim Mới</h3>
+      <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition text-xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100">
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Scrollable Form Body -->
+    <form id="movie-form" onsubmit="saveMovie(event)" class="overflow-y-auto flex-1 p-6 space-y-6">
+      <input type="hidden" id="form-id">
+
+      <!-- Basic Info -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Tên phim <span class="text-brand">*</span></label>
+          <input id="form-title" type="text" required placeholder="VD: Lật Mặt 7: Một Điều Ước"
+            class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition font-medium">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Thể loại <span class="text-brand">*</span></label>
+          <input id="form-genre" type="text" required placeholder="VD: Hành động, Kịch tính"
+            class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition font-medium">
+        </div>
+      </div>
+
+      <!-- Ratings & Duration & Director -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Điểm đánh giá (IMDB) <span class="text-brand">*</span></label>
+          <input id="form-rating" type="number" step="0.1" min="0" max="10" required placeholder="VD: 8.5"
+            class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Thời lượng (phút) <span class="text-brand">*</span></label>
+          <input id="form-duration" type="number" min="1" required placeholder="VD: 120"
+            class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Đạo diễn <span class="text-brand">*</span></label>
+          <input id="form-director" type="text" required placeholder="VD: Lý Hải"
+            class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition font-medium">
+        </div>
+      </div>
+
+      <!-- Trailer & Status -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Link Video Trailer <span class="text-brand">*</span></label>
+          <input id="form-trailer" type="url" required placeholder="VD: https://www.youtube.com/watch?v=..."
+            class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Trạng thái chiếu <span class="text-brand">*</span></label>
+          <select id="form-status" required class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition appearance-none bg-white font-medium">
+            <option value="now_showing">🎬 Đang chiếu (Now Showing)</option>
+            <option value="coming_soon">📅 Sắp chiếu (Coming Soon)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Cast -->
+      <div>
+        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Diễn viên <span class="text-brand">*</span></label>
+        <textarea id="form-cast" required rows="2" placeholder="Nhập danh sách diễn viên chính, cách nhau bằng dấu phẩy..."
+          class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition resize-none"></textarea>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Mô tả phim <span class="text-brand">*</span></label>
+        <textarea id="form-description" required rows="4" placeholder="Nhập tóm tắt nội dung cốt truyện của bộ phim..."
+          class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition resize-y"></textarea>
+      </div>
+
+      <!-- Files Upload Layout (Poster & Backdrop) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Poster Upload Zone -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Ảnh Poster Phim (Tỷ lệ 2:3) <span class="text-brand">*</span></label>
+          <div id="poster-dropzone" class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-brand hover:bg-slate-50 transition flex flex-col items-center justify-center min-h-[140px]">
+            <input type="file" id="poster-file" accept="image/*" class="hidden">
+            <div id="poster-upload-icon" class="text-slate-400 flex flex-col items-center gap-1">
+              <i class="fas fa-cloud-upload-alt text-3xl"></i>
+              <span class="text-xs font-bold mt-1 text-slate-600">Kéo thả ảnh hoặc click để chọn</span>
+              <span class="text-[10px] text-slate-400">Chỉ chấp nhận file ảnh (.png, .jpg, .webp)</span>
+            </div>
+            <div id="poster-preview-container" class="hidden relative w-24 h-36 rounded-lg overflow-hidden border border-slate-200 shadow-sm">
+              <img id="poster-preview" src="" alt="Poster" class="w-full h-full object-cover">
+              <button type="button" onclick="removePoster(event)" class="absolute top-1 right-1 w-5 h-5 bg-black/70 hover:bg-brand text-white rounded-full flex items-center justify-center text-[10px] transition"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+          <input type="hidden" id="form-poster-url">
+        </div>
+
+        <!-- Backdrop Banner Upload Zone -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Ảnh Banner/Backdrop (Tỷ lệ 16:9) <span class="text-brand">*</span></label>
+          <div id="backdrop-dropzone" class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-brand hover:bg-slate-50 transition flex flex-col items-center justify-center min-h-[140px]">
+            <input type="file" id="backdrop-file" accept="image/*" class="hidden">
+            <div id="backdrop-upload-icon" class="text-slate-400 flex flex-col items-center gap-1">
+              <i class="fas fa-image text-3xl"></i>
+              <span class="text-xs font-bold mt-1 text-slate-600">Kéo thả ảnh hoặc click để chọn</span>
+              <span class="text-[10px] text-slate-400">Hình ảnh làm background mờ ở trang chi tiết</span>
+            </div>
+            <div id="backdrop-preview-container" class="hidden relative w-full h-24 rounded-lg overflow-hidden border border-slate-200 shadow-sm">
+              <img id="backdrop-preview" src="" alt="Backdrop" class="w-full h-full object-cover">
+              <button type="button" onclick="removeBackdrop(event)" class="absolute top-1 right-1 w-5 h-5 bg-black/70 hover:bg-brand text-white rounded-full flex items-center justify-center text-[10px] transition"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+          <input type="hidden" id="form-backdrop-url">
+        </div>
+      </div>
+
+      <!-- Form Error Alerts -->
+      <div id="form-error" class="hidden bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold px-4 py-3 rounded-xl flex items-center gap-2">
+        <i class="fas fa-exclamation-circle text-sm flex-shrink-0"></i>
+        <span id="form-error-msg"></span>
+      </div>
+    </form>
+
+    <!-- Modal Footer -->
+    <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 flex-shrink-0 bg-slate-50 rounded-b-2xl">
+      <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition">Hủy</button>
+      <button type="button" onclick="document.getElementById('movie-form').requestSubmit()" class="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-brandHover transition shadow-md shadow-brand/20 flex items-center gap-2">
+        <i class="fas fa-check text-xs"></i> Lưu phim
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     MODAL: XÁC NHẬN XÓA PHIM
+=================================================================== -->
+<div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm z-10 p-6 text-center">
+    <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i class="fas fa-trash-alt text-2xl text-brand"></i>
+    </div>
+    <h3 class="text-lg font-bold text-slate-800 mb-2">Xóa bộ phim này?</h3>
+    <p class="text-sm text-slate-400 mb-6 leading-relaxed">Thông tin phim sẽ bị xóa vĩnh viễn khỏi danh sách và không thể khôi phục lại.</p>
+    <div class="flex gap-3">
+      <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Hủy</button>
+      <button onclick="confirmDelete()" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-brandHover transition">Xóa ngay</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Toast -->
+<div id="toast" class="fixed top-24 right-8 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-[-20px] pointer-events-none z-50">
+  <i id="toast-icon" class="fas fa-check-circle text-emerald-400"></i>
+  <span id="toast-text" class="text-xs font-bold">Lưu phim thành công!</span>
+</div>
+
+<script>
+// Mock default posters and backdrops
+const DEFAULT_POSTERS = [
+  "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=80",
+];
+
+let MOVIE_DATA = [];
+let deleteTargetId = null;
+
+// Initial Seed Data (if localStorage is empty)
+const SEED_MOVIES = [
+  {
+    id: 1,
+    title: "Lật Mặt 7: Một Điều Ước",
+    genre: "Gia đình, Kịch tính",
+    rating: 8.8,
+    duration: 138,
+    director: "Lý Hải",
+    cast: "Thanh Hằng, Trương Minh Cường, Đinh Y Nhung, Quách Ngọc Tuyên",
+    description: "Câu chuyện gia đình đầy cảm xúc xoay quanh người mẹ già và 5 người con trưởng thành đã rời quê hương. Khi biến cố xảy đến, ai sẽ là người quay về chăm sóc mẹ?",
+    trailer: "https://www.youtube.com/watch?v=0k5G6jH6_1M",
+    poster: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=80",
+    backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1000&auto=format&fit=crop&q=80",
+    status: "now_showing"
+  },
+  {
+    id: 2,
+    title: "Mai",
+    genre: "Tâm lý, Tình cảm",
+    rating: 8.2,
+    duration: 131,
+    director: "Trấn Thành",
+    cast: "Phương Anh Đào, Tuấn Trần, Hồng Đào, Uyển Ân",
+    description: "Bộ phim tâm lý sâu sắc nói về hành trình tìm kiếm hạnh phúc của Mai - một cô gái làm nghề massage trị liệu chịu nhiều định kiến, và Dương - một chàng nhạc công trẻ kém tuổi đầy khát vọng.",
+    trailer: "https://www.youtube.com/watch?v=HKN854lI6zY",
+    poster: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=80",
+    backdrop: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1000&auto=format&fit=crop&q=80",
+    status: "now_showing"
+  },
+  {
+    id: 3,
+    title: "Dune: Phần Hai",
+    genre: "Khoa học viễn tưởng, Hành động",
+    rating: 9.0,
+    duration: 166,
+    director: "Denis Villeneuve",
+    cast: "Timothée Chalamet, Zendaya, Rebecca Ferguson, Josh Brolin",
+    description: "Paul Atreides hội ngộ cùng Chani và tộc người Fremen khi anh tìm kiếm sự báo thù chống lại những kẻ đã hủy diệt gia đình mình, cố gắng ngăn chặn một tương lai khủng khiếp mà chỉ anh mới thấy trước.",
+    trailer: "https://www.youtube.com/watch?v=Way9Dexny3w",
+    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80",
+    backdrop: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1000&auto=format&fit=crop&q=80",
+    status: "coming_soon"
+  }
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Load from localStorage or set seed
+  const stored = localStorage.getItem('cinebook_movies');
+  if (stored) {
+    MOVIE_DATA = JSON.parse(stored);
+  } else {
+    MOVIE_DATA = SEED_MOVIES;
+    localStorage.setItem('cinebook_movies', JSON.stringify(MOVIE_DATA));
+  }
+  
+  initDragAndDrop('poster');
+  initDragAndDrop('backdrop');
+  renderMovies();
+});
+
+// Drag and drop setup helper
+function initDragAndDrop(type) {
+  const dropzone = document.getElementById(`${type}-dropzone`);
+  const fileInput = document.getElementById(`${type}-file`);
+
+  dropzone.addEventListener('click', () => fileInput.click());
+
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('border-brand', 'bg-slate-50');
+  });
+
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('border-brand', 'bg-slate-50');
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('border-brand', 'bg-slate-50');
+    if (e.dataTransfer.files.length) {
+      handleFile(e.dataTransfer.files[0], type);
+    }
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) {
+      handleFile(e.target.files[0], type);
+    }
+  });
+}
+
+function handleFile(file, type) {
+  if (!file.type.startsWith('image/')) {
+    showFormError(`Chỉ được tải lên file ảnh cho ${type}!`);
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    document.getElementById(`form-${type}-url`).value = dataUrl;
+    document.getElementById(`${type}-preview`).src = dataUrl;
+    document.getElementById(`${type}-preview-container`).classList.remove('hidden');
+    document.getElementById(`${type}-upload-icon`).classList.add('hidden');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePoster(e) {
+  e.stopPropagation();
+  document.getElementById('form-poster-url').value = '';
+  document.getElementById('poster-preview').src = '';
+  document.getElementById('poster-preview-container').classList.add('hidden');
+  document.getElementById('poster-upload-icon').classList.remove('hidden');
+}
+
+function removeBackdrop(e) {
+  e.stopPropagation();
+  document.getElementById('form-backdrop-url').value = '';
+  document.getElementById('backdrop-preview').src = '';
+  document.getElementById('backdrop-preview-container').classList.add('hidden');
+  document.getElementById('backdrop-upload-icon').classList.remove('hidden');
+}
+
+// Render grid
+function renderMovies() {
+  const search = document.getElementById('movie-search').value.toLowerCase();
+  const status = document.getElementById('status-filter').value;
+
+  const filtered = MOVIE_DATA.filter(m => {
+    const matchSearch = m.title.toLowerCase().includes(search) || 
+                        m.director.toLowerCase().includes(search) || 
+                        m.genre.toLowerCase().includes(search);
+    const matchStatus = status === 'all' || m.status === status;
+    return matchSearch && matchStatus;
+  });
+
+  const grid = document.getElementById('movie-grid');
+  const empty = document.getElementById('movie-empty');
+  const count = document.getElementById('movie-count');
+
+  count.textContent = `Tổng cộng: ${filtered.length} bộ phim`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  grid.innerHTML = filtered.map(m => `
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300">
+      <!-- Media section -->
+      <div class="relative h-48 bg-slate-900 overflow-hidden flex-shrink-0">
+        <img src="${m.backdrop || m.poster}" alt="backdrop" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500">
+        <!-- Floating overlay tags -->
+        <span class="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-xl ${
+          m.status === 'now_showing' ? 'bg-emerald-500 text-white' : 'bg-blue-500 text-white'
+        }">
+          ${m.status === 'now_showing' ? '🎬 Đang chiếu' : '📅 Sắp chiếu'}
+        </span>
+        <span class="absolute top-4 right-4 text-xs font-bold bg-slate-900/80 text-yellow-400 border border-yellow-400/30 px-2 py-1 rounded-lg flex items-center gap-1">
+          <i class="fas fa-star text-[10px]"></i> ${m.rating}
+        </span>
+      </div>
+
+      <!-- Info content -->
+      <div class="p-5 flex-grow flex flex-col relative">
+        <!-- Float mini poster -->
+        <div class="absolute -top-16 left-5 w-20 h-28 rounded-lg overflow-hidden border-2 border-white shadow-md bg-slate-100 z-10">
+          <img src="${m.poster}" alt="poster" class="w-full h-full object-cover">
+        </div>
+
+        <div class="pl-24 min-h-[72px] mb-4">
+          <h3 class="font-extrabold text-slate-800 text-base leading-snug group-hover:text-brand transition-colors line-clamp-2">${m.title}</h3>
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-1">${m.genre}</p>
+        </div>
+
+        <div class="space-y-2 border-t border-slate-100 pt-4 flex-grow">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-400">Thời lượng:</span>
+            <span class="font-semibold text-slate-700">${m.duration} phút</span>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-400">Đạo diễn:</span>
+            <span class="font-semibold text-slate-700">${m.director}</span>
+          </div>
+          <div class="flex flex-col gap-1 text-xs">
+            <span class="text-slate-400">Diễn viên chính:</span>
+            <span class="font-semibold text-slate-700 line-clamp-1">${m.cast}</span>
+          </div>
+          <div class="flex flex-col gap-1 text-xs">
+            <span class="text-slate-400">Mô tả tóm tắt:</span>
+            <span class="text-slate-500 line-clamp-3 leading-relaxed">${m.description}</span>
+          </div>
+        </div>
+
+        <!-- Action panel -->
+        <div class="flex items-center justify-between border-t border-slate-100 mt-4 pt-3 flex-shrink-0">
+          <a href="${m.trailer}" target="_blank" class="text-xs font-bold text-slate-500 hover:text-brand flex items-center gap-1 transition">
+            <i class="fab fa-youtube text-red-500"></i> Xem Trailer
+          </a>
+          <div class="flex gap-1">
+            <button onclick="openEditModal(${m.id})" class="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Chỉnh sửa">
+              <i class="fas fa-edit text-xs"></i>
+            </button>
+            <button onclick="openDeleteModal(${m.id})" class="p-2 text-slate-400 hover:text-brand hover:bg-red-50 rounded-lg transition" title="Xóa">
+              <i class="fas fa-trash-alt text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Modals
+function openAddModal() {
+  document.getElementById('modal-title').textContent = '🎬 Thêm Phim Mới';
+  document.getElementById('form-id').value = '';
+  document.getElementById('movie-form').reset();
+  
+  // Clear file upload previews
+  removePoster(new Event('click'));
+  removeBackdrop(new Event('click'));
+  
+  document.getElementById('form-error').classList.add('hidden');
+  document.getElementById('movie-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function openEditModal(id) {
+  const m = MOVIE_DATA.find(x => x.id === id);
+  if (!m) return;
+
+  document.getElementById('modal-title').textContent = '🎬 Chỉnh Sửa Phim';
+  document.getElementById('form-id').value = m.id;
+  document.getElementById('form-title').value = m.title;
+  document.getElementById('form-genre').value = m.genre;
+  document.getElementById('form-rating').value = m.rating;
+  document.getElementById('form-duration').value = m.duration;
+  document.getElementById('form-director').value = m.director;
+  document.getElementById('form-cast').value = m.cast;
+  document.getElementById('form-description').value = m.description;
+  document.getElementById('form-trailer').value = m.trailer;
+  document.getElementById('form-status').value = m.status;
+
+  // Set file urls & previews
+  if (m.poster) {
+    document.getElementById('form-poster-url').value = m.poster;
+    document.getElementById('poster-preview').src = m.poster;
+    document.getElementById('poster-preview-container').classList.remove('hidden');
+    document.getElementById('poster-upload-icon').classList.add('hidden');
+  } else {
+    removePoster(new Event('click'));
+  }
+
+  if (m.backdrop) {
+    document.getElementById('form-backdrop-url').value = m.backdrop;
+    document.getElementById('backdrop-preview').src = m.backdrop;
+    document.getElementById('backdrop-preview-container').classList.remove('hidden');
+    document.getElementById('backdrop-upload-icon').classList.add('hidden');
+  } else {
+    removeBackdrop(new Event('click'));
+  }
+
+  document.getElementById('form-error').classList.add('hidden');
+  document.getElementById('movie-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('movie-modal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function showFormError(msg) {
+  const errEl = document.getElementById('form-error');
+  document.getElementById('form-error-msg').textContent = msg;
+  errEl.classList.remove('hidden');
+  document.getElementById('movie-form').scrollTop = document.getElementById('movie-form').scrollHeight;
+}
+
+function saveMovie(e) {
+  e.preventDefault();
+  const id = document.getElementById('form-id').value;
+  const title = document.getElementById('form-title').value.trim();
+  const genre = document.getElementById('form-genre').value.trim();
+  const rating = parseFloat(document.getElementById('form-rating').value);
+  const duration = parseInt(document.getElementById('form-duration').value);
+  const director = document.getElementById('form-director').value.trim();
+  const cast = document.getElementById('form-cast').value.trim();
+  const description = document.getElementById('form-description').value.trim();
+  const trailer = document.getElementById('form-trailer').value.trim();
+  const status = document.getElementById('form-status').value;
+  
+  let posterUrl = document.getElementById('form-poster-url').value;
+  let backdropUrl = document.getElementById('form-backdrop-url').value;
+
+  // Validation
+  if (rating < 0 || rating > 10) {
+    showFormError("Điểm đánh giá phải thuộc phạm vi 0.0 - 10.0.");
+    return;
+  }
+  if (duration <= 0) {
+    showFormError("Thời lượng phim phải lớn hơn 0 phút.");
+    return;
+  }
+  if (!posterUrl) {
+    showFormError("Vui lòng tải lên ảnh Poster cho phim.");
+    return;
+  }
+  if (!backdropUrl) {
+    showFormError("Vui lòng tải lên ảnh Banner/Backdrop cho phim.");
+    return;
+  }
+
+  document.getElementById('form-error').classList.add('hidden');
+
+  if (id) {
+    // Edit
+    const index = MOVIE_DATA.findIndex(x => x.id === parseInt(id));
+    if (index !== -1) {
+      MOVIE_DATA[index] = {
+        id: parseInt(id),
+        title, genre, rating, duration, director, cast, description, trailer, poster: posterUrl, backdrop: backdropUrl, status
+      };
+      showToast("Đã cập nhật thông tin phim thành công!");
+    }
+  } else {
+    // Add
+    const newId = MOVIE_DATA.length > 0 ? Math.max(...MOVIE_DATA.map(m => m.id)) + 1 : 1;
+    MOVIE_DATA.push({
+      id: newId,
+      title, genre, rating, duration, director, cast, description, trailer, poster: posterUrl, backdrop: backdropUrl, status
+    });
+    showToast("Đã thêm phim mới thành công!");
+  }
+
+  localStorage.setItem('cinebook_movies', JSON.stringify(MOVIE_DATA));
+  closeModal();
+  renderMovies();
+}
+
+// Delete Movie
+function openDeleteModal(id) {
+  deleteTargetId = id;
+  document.getElementById('delete-modal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+  deleteTargetId = null;
+  document.getElementById('delete-modal').classList.add('hidden');
+}
+
+function confirmDelete() {
+  if (!deleteTargetId) return;
+  
+  MOVIE_DATA = MOVIE_DATA.filter(x => x.id !== deleteTargetId);
+  localStorage.setItem('cinebook_movies', JSON.stringify(MOVIE_DATA));
+  
+  showToast("Đã xóa phim thành công!");
+  closeDeleteModal();
+  renderMovies();
+}
+
+function showToast(text) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = text;
+  
+  toast.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+  toast.classList.add('opacity-100', 'translate-y-0');
+  
+  setTimeout(() => {
+    toast.classList.remove('opacity-100', 'translate-y-0');
+    toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+  }, 2500);
+}
+</script>

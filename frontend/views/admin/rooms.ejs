@@ -1,0 +1,1001 @@
+<!-- Room & Seat Management Page -->
+<style>
+  /* Seat states styling matching user seat selection page */
+  .seat-available {
+    background: #ffffff;
+    border: 2px solid #a1a1aa;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .seat-available:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    transform: scale(1.05);
+  }
+  .seat-vip-available {
+    background: #fef3c7; /* amber-100 */
+    border: 2px solid #f59e0b; /* amber-500 */
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .seat-vip-available:hover {
+    border-color: #d97706; /* amber-600 */
+    background: #fffbeb; /* amber-50 */
+    transform: scale(1.05);
+  }
+  .seat-sold {
+    background: #d4d4d8; /* neutral-300 */
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: all 0.15s ease;
+  }
+  .seat-sold:hover {
+    background: #a1a1aa;
+    transform: scale(1.05);
+  }
+  .seat-empty {
+    background: transparent;
+    border: 2px dashed #cbd5e1; /* slate-300 */
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .seat-empty:hover {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+  }
+</style>
+
+<div>
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <h2 class="text-2xl font-extrabold text-slate-800">Quản lý Phòng & Ghế</h2>
+      <p class="text-slate-400 text-sm mt-1">Cấu hình rạp chiếu theo từng cơ sở, quản lý phòng số và thiết kế sơ đồ ghế với chế độ kéo chuột.</p>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="openAddBranchModal()" class="flex items-center gap-2 bg-slate-800 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-slate-900 transition shadow-md">
+        <i class="fas fa-building"></i> Thêm cơ sở mới
+      </button>
+      <button onclick="openAddRoomModal()" class="flex items-center gap-2 bg-brand text-white px-4 py-2.5 rounded-xl font-bold hover:bg-brandHover transition shadow-md shadow-brand/20">
+        <i class="fas fa-plus"></i> Thêm phòng chiếu mới
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Left Panel: Branches and Rooms list -->
+    <div class="lg:col-span-1 space-y-4">
+      <!-- Branch Selector Card -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Chọn cơ sở chiếu</label>
+        <select id="branch-select" onchange="onBranchChange()" class="w-full border border-slate-200 bg-slate-50 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none focus:border-brand transition">
+          <!-- Branches will be dynamically populated -->
+        </select>
+      </div>
+
+      <!-- Rooms list -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">Danh sách phòng chiếu</h3>
+        <div id="room-list" class="space-y-2">
+          <!-- Room buttons injected here -->
+        </div>
+      </div>
+
+      <!-- Auto calculations statistics -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">Thống kê phòng hiện tại</h3>
+        <div class="space-y-3 text-xs font-semibold text-slate-600">
+          <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+            <span>Tổng số ghế thiết kế:</span>
+            <span id="stats-total" class="text-slate-800 font-bold text-sm">0</span>
+          </div>
+          <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-white border border-slate-400 rounded-sm"></span> Ghế thường:</span>
+            <span id="stats-normal" class="text-slate-800 font-bold text-sm">0</span>
+          </div>
+          <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-amber-100 border border-amber-500 rounded-sm"></span> Ghế VIP:</span>
+            <span id="stats-vip" class="text-amber-600 font-bold text-sm">0</span>
+          </div>
+          <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-neutral-300 rounded-sm"></span> Ghế đã bán (Khóa):</span>
+            <span id="stats-sold" class="text-slate-500 font-bold text-sm">0</span>
+          </div>
+          <div class="flex justify-between items-center py-1.5">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 border border-dashed border-slate-300 rounded-sm"></span> Lối đi / Trống:</span>
+            <span id="stats-empty" class="text-slate-400 font-bold text-sm">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Grid Editor -->
+    <div class="lg:col-span-3">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
+        
+        <!-- Editor Control Bar -->
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h4 id="editor-room-title" class="font-extrabold text-slate-800 text-base">Tên phòng chiếu</h4>
+              <span id="editor-branch-badge" class="text-[10px] font-bold bg-slate-200 text-slate-600 px-2 py-0.5 rounded">Cơ sở</span>
+            </div>
+            <p id="editor-room-desc" class="text-xs text-slate-400 mt-0.5">Kích thước cấu hình: 0 hàng x 0 cột</p>
+          </div>
+          
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="openResizeModal()" class="px-3.5 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fas fa-arrows-alt"></i> Thay đổi kích thước
+            </button>
+            <button onclick="saveLayout()" class="px-5 py-2 bg-brand text-white hover:bg-brandHover rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+              <i class="fas fa-save"></i> Lưu sơ đồ ghế
+            </button>
+          </div>
+        </div>
+
+        <!-- Tool Palette -->
+        <div class="px-6 py-3 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-bold text-slate-500 bg-slate-50/50">
+          <div class="flex flex-wrap items-center gap-3">
+            <span>CÔNG CỤ VẼ:</span>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="selectPaintTool('normal', this)" class="paint-tool active border-2 border-brand bg-white text-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+                <span class="w-3.5 h-3.5 bg-white border border-slate-400 rounded-sm"></span> Ghế Thường
+              </button>
+              <button onclick="selectPaintTool('vip', this)" class="paint-tool border border-slate-200 hover:border-amber-500 px-3 py-1.5 rounded-lg flex items-center gap-1.5 bg-white transition">
+                <span class="w-3.5 h-3.5 bg-amber-100 border border-amber-500 rounded-sm"></span> Ghế VIP
+              </button>
+              <button onclick="selectPaintTool('sold', this)" class="paint-tool border border-slate-200 hover:border-slate-400 px-3 py-1.5 rounded-lg flex items-center gap-1.5 bg-white transition">
+                <span class="w-3.5 h-3.5 bg-neutral-300 rounded-sm"></span> Ghế Đã Bán
+              </button>
+              <button onclick="selectPaintTool('empty', this)" class="paint-tool border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-lg flex items-center gap-1.5 bg-white transition">
+                <span class="w-3.5 h-3.5 border border-dashed border-slate-300 rounded-sm"></span> Lối Đi / Trống
+              </button>
+            </div>
+          </div>
+
+          <!-- Drag Select Toggle Mode -->
+          <div class="flex items-center gap-2 border-t sm:border-t-0 sm:border-l border-slate-200 pt-2 sm:pt-0 sm:pl-3">
+            <span class="text-slate-500 whitespace-nowrap">CHẾ ĐỘ TÔ VẼ:</span>
+            <div class="relative inline-flex items-center cursor-pointer select-none">
+              <input type="checkbox" id="drag-mode-toggle" class="sr-only peer" checked>
+              <div onclick="toggleDragMode()" class="w-24 h-7 bg-slate-200 rounded-full peer peer-focus:ring-0 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-1 after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-11 after:transition-all peer-checked:bg-emerald-500 relative flex items-center justify-between px-2 text-[9px] font-bold text-slate-600 peer-checked:text-white uppercase transition-colors">
+                <span class="pl-1">Kéo</span>
+                <span class="pr-2">Bấm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instructions Helper -->
+        <div id="drag-helper-text" class="px-6 py-2 bg-emerald-50 border-b border-emerald-100 text-[11px] text-emerald-800 font-semibold flex items-center gap-1.5 transition-all">
+          <i class="fas fa-info-circle"></i> 
+          <span>Chế độ kéo vẽ đang BẬT. Giữ chuột trái và di chuyển chuột qua các ô để tô vẽ nhanh sơ đồ ghế!</span>
+        </div>
+
+        <!-- The Seat Grid Canvas -->
+        <div id="grid-canvas" class="flex-grow p-8 overflow-auto flex flex-col items-center justify-center bg-slate-50/50 relative select-none">
+          
+          <!-- Screen Banner -->
+          <div class="w-full max-w-md mb-12 flex-shrink-0">
+            <div class="h-3 bg-gradient-to-b from-slate-400 to-slate-500 rounded-t-[100%] shadow-md"></div>
+            <div class="text-center mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Màn hình rạp chiếu</div>
+          </div>
+
+          <!-- Injected seat grid layout -->
+          <div id="editor-grid" class="space-y-2 select-none" onmouseleave="stopDragDrawing()">
+            <!-- Row containers and buttons will be dynamically rendered here -->
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     MODAL: THÊM CƠ SỞ CHIẾU MỚI
+=================================================================== -->
+<div id="add-branch-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeAddBranchModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm z-10 flex flex-col">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <h3 class="font-bold text-slate-800 text-base">Thêm cơ sở chiếu mới</h3>
+      <button onclick="closeAddBranchModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="add-branch-form" onsubmit="createBranch(event)" class="p-6 space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Tên cơ sở <span class="text-brand">*</span></label>
+        <input id="new-branch-name" type="text" required placeholder="VD: CineBook Sala Thủ Thiêm"
+          class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition font-medium">
+      </div>
+      <div id="add-branch-error" class="hidden bg-rose-50 border border-rose-200 text-rose-600 text-xs font-medium px-4 py-2 rounded-xl">
+        <i class="fas fa-exclamation-circle mr-1"></i><span id="add-branch-error-msg"></span>
+      </div>
+    </form>
+    <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-2xl">
+      <button onclick="closeAddBranchModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition">Hủy</button>
+      <button onclick="document.getElementById('add-branch-form').requestSubmit()" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-brand hover:bg-brandHover transition">Thêm cơ sở</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     MODAL: TẠO PHÒNG CHIẾU MỚI (CHỈ HỎI SỐ PHÒNG)
+=================================================================== -->
+<div id="add-room-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeAddRoomModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md z-10 flex flex-col">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <h3 class="font-bold text-slate-800 text-base">Tạo phòng chiếu mới</h3>
+      <button onclick="closeAddRoomModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fas fa-times"></i></button>
+    </div>
+    <!-- Body -->
+    <form id="add-room-form" onsubmit="createRoom(event)" class="p-6 space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Số phòng chiếu <span class="text-brand">*</span></label>
+        <input id="new-room-number" type="number" min="1" max="99" required placeholder="Nhập số, VD: 4"
+          class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition font-medium">
+        <p class="text-[10px] text-slate-400 mt-1">Hệ thống sẽ tự động tạo tên dạng "Phòng chiếu [Số]"</p>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Số hàng ghế <span class="text-brand">*</span></label>
+          <input id="new-room-rows" type="number" min="1" max="15" required value="8"
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Số cột ghế <span class="text-brand">*</span></label>
+          <input id="new-room-cols" type="number" min="1" max="20" required value="12"
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition">
+        </div>
+      </div>
+
+      <div id="add-room-error" class="hidden bg-rose-50 border border-rose-200 text-rose-600 text-xs font-medium px-4 py-2.5 rounded-xl">
+        <i class="fas fa-exclamation-circle mr-1"></i><span id="add-room-error-msg"></span>
+      </div>
+    </form>
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-2xl">
+      <button onclick="closeAddRoomModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition">Hủy</button>
+      <button onclick="document.getElementById('add-room-form').requestSubmit()" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-brand hover:bg-brandHover transition shadow-md shadow-brand/20">Xác nhận tạo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     MODAL: RESIZE / THAY ĐỔI KÍCH THƯỚC PHÒNG ĐANG CHỌN
+=================================================================== -->
+<div id="resize-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeResizeModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm z-10 flex flex-col">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <h3 class="font-bold text-slate-800 text-base">Thay đổi kích thước hàng & cột</h3>
+      <button onclick="closeResizeModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="resize-form" onsubmit="resizeCurrentRoom(event)" class="p-6 space-y-4">
+      <p class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2.5 leading-relaxed font-semibold">
+        ⚠️ Cảnh báo: Việc giảm số lượng hàng/cột có thể làm mất dữ liệu của các ghế nằm ngoài phạm vi kích thước mới!
+      </p>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Số hàng mới</label>
+          <input id="resize-rows" type="number" min="1" max="15" required
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Số cột mới</label>
+          <input id="resize-cols" type="number" min="1" max="20" required
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition">
+        </div>
+      </div>
+    </form>
+    <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-2xl">
+      <button onclick="closeResizeModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition">Hủy</button>
+      <button onclick="document.getElementById('resize-form').requestSubmit()" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-brand hover:bg-brandHover transition">Cập nhật kích thước</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Toast -->
+<div id="toast" class="fixed top-24 right-8 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-[-20px] pointer-events-none z-50">
+  <i id="toast-icon" class="fas fa-check-circle text-emerald-400"></i>
+  <span id="toast-text" class="text-xs font-bold">Lưu sơ đồ thành công!</span>
+</div>
+
+<script>
+// Seed Data (if localStorage is empty)
+const SEED_BRANCHES = [
+  { id: 1, name: "CineBook Nguyễn Du" },
+  { id: 2, name: "CineBook Landmark 81" }
+];
+
+const SEED_ROOMS = [
+  {
+    id: 1,
+    branchId: 1,
+    name: "Phòng chiếu 1",
+    rows: 8,
+    cols: 12,
+    layout: {}
+  },
+  {
+    id: 2,
+    branchId: 1,
+    name: "Phòng chiếu 2",
+    rows: 10,
+    cols: 14,
+    layout: {}
+  },
+  {
+    id: 3,
+    branchId: 2,
+    name: "Phòng chiếu 1",
+    rows: 8,
+    cols: 12,
+    layout: {}
+  },
+  {
+    id: 4,
+    branchId: 2,
+    name: "Phòng chiếu 2",
+    rows: 6,
+    cols: 10,
+    layout: {}
+  }
+];
+
+// Generate seed layouts
+SEED_ROOMS.forEach(room => {
+  for (let r = 0; r < room.rows; r++) {
+    const rowChar = String.fromCharCode(65 + r);
+    for (let c = 1; c <= room.cols; c++) {
+      const key = `${rowChar}:${c}`;
+      if (r >= 3 && r <= 5) {
+        room.layout[key] = 'vip';
+      } else {
+        room.layout[key] = 'normal';
+      }
+      // Seed some sold seats
+      if (c === 4 && r === 2) room.layout[key] = 'sold';
+      if (c === 5 && r === 2) room.layout[key] = 'sold';
+      // Seed some empty spaces/aisles
+      if (room.cols > 8 && (c === 4 || c === room.cols - 3)) {
+        room.layout[key] = 'empty';
+      }
+    }
+  }
+});
+
+let BRANCH_DATA = [];
+let ROOMS_DATA = [];
+let currentActiveBranchId = null;
+let currentActiveRoomId = null;
+let currentPaintTool = 'normal';
+let isDragMode = true; // Default drag selector mode
+let isMousedown = false; // Mouse down state tracker
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Load branches
+  const storedBranches = localStorage.getItem('cinebook_branches');
+  if (storedBranches) {
+    BRANCH_DATA = JSON.parse(storedBranches);
+  } else {
+    BRANCH_DATA = SEED_BRANCHES;
+    localStorage.setItem('cinebook_branches', JSON.stringify(BRANCH_DATA));
+  }
+
+  // Load rooms
+  const storedRooms = localStorage.getItem('cinebook_rooms');
+  if (storedRooms) {
+    ROOMS_DATA = JSON.parse(storedRooms);
+  } else {
+    ROOMS_DATA = SEED_ROOMS;
+    localStorage.setItem('cinebook_rooms', JSON.stringify(ROOMS_DATA));
+  }
+
+  // Select first branch and first room
+  if (BRANCH_DATA.length > 0) {
+    currentActiveBranchId = BRANCH_DATA[0].id;
+    const branchRooms = ROOMS_DATA.filter(r => r.branchId === currentActiveBranchId);
+    if (branchRooms.length > 0) {
+      currentActiveRoomId = branchRooms[0].id;
+    }
+  }
+
+  // Mouse selection event listeners
+  document.addEventListener('mouseup', (e) => {
+    endSelection(e);
+  });
+  document.addEventListener('mousemove', (e) => {
+    updateSelection(e);
+  });
+
+  const canvas = document.getElementById('grid-canvas');
+  canvas.addEventListener('mousedown', (e) => {
+    startSelection(e);
+  });
+
+  populateBranchSelect();
+  renderRoomList();
+  renderGridEditor();
+});
+
+// Selection Box State
+let selectionBox = null;
+let startX = 0;
+let startY = 0;
+let dragActive = false;
+
+function startSelection(e) {
+  if (!isDragMode) {
+    // Single click mode
+    const seat = e.target.closest('button[data-key]');
+    if (seat) {
+      applyPaint(seat);
+    }
+    return;
+  }
+  
+  if (e.button !== 0) return; // Only left click
+  
+  isMousedown = true;
+  dragActive = false;
+  startX = e.clientX;
+  startY = e.clientY;
+  
+  if (selectionBox) selectionBox.remove();
+  
+  selectionBox = document.createElement('div');
+  selectionBox.style.position = 'fixed';
+  selectionBox.style.border = '1.5px solid #3b82f6';
+  selectionBox.style.background = 'rgba(59, 130, 246, 0.15)';
+  selectionBox.style.pointerEvents = 'none';
+  selectionBox.style.zIndex = '9999';
+  selectionBox.style.left = startX + 'px';
+  selectionBox.style.top = startY + 'px';
+  selectionBox.style.width = '0px';
+  selectionBox.style.height = '0px';
+  selectionBox.style.borderRadius = '3px';
+  document.body.appendChild(selectionBox);
+}
+
+function updateSelection(e) {
+  if (!isMousedown || !selectionBox) return;
+  
+  const currentX = e.clientX;
+  const currentY = e.clientY;
+  
+  const width = Math.abs(startX - currentX);
+  const height = Math.abs(startY - currentY);
+  
+  // Exceed 4px threshold to start drawing selection rectangle
+  if (width > 4 || height > 4) {
+    dragActive = true;
+    const left = Math.min(startX, currentX);
+    const top = Math.min(startY, currentY);
+    
+    selectionBox.style.left = left + 'px';
+    selectionBox.style.top = top + 'px';
+    selectionBox.style.width = width + 'px';
+    selectionBox.style.height = height + 'px';
+  }
+}
+
+function endSelection(e) {
+  if (!isMousedown) return;
+  isMousedown = false;
+  
+  if (selectionBox) {
+    if (dragActive) {
+      const boxRect = selectionBox.getBoundingClientRect();
+      const seats = document.querySelectorAll('#editor-grid button[data-key]');
+      
+      seats.forEach(btn => {
+        const btnRect = btn.getBoundingClientRect();
+        const isIntersecting = !(btnRect.right < boxRect.left || 
+                                 btnRect.left > boxRect.right || 
+                                 btnRect.bottom < boxRect.top || 
+                                 btnRect.top > boxRect.bottom);
+        if (isIntersecting) {
+          applyPaint(btn);
+        }
+      });
+    } else {
+      // Small/no movement means single click on a target
+      const seat = e.target.closest('button[data-key]');
+      if (seat) {
+        applyPaint(seat);
+      }
+    }
+    
+    selectionBox.remove();
+    selectionBox = null;
+  }
+  dragActive = false;
+}
+
+// Setup branch selector dropdown
+function populateBranchSelect() {
+  const select = document.getElementById('branch-select');
+  select.innerHTML = BRANCH_DATA.map(b => `
+    <option value="${b.id}" ${b.id === currentActiveBranchId ? 'selected' : ''}>📍 ${b.name}</option>
+  `).join('');
+}
+
+function onBranchChange() {
+  const select = document.getElementById('branch-select');
+  currentActiveBranchId = parseInt(select.value);
+  
+  // Set first room of this branch active
+  const branchRooms = ROOMS_DATA.filter(r => r.branchId === currentActiveBranchId);
+  if (branchRooms.length > 0) {
+    currentActiveRoomId = branchRooms[0].id;
+  } else {
+    currentActiveRoomId = null;
+  }
+
+  renderRoomList();
+  renderGridEditor();
+}
+
+// Render sidebar rooms for current branch
+function renderRoomList() {
+  const list = document.getElementById('room-list');
+  const branchRooms = ROOMS_DATA.filter(r => r.branchId === currentActiveBranchId);
+
+  if (branchRooms.length === 0) {
+    list.innerHTML = '<p class="text-xs text-slate-400 italic text-center py-4">Chưa có phòng chiếu nào ở cơ sở này.</p>';
+    return;
+  }
+
+  list.innerHTML = branchRooms.map(room => {
+    const isActive = room.id === currentActiveRoomId;
+    return `
+      <div class="flex items-center justify-between group rounded-xl p-1.5 ${
+        isActive ? 'bg-brand/10 border-l-4 border-brand' : 'hover:bg-slate-50 border-l-4 border-transparent'
+      }">
+        <button onclick="setActiveRoom(${room.id})" class="flex-1 text-left px-2 py-1.5 text-xs font-bold text-slate-700 truncate ${
+          isActive ? 'text-brand' : ''
+        }">
+          <i class="fas fa-couch mr-2 ${isActive ? 'text-brand' : 'text-slate-400'}"></i> ${room.name}
+        </button>
+        <button onclick="deleteRoom(event, ${room.id})" class="text-slate-300 hover:text-brand px-2 py-1 transition flex-shrink-0 opacity-0 group-hover:opacity-100" title="Xóa phòng này">
+          <i class="fas fa-trash-alt text-xs"></i>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+function setActiveRoom(id) {
+  currentActiveRoomId = id;
+  renderRoomList();
+  renderGridEditor();
+}
+
+// Drag select mode toggler
+function toggleDragMode() {
+  const toggle = document.getElementById('drag-mode-toggle');
+  toggle.checked = !toggle.checked;
+  isDragMode = toggle.checked;
+
+  const helper = document.getElementById('drag-helper-text');
+  if (isDragMode) {
+    helper.classList.remove('hidden');
+  } else {
+    helper.classList.add('hidden');
+  }
+}
+
+function stopDragDrawing() {
+  isMousedown = false;
+}
+
+// Selecting color paint tool
+function selectPaintTool(tool, btn) {
+  currentPaintTool = tool;
+  document.querySelectorAll('.paint-tool').forEach(b => {
+    b.className = 'paint-tool border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 bg-white transition hover:bg-slate-50';
+  });
+  
+  let borderClass = 'border-brand';
+  if(tool === 'vip') borderClass = 'border-amber-500';
+  if(tool === 'sold') borderClass = 'border-slate-500';
+  if(tool === 'empty') borderClass = 'border-slate-300';
+  
+  btn.className = `paint-tool active border-2 ${borderClass} bg-white text-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition font-bold`;
+}
+
+// Render grid editor canvas
+function renderGridEditor() {
+  const room = ROOMS_DATA.find(r => r.id === currentActiveRoomId);
+  const branch = BRANCH_DATA.find(b => b.id === currentActiveBranchId);
+  const grid = document.getElementById('editor-grid');
+  
+  if (!room || !branch) {
+    document.getElementById('editor-room-title').textContent = "Không tìm thấy phòng";
+    document.getElementById('editor-room-desc').textContent = "";
+    document.getElementById('editor-branch-badge').classList.add('hidden');
+    grid.innerHTML = '<div class="text-slate-400 py-10 font-bold text-center">Hãy thêm hoặc chọn một phòng chiếu để thiết kế sơ đồ ghế.</div>';
+    updateStats(null);
+    return;
+  }
+
+  document.getElementById('editor-room-title').textContent = room.name;
+  const badge = document.getElementById('editor-branch-badge');
+  badge.textContent = branch.name;
+  badge.classList.remove('hidden');
+  
+  document.getElementById('editor-room-desc').textContent = `Cấu hình lưới: ${room.rows} hàng x ${room.cols} cột`;
+
+  grid.innerHTML = '';
+  
+  // Headers (Column numbers)
+  const headerDiv = document.createElement('div');
+  headerDiv.className = 'flex items-center gap-2 mb-1';
+  const labelSpacer = document.createElement('div');
+  labelSpacer.className = 'w-6 text-center';
+  headerDiv.appendChild(labelSpacer);
+
+  const colContainer = document.createElement('div');
+  colContainer.className = 'flex-1 flex justify-center gap-1.5';
+  for (let c = 1; c <= room.cols; c++) {
+    const colNum = document.createElement('div');
+    colNum.className = 'w-7 text-center text-[10px] text-slate-400 font-bold font-mono';
+    colNum.textContent = c;
+    colContainer.appendChild(colNum);
+  }
+  headerDiv.appendChild(colContainer);
+  const rightSpacer = document.createElement('div');
+  rightSpacer.className = 'w-6';
+  headerDiv.appendChild(rightSpacer);
+  grid.appendChild(headerDiv);
+
+  // Render rows
+  for (let r = 0; r < room.rows; r++) {
+    const rowChar = String.fromCharCode(65 + r);
+    
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'flex items-center gap-2';
+    
+    // Row label (Left)
+    const rowLabel = document.createElement('div');
+    rowLabel.className = 'w-6 text-center text-xs text-slate-500 font-bold font-mono';
+    rowLabel.textContent = rowChar;
+    rowDiv.appendChild(rowLabel);
+    
+    // Seats container
+    const seatsFlex = document.createElement('div');
+    seatsFlex.className = 'flex-1 flex justify-center gap-1.5';
+    
+    for (let c = 1; c <= room.cols; c++) {
+      const key = `${rowChar}:${c}`;
+      const seatType = room.layout[key] || 'normal';
+      
+      const seatBtn = document.createElement('button');
+      seatBtn.dataset.key = key;
+      seatBtn.dataset.type = seatType;
+      
+      let seatClass = 'seat-available';
+      if (seatType === 'vip') seatClass = 'seat-vip-available';
+      if (seatType === 'sold') seatClass = 'seat-sold';
+      if (seatType === 'empty') seatClass = 'seat-empty';
+      
+      seatBtn.className = `w-7 h-7 rounded text-[9px] font-bold font-mono flex items-center justify-center transition-all duration-150 ${seatClass}`;
+      
+      if (seatType !== 'empty') {
+        seatBtn.textContent = `${rowChar}${c}`;
+      } else {
+        seatBtn.innerHTML = '<i class="fas fa-times text-slate-300 text-[8px]"></i>';
+      }
+
+      // Prevent HTML drag behaviors
+      seatBtn.addEventListener('dragstart', (e) => e.preventDefault());
+
+      // Bind interactions
+      seatBtn.addEventListener('mousedown', (e) => {
+        isMousedown = true;
+        applyPaint(seatBtn);
+      });
+
+      seatBtn.addEventListener('mouseenter', () => {
+        if (isDragMode && isMousedown) {
+          applyPaint(seatBtn);
+        }
+      });
+
+      seatsFlex.appendChild(seatBtn);
+    }
+    rowDiv.appendChild(seatsFlex);
+    
+    // Row label (Right)
+    const rowLabelRight = document.createElement('div');
+    rowLabelRight.className = 'w-6 text-center text-xs text-slate-500 font-bold font-mono';
+    rowLabelRight.textContent = rowChar;
+    rowDiv.appendChild(rowLabelRight);
+    
+    grid.appendChild(rowDiv);
+  }
+
+  updateStats(room);
+}
+
+// Paint logic execution
+function applyPaint(btn) {
+  const key = btn.dataset.key;
+  const nextType = currentPaintTool;
+  
+  if (btn.dataset.type === nextType) return; // Skip if same type
+
+  btn.classList.remove('seat-available', 'seat-vip-available', 'seat-sold', 'seat-empty');
+  btn.dataset.type = nextType;
+  btn.innerHTML = '';
+  
+  let newClass = 'seat-available';
+  if (nextType === 'vip') newClass = 'seat-vip-available';
+  if (nextType === 'sold') newClass = 'seat-sold';
+  if (nextType === 'empty') newClass = 'seat-empty';
+  
+  btn.className = `w-7 h-7 rounded text-[9px] font-bold font-mono flex items-center justify-center transition-all duration-150 ${newClass}`;
+  
+  const keyParts = key.split(':');
+  if (nextType !== 'empty') {
+    btn.textContent = `${keyParts[0]}${keyParts[1]}`;
+  } else {
+    btn.innerHTML = '<i class="fas fa-times text-slate-300 text-[8px]"></i>';
+  }
+
+  // Save to temporary memory layout
+  const room = ROOMS_DATA.find(r => r.id === currentActiveRoomId);
+  if (room) {
+    room.layout[key] = nextType;
+    updateStats(room);
+  }
+}
+
+// Stats calculator
+function updateStats(room) {
+  const statsTotal = document.getElementById('stats-total');
+  const statsNormal = document.getElementById('stats-normal');
+  const statsVip = document.getElementById('stats-vip');
+  const statsSold = document.getElementById('stats-sold');
+  const statsEmpty = document.getElementById('stats-empty');
+
+  if (!room) {
+    statsTotal.textContent = 0;
+    statsNormal.textContent = 0;
+    statsVip.textContent = 0;
+    statsSold.textContent = 0;
+    statsEmpty.textContent = 0;
+    return;
+  }
+
+  let total = 0, normal = 0, vip = 0, sold = 0, empty = 0;
+  
+  for (let r = 0; r < room.rows; r++) {
+    const rowChar = String.fromCharCode(65 + r);
+    for (let c = 1; c <= room.cols; c++) {
+      const key = `${rowChar}:${c}`;
+      const type = room.layout[key] || 'normal';
+      
+      if (type === 'normal') { total++; normal++; }
+      else if (type === 'vip') { total++; vip++; }
+      else if (type === 'sold') { total++; sold++; }
+      else if (type === 'empty') { empty++; }
+    }
+  }
+
+  statsTotal.textContent = total;
+  statsNormal.textContent = normal;
+  statsVip.textContent = vip;
+  statsSold.textContent = sold;
+  statsEmpty.textContent = empty;
+}
+
+// Add branch modal open/close
+function openAddBranchModal() {
+  document.getElementById('new-branch-name').value = '';
+  document.getElementById('add-branch-error').classList.add('hidden');
+  document.getElementById('add-branch-modal').classList.remove('hidden');
+}
+
+function closeAddBranchModal() {
+  document.getElementById('add-branch-modal').classList.add('hidden');
+}
+
+// Action: Create Branch
+function createBranch(e) {
+  e.preventDefault();
+  const name = document.getElementById('new-branch-name').value.trim();
+  
+  if (!name) return;
+
+  // Check unique branch name
+  const exists = BRANCH_DATA.some(b => b.name.toLowerCase() === name.toLowerCase());
+  if (exists) {
+    document.getElementById('add-branch-error-msg').textContent = "Tên cơ sở chiếu này đã tồn tại.";
+    document.getElementById('add-branch-error').classList.remove('hidden');
+    return;
+  }
+
+  const newId = BRANCH_DATA.length > 0 ? Math.max(...BRANCH_DATA.map(b => b.id)) + 1 : 1;
+  const newBranch = { id: newId, name };
+  
+  BRANCH_DATA.push(newBranch);
+  localStorage.setItem('cinebook_branches', JSON.stringify(BRANCH_DATA));
+  
+  showToast(`Đã thêm cơ sở: ${name}`);
+  currentActiveBranchId = newId;
+  closeAddBranchModal();
+  populateBranchSelect();
+  onBranchChange();
+}
+
+// Room management modal open/close
+function openAddRoomModal() {
+  // Suggest the next room number
+  const branchRooms = ROOMS_DATA.filter(r => r.branchId === currentActiveBranchId);
+  let nextNum = 1;
+  if (branchRooms.length > 0) {
+    // Attempt to extract numbers from names like "Phòng chiếu 3"
+    const nums = branchRooms.map(r => {
+      const match = r.name.match(/\d+/);
+      return match ? parseInt(match[0]) : 0;
+    });
+    nextNum = Math.max(...nums) + 1;
+  }
+
+  document.getElementById('new-room-number').value = nextNum;
+  document.getElementById('add-room-error').classList.add('hidden');
+  document.getElementById('add-room-modal').classList.remove('hidden');
+}
+
+function closeAddRoomModal() {
+  document.getElementById('add-room-modal').classList.add('hidden');
+}
+
+// Action: Create new room
+function createRoom(e) {
+  e.preventDefault();
+  const roomNum = parseInt(document.getElementById('new-room-number').value);
+  const rows = parseInt(document.getElementById('new-room-rows').value);
+  const cols = parseInt(document.getElementById('new-room-cols').value);
+  
+  if (!roomNum) return;
+
+  const roomName = `Phòng chiếu ${roomNum}`;
+
+  // Check unique room number in this branch
+  const exists = ROOMS_DATA.some(r => r.branchId === currentActiveBranchId && r.name === roomName);
+  if (exists) {
+    document.getElementById('add-room-error-msg').textContent = `Số phòng chiếu ${roomNum} đã tồn tại ở cơ sở này.`;
+    document.getElementById('add-room-error').classList.remove('hidden');
+    return;
+  }
+
+  const newId = ROOMS_DATA.length > 0 ? Math.max(...ROOMS_DATA.map(r => r.id)) + 1 : 1;
+  const newRoom = {
+    id: newId,
+    branchId: currentActiveBranchId,
+    name: roomName,
+    rows,
+    cols,
+    layout: {}
+  };
+
+  // Seed default seats (Center rows are VIP)
+  for (let r = 0; r < rows; r++) {
+    const rowChar = String.fromCharCode(65 + r);
+    for (let c = 1; c <= cols; c++) {
+      const key = `${rowChar}:${c}`;
+      if (rows > 5 && r >= Math.floor(rows/2 - 1) && r <= Math.floor(rows/2 + 1)) {
+        newRoom.layout[key] = 'vip';
+      } else {
+        newRoom.layout[key] = 'normal';
+      }
+    }
+  }
+
+  ROOMS_DATA.push(newRoom);
+  localStorage.setItem('cinebook_rooms', JSON.stringify(ROOMS_DATA));
+
+  showToast(`Tạo thành công ${roomName}!`);
+  currentActiveRoomId = newId;
+  closeAddRoomModal();
+  renderRoomList();
+  renderGridEditor();
+}
+
+// Action: Delete room
+function deleteRoom(e, id) {
+  e.stopPropagation();
+  if (confirm("Bạn có chắc chắn muốn xóa phòng chiếu này vĩnh viễn?")) {
+    ROOMS_DATA = ROOMS_DATA.filter(r => r.id !== id);
+    localStorage.setItem('cinebook_rooms', JSON.stringify(ROOMS_DATA));
+    showToast("Đã xóa phòng chiếu!");
+    
+    if (currentActiveRoomId === id) {
+      const branchRooms = ROOMS_DATA.filter(r => r.branchId === currentActiveBranchId);
+      currentActiveRoomId = branchRooms.length > 0 ? branchRooms[0].id : null;
+    }
+    
+    renderRoomList();
+    renderGridEditor();
+  }
+}
+
+// Action: Resize modal open
+function openResizeModal() {
+  const room = ROOMS_DATA.find(r => r.id === currentActiveRoomId);
+  if (!room) return;
+
+  document.getElementById('resize-rows').value = room.rows;
+  document.getElementById('resize-cols').value = room.cols;
+  document.getElementById('resize-modal').classList.remove('hidden');
+}
+
+function closeResizeModal() {
+  document.getElementById('resize-modal').classList.add('hidden');
+}
+
+// Action: Resize layout
+function resizeCurrentRoom(e) {
+  e.preventDefault();
+  const room = ROOMS_DATA.find(r => r.id === currentActiveRoomId);
+  if (!room) return;
+
+  const newRows = parseInt(document.getElementById('resize-rows').value);
+  const newCols = parseInt(document.getElementById('resize-cols').value);
+
+  if (newRows > 15 || newCols > 20) {
+    alert("Kích thước quá lớn. Giới hạn: tối đa 15 hàng x 20 cột.");
+    return;
+  }
+
+  const newLayout = {};
+  for (let r = 0; r < newRows; r++) {
+    const rowChar = String.fromCharCode(65 + r);
+    for (let c = 1; c <= newCols; c++) {
+      const key = `${rowChar}:${c}`;
+      if (room.layout[key]) {
+        newLayout[key] = room.layout[key];
+      } else {
+        newLayout[key] = (r >= 3 && r <= 5) ? 'vip' : 'normal';
+      }
+    }
+  }
+
+  room.rows = newRows;
+  room.cols = newCols;
+  room.layout = newLayout;
+  
+  showToast("Thay đổi kích thước thành công!");
+  closeResizeModal();
+  renderGridEditor();
+}
+
+// Save layout configuration
+function saveLayout() {
+  const room = ROOMS_DATA.find(r => r.id === currentActiveRoomId);
+  if (!room) return;
+
+  localStorage.setItem('cinebook_rooms', JSON.stringify(ROOMS_DATA));
+  showToast("Đã lưu sơ đồ ghế thành công!");
+}
+
+function showToast(text) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = text;
+  
+  toast.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+  toast.classList.add('opacity-100', 'translate-y-0');
+  
+  setTimeout(() => {
+    toast.classList.remove('opacity-100', 'translate-y-0');
+    toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+  }, 2500);
+}
+</script>

@@ -110,6 +110,20 @@ router.get('/api/movies', async (req, res) => {
 });
 
 // ── Admin Routes ──────────────────────────────────────────────────────────────
+// Admin Login
+router.get('/admin/login', (req, res) => {
+    res.render('admin/login', { layout: false, error: null, username: '' });
+});
+
+router.post('/admin/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username === 'admin@gmail.com' && password === 'admin123') {
+        res.redirect('/admin/dashboard');
+    } else {
+        res.render('admin/login', { layout: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác.', username });
+    }
+});
+
 // Admin Dashboard
 router.get('/admin/dashboard', (req, res) => {
     res.render('admin/dashboard', {
@@ -189,9 +203,44 @@ router.get('/admin/bulk-showtime', (req, res) => {
     });
 });
 
-// Redirect /admin to dashboard
+// Admin Movie Management
+router.get('/admin/movies', (req, res) => {
+    res.render('admin/movies', {
+        layout: 'layouts/admin-layout',
+        title: 'Quản lý Phim - CineBook',
+        pageTitle: 'Quản lý Phim',
+        currentPage: 'movies'
+    });
+});
+
+// Admin Room & Seat Management
+router.get('/admin/rooms', (req, res) => {
+    res.render('admin/rooms', {
+        layout: 'layouts/admin-layout',
+        title: 'Quản lý Phòng & Ghế - CineBook',
+        pageTitle: 'Quản lý Phòng & Ghế',
+        currentPage: 'rooms'
+    });
+});
+
+// Admin Transaction Management
+router.get('/admin/transactions', (req, res) => {
+    res.render('admin/transactions', {
+        layout: 'layouts/admin-layout',
+        title: 'Quản lý Giao dịch - CineBook',
+        pageTitle: 'Quản lý Giao dịch',
+        currentPage: 'transactions'
+    });
+});
+
+// Redirect old bookings path to transactions page
+router.get('/admin/bookings', (req, res) => {
+    res.redirect('/admin/transactions');
+});
+
+// Redirect /admin to login
 router.get('/admin', (req, res) => {
-    res.redirect('/admin/dashboard');
+    res.redirect('/admin/login');
 });
 
 // Find your existing path rule inside src/routes/index.js and swap it:
