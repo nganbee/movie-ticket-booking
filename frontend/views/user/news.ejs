@@ -1,0 +1,419 @@
+<!-- News & Promotions Page -->
+<style>
+  .news-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .news-card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+  .news-img-container img { transition: transform 0.5s ease; }
+  .news-card:hover .news-img-container img { transform: scale(1.05); }
+  .news-hero { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
+  .active-tab { background-color: #DC2626; color: white; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25); }
+  .modal-overlay { transition: opacity 0.3s ease; }
+  .modal-container { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+</style>
+
+<!-- ===== HERO SECTION ===== -->
+<div class="news-hero text-white pt-32 pb-24 relative overflow-hidden">
+  <div class="absolute top-0 right-0 w-96 h-96 bg-brand/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+  <div class="absolute bottom-0 left-0 w-80 h-80 bg-red-500/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+  
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="text-center">
+      <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand/20 border border-brand/30 text-brand text-xs font-bold uppercase tracking-widest mb-6 animate-pulse">
+        <i class="fas fa-bullhorn"></i> Tin Tức & Khuyến Mãi
+      </span>
+      <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+        Góc Tin <span class="text-brand">CineBook</span>
+      </h1>
+      <p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+        Cập nhật những thông tin điện ảnh nóng hổi nhất, các sự kiện đặc biệt và chương trình ưu đãi hấp dẫn dành riêng cho bạn.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SEARCH & FILTER BAR ===== -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10 mb-12">
+  <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row gap-4 items-center justify-between">
+    <!-- Search -->
+    <div class="relative w-full md:w-96 flex-shrink-0">
+      <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+      <input type="text" id="user-news-search" oninput="filterNews()" placeholder="Tìm kiếm tin tức, ưu đãi..."
+        class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-brand transition focus:ring-1 focus:ring-brand text-sm font-medium">
+    </div>
+    
+    <!-- Category Tabs -->
+    <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end">
+      <button onclick="changeTab('all', this)" class="news-tab-btn active-tab px-5 py-2.5 rounded-2xl font-bold text-xs border border-transparent transition-all duration-300">
+        Tất cả
+      </button>
+      <button onclick="changeTab('Khuyến Mãi', this)" class="news-tab-btn px-5 py-2.5 rounded-2xl font-bold text-xs border border-slate-200 text-slate-600 hover:border-brand hover:text-brand bg-white transition-all duration-300">
+        🎁 Khuyến mãi
+      </button>
+      <button onclick="changeTab('Tin Phim', this)" class="news-tab-btn px-5 py-2.5 rounded-2xl font-bold text-xs border border-slate-200 text-slate-600 hover:border-brand hover:text-brand bg-white transition-all duration-300">
+        🎬 Tin phim
+      </button>
+      <button onclick="changeTab('Thông Báo', this)" class="news-tab-btn px-5 py-2.5 rounded-2xl font-bold text-xs border border-slate-200 text-slate-600 hover:border-brand hover:text-brand bg-white transition-all duration-300">
+        📢 Thông báo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NEWS CARD GRID ===== -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+  <!-- Loading state -->
+  <div id="news-loading" class="text-center py-20">
+    <i class="fas fa-spinner fa-spin text-4xl text-brand mb-4"></i>
+    <p class="text-slate-400 font-medium">Đang tải tin tức mới nhất...</p>
+  </div>
+
+  <!-- Cards Grid -->
+  <div id="user-news-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+
+  <!-- Empty State -->
+  <div id="user-news-empty" class="hidden text-center py-24 bg-white rounded-3xl border border-slate-200 shadow-sm">
+    <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+      <i class="fas fa-newspaper text-3xl text-slate-400"></i>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800 mb-2">Không tìm thấy bài viết</h3>
+    <p class="text-slate-400 max-w-sm mx-auto">Vui lòng thử tìm kiếm bằng từ khóa khác hoặc chuyển sang danh mục khác.</p>
+  </div>
+</div>
+
+<!-- ===== DETAIL MODAL ===== -->
+<div id="news-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div class="modal-overlay absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="closeNewsModal()"></div>
+
+  <!-- Modal content wrapper -->
+  <div class="modal-container relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl z-10 flex flex-col max-h-[90vh] scale-95 opacity-0 transition-all duration-300">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-8 py-5 border-b border-slate-100 flex-shrink-0">
+      <span id="modal-badge" class="px-3 py-1 rounded-full text-xs font-bold border"></span>
+      <button onclick="closeNewsModal()" class="text-slate-400 hover:text-slate-600 transition text-xl w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="overflow-y-auto flex-1 p-8">
+      <h2 id="modal-title" class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-4 leading-tight"></h2>
+      
+      <!-- Date/Author info -->
+      <div class="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100 text-sm text-slate-500">
+        <div class="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-xs">C</div>
+        <div>
+          <p class="font-bold text-slate-800">Ban biên tập CineBook</p>
+          <p class="text-xs text-slate-400" id="modal-date"></p>
+        </div>
+      </div>
+
+      <!-- Thumbnail -->
+      <div id="modal-img-container" class="mb-6 rounded-2xl overflow-hidden h-64 md:h-80 hidden">
+        <img id="modal-image" src="" alt="News Thumbnail" class="w-full h-full object-cover">
+      </div>
+
+      <!-- Main Body Text -->
+      <div id="modal-content" class="text-slate-600 text-sm md:text-base leading-relaxed whitespace-pre-line prose max-w-none"></div>
+    </div>
+
+    <!-- Footer Action -->
+    <div class="px-8 py-5 border-t border-slate-100 bg-slate-50 rounded-b-3xl flex items-center justify-end flex-shrink-0">
+      <button onclick="closeNewsModal()" class="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700 transition">
+        Đóng lại
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── NEWS SEED DATA ──────────────────────────────
+const NEWS_SEED = [
+  {
+    id: 101,
+    title: '🔥 [CINEBOOK] KHAI TRƯƠNG PHÒNG CHIẾU IMAX TIÊU CHUẨN QUỐC TẾ TẠI LANDMARK 81',
+    content: `CineBook tự hào giới thiệu phòng chiếu IMAX® hoàn toàn mới tại cụm rạp CineBook Landmark 81 từ ngày 15/06/2026! 
+
+🎬 TRẢI NGHIỆM ĐIỆN ẢNH ĐỈNH CAO:
+- Siêu màn hình cong cực đại phủ kín toàn bộ phòng chiếu từ sàn tới trần, tối ưu góc nhìn cho mọi hàng ghế.
+- Máy chiếu laser kép thế hệ mới cho độ tương phản sắc nét, màu sắc rực rỡ vượt trội so với phòng tiêu chuẩn.
+- Hệ thống âm thanh tùy chỉnh đa chiều Dolby Atmos bùng nổ, truyền tải chân thực từng tiếng động dù là nhỏ nhất.
+
+🎁 ƯU ĐÃI KHAI TRƯƠNG ĐẶC BIỆT:
+- Giảm ngay 30% giá vé IMAX cho tất cả các suất chiếu trong tuần đầu tiên (15/06 - 22/06).
+- Tặng 01 ly nước Pepsi phiên bản giới hạn khi mua Combo bắp nước bất kỳ.
+
+📌 Điều kiện áp dụng:
+- Áp dụng cho cả đặt vé online và mua vé trực tiếp tại quầy CineBook Landmark 81.
+- Không áp dụng đồng thời với các chương trình khuyến mãi khác.
+
+Hãy sẵn sàng đón nhận những siêu phẩm điện ảnh sắp tới với chất lượng tuyệt đỉnh nhất tại CineBook Landmark 81! ✨`,
+    type: 'Khuyến Mãi',
+    thumbnail: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80',
+    publishDate: '2026-06-12',
+    status: 'Published'
+  },
+  {
+    id: 102,
+    title: '🍿 THỨ TƯ VUI VẺ — ĐỒNG GIÁ VÉ CHỈ 50.000 VNĐ TOÀN HỆ THỐNG CINEBOOK',
+    content: `Giữa tuần mệt mỏi? Lên lịch giải trí cùng bạn bè tại CineBook ngay thôi vì thứ Tư chính là ngày hội xem phim của chúng mình!
+
+🎉 NỘI DUNG CHƯƠNG TRÌNH:
+- Đồng giá vé 2D chỉ 50.000 VNĐ cho mọi khách hàng.
+- Đồng giá vé 3D chỉ 80.000 VNĐ.
+- Đặc biệt, combo bắp nước siêu ngọt ngào Single Combo chỉ còn 45.000 VNĐ (gồm 1 bắp vừa + 1 nước ngọt vừa).
+
+📌 CHI TIẾT ÁP DỤNG:
+- Áp dụng vào tất cả các ngày thứ Tư hàng tuần.
+- Áp dụng cho mọi suất chiếu (bao gồm cả ghế VIP và suất chiếu sớm Sneak Show).
+- Không áp dụng cho suất chiếu đặc biệt phòng IMAX.
+
+Chúc các bạn có những giây phút thư giãn thật trọn vẹn tại CineBook nhé! 🏆`,
+    type: 'Khuyến Mãi',
+    thumbnail: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&auto=format&fit=crop&q=80',
+    publishDate: '2026-06-10',
+    status: 'Published'
+  },
+  {
+    id: 103,
+    title: '🎬 BOM TẤN "AVATAR 3" CHÍNH THỨC MỞ BÁN VÉ SỚM TẠI CINEBOOK',
+    content: `Hành trình kỳ vĩ trở lại Pandora! Siêu phẩm điện ảnh được mong đợi nhất năm nay - "AVATAR 3" chính thức mở cổng bán vé sớm cho các suất chiếu đầu tiên.
+
+📌 LỊCH CHIẾU KHỞI CHIẾU:
+- Các suất chiếu Sneak Show đặc biệt từ: 18:00 ngày 18/06/2026.
+- Khởi chiếu chính thức trên toàn quốc từ: 19/06/2026.
+- Định dạng chiếu: 2D, 3D và phòng IMAX đặc biệt.
+
+🏆 ĐẶC QUYỀN ĐẶT TRƯỚC VÉ SUẤT IMAX:
+- Nhận ngay 01 poster IMAX độc quyền kích thước A2 nhập khẩu chính hãng.
+- Tham gia chương trình bốc thăm may mắn nhận mô hình nhân vật Avatar tỉ lệ 1:6 cực kỳ tinh xảo.
+
+Vé đang được bán ra rất nhanh, hãy click chọn ghế đẹp và mua vé ngay hôm nay để trở thành những người đầu tiên khám phá đại dương Pandora! 💥`,
+    type: 'Tin Phim',
+    thumbnail: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop&q=80',
+    publishDate: '2026-06-08',
+    status: 'Published'
+  },
+  {
+    id: 104,
+    title: '📢 THÔNG BÁO: ĐIỀU CHỈNH GIỜ HOẠT ĐỘNG DỊP LỄ QUỐC KHÁNH',
+    content: `CineBook xin gửi tới quý khách hàng lịch hoạt động chi tiết trong dịp nghỉ lễ sắp tới để quý khách có thể chủ động sắp xếp thời gian vui chơi giải trí.
+
+⏰ LỊCH MỞ CỬA HỆ THỐNG RẠP CINEBOOK:
+- Toàn bộ các cụm rạp CineBook (Nguyễn Du, Landmark 81) sẽ mở cửa xuyên suốt phục vụ khách hàng.
+- Giờ mở cửa: Từ 08:00 sáng đến 01:00 đêm tiếp theo (tăng ca phục vụ muộn hơn 1.5 tiếng so với ngày thường).
+- Thời gian áp dụng: Từ ngày 01/09/2026 đến hết ngày 04/09/2026.
+
+📌 Lưu ý cho khách hàng đặt vé:
+- Lượng khách dịp lễ thường rất đông, CineBook khuyến khích quý khách nên đặt vé trước qua trang web trực tuyến để giữ được chỗ ngồi ưng ý.
+- Quầy ăn uống sẽ phục vụ đầy đủ combo đặc biệt phục vụ nhóm gia đình.
+
+CineBook chúc quý khách hàng có một kỳ nghỉ lễ thật vui vẻ, đầm ấm bên gia đình và những người thân yêu! ✨`,
+    type: 'Thông Báo',
+    thumbnail: null,
+    publishDate: '2026-06-05',
+    status: 'Published'
+  }
+];
+
+const TYPE_STYLE = {
+  'Khuyến Mãi': { badgeCls: 'bg-green-50 text-green-600 border-green-200', icon: '🎁' },
+  'Tin Phim':   { badgeCls: 'bg-purple-50 text-purple-600 border-purple-200', icon: '🎬' },
+  'Thông Báo':  { badgeCls: 'bg-amber-50 text-amber-600 border-amber-200', icon: '📢' }
+};
+
+let allNews = [];
+let filteredNewsData = [];
+let currentCategory = 'all';
+
+async function fetchNews() {
+  try {
+    // Attempt to fetch from public proxy first
+    const res = await fetch('/api/news');
+    if (res.ok) {
+      const data = await res.json();
+      allNews = data.filter(n => n.status === 'Published');
+    } else {
+      // Fallback to admin proxy just in case
+      const adminRes = await fetch('/api/admin/news');
+      if (adminRes.ok) {
+        const data = await adminRes.json();
+        allNews = data.filter(n => n.status === 'Published');
+      } else {
+        allNews = NEWS_SEED;
+      }
+    }
+  } catch (err) {
+    console.warn('API error, falling back to seed data:', err);
+    allNews = NEWS_SEED;
+  }
+  
+  // Sort news by publishDate descending
+  allNews.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
+  
+  filteredNewsData = [...allNews];
+  
+  document.getElementById('news-loading').classList.add('hidden');
+  document.getElementById('user-news-grid').classList.remove('hidden');
+  
+  renderNewsCards();
+}
+
+function renderNewsCards() {
+  const grid = document.getElementById('user-news-grid');
+  const empty = document.getElementById('user-news-empty');
+  
+  if (filteredNewsData.length === 0) {
+    grid.classList.add('hidden');
+    empty.classList.remove('hidden');
+    return;
+  }
+  
+  empty.classList.add('hidden');
+  grid.classList.remove('hidden');
+  
+  grid.innerHTML = filteredNewsData.map(n => {
+    const style = TYPE_STYLE[n.type] || { badgeCls: 'bg-slate-100 text-slate-600 border-slate-200', icon: '📰' };
+    const dateFormatted = new Date(n.publishDate).toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    
+    const plainExcerpt = n.content.replace(/[#*_\-\n]/g, ' ');
+    const excerpt = plainExcerpt.length > 130 ? plainExcerpt.slice(0, 130) + '...' : plainExcerpt;
+
+    return `
+      <div class="news-card bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <!-- Image Cover -->
+        ${n.thumbnail 
+          ? `<div class="news-img-container relative h-48 overflow-hidden flex-shrink-0">
+               <img src="${n.thumbnail}" alt="${n.title}" class="w-full h-full object-cover">
+               <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+               <span class="absolute top-4 left-4 text-[10px] font-extrabold px-3 py-1 rounded-full bg-white/95 border ${style.badgeCls} shadow-sm">
+                 ${style.icon} ${n.type}
+               </span>
+             </div>`
+          : `<div class="p-6 pb-2 flex-shrink-0">
+               <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-slate-50 border ${style.badgeCls}">
+                 ${style.icon} ${n.type}
+               </span>
+             </div>`
+        }
+
+        <!-- Card Body -->
+        <div class="p-6 flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold mb-3">
+              <i class="far fa-calendar-alt text-brand"></i>
+              <span>${dateFormatted}</span>
+            </div>
+            
+            <h3 class="font-extrabold text-slate-800 text-base mb-3 leading-snug line-clamp-2 hover:text-brand transition cursor-pointer" onclick="openNewsModal(${n.id})">
+              ${n.title}
+            </h3>
+            
+            <p class="text-slate-500 text-xs leading-relaxed line-clamp-3 mb-6 font-medium">
+              ${excerpt}
+            </p>
+          </div>
+          
+          <button onclick="openNewsModal(${n.id})" class="w-full border border-slate-200 hover:border-brand hover:bg-brand hover:text-white text-slate-700 py-3 rounded-xl font-bold text-xs transition-all duration-300 flex items-center justify-center gap-2 group">
+            Xem Chi Tiết <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function changeTab(category, btn) {
+  currentCategory = category;
+  
+  // Update active tab buttons styling
+  document.querySelectorAll('.news-tab-btn').forEach(b => {
+    b.className = 'news-tab-btn px-5 py-2.5 rounded-2xl font-bold text-xs border border-slate-200 text-slate-600 hover:border-brand hover:text-brand bg-white transition-all duration-300';
+  });
+  btn.className = 'news-tab-btn active-tab px-5 py-2.5 rounded-2xl font-bold text-xs border border-transparent transition-all duration-300';
+  
+  filterNews();
+}
+
+function filterNews() {
+  const searchInput = document.getElementById('user-news-search').value.toLowerCase();
+  
+  filteredNewsData = allNews.filter(n => {
+    const matchesCategory = currentCategory === 'all' || n.type === currentCategory;
+    const matchesSearch = !searchInput || 
+                          n.title.toLowerCase().includes(searchInput) || 
+                          n.content.toLowerCase().includes(searchInput);
+    return matchesCategory && matchesSearch;
+  });
+  
+  renderNewsCards();
+}
+
+// ===== MODAL UTILITIES =====
+function openNewsModal(newsId) {
+  const item = allNews.find(n => n.id === newsId);
+  if (!item) return;
+
+  const style = TYPE_STYLE[item.type] || { badgeCls: 'bg-slate-100 text-slate-600 border-slate-200', icon: '📰' };
+  
+  // Set modal fields
+  const badge = document.getElementById('modal-badge');
+  badge.className = `px-3 py-1 rounded-full text-xs font-bold border ${style.badgeCls}`;
+  badge.innerHTML = `${style.icon} ${item.type}`;
+  
+  document.getElementById('modal-title').textContent = item.title;
+  
+  const dateFormatted = new Date(item.publishDate).toLocaleDateString('vi-VN', {
+    weekday: 'long',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+  document.getElementById('modal-date').textContent = `${dateFormatted} · Đăng bởi Admin`;
+
+  const imgContainer = document.getElementById('modal-img-container');
+  const modalImage = document.getElementById('modal-image');
+  if (item.thumbnail) {
+    modalImage.src = item.thumbnail;
+    imgContainer.classList.remove('hidden');
+  } else {
+    imgContainer.classList.add('hidden');
+  }
+  
+  document.getElementById('modal-content').textContent = item.content;
+
+  // Show modal
+  const modal = document.getElementById('news-detail-modal');
+  modal.classList.remove('hidden');
+  
+  // Trigger animations
+  setTimeout(() => {
+    modal.querySelector('.modal-overlay').classList.remove('opacity-0');
+    modal.querySelector('.modal-overlay').classList.add('opacity-100');
+    modal.querySelector('.modal-container').classList.remove('scale-95', 'opacity-0');
+    modal.querySelector('.modal-container').classList.add('scale-100', 'opacity-100');
+  }, 10);
+  
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNewsModal() {
+  const modal = document.getElementById('news-detail-modal');
+  
+  // Fade out animations
+  modal.querySelector('.modal-overlay').classList.remove('opacity-100');
+  modal.querySelector('.modal-overlay').classList.add('opacity-0');
+  modal.querySelector('.modal-container').classList.remove('scale-100', 'opacity-100');
+  modal.querySelector('.modal-container').classList.add('scale-95', 'opacity-0');
+  
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }, 300);
+}
+
+document.addEventListener('DOMContentLoaded', fetchNews);
+</script>

@@ -1,0 +1,498 @@
+<!-- Admin Showtimes Management Page -->
+<div>
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <h2 class="text-2xl font-extrabold text-slate-800">Quản lý Lịch Chiếu</h2>
+      <p class="text-slate-400 text-sm mt-1">Xem và quản lý tất cả các suất chiếu đang hoạt động trong hệ thống.</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="/admin/bulk-showtime" class="flex items-center gap-2 bg-brand text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 transition shadow-md shadow-brand/20">
+        <i class="fas fa-layer-group"></i> Tạo Lịch Hàng Loạt
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="stats-row">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+        <i class="fas fa-calendar-day text-blue-500"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-400 font-bold uppercase">Hôm nay</p>
+        <p class="text-xl font-extrabold text-slate-800" id="stat-today">—</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+        <i class="fas fa-check-circle text-emerald-500"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-400 font-bold uppercase">Đang chiếu</p>
+        <p class="text-xl font-extrabold text-slate-800" id="stat-showing">—</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+        <i class="fas fa-clock text-amber-500"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-400 font-bold uppercase">Sắp chiếu</p>
+        <p class="text-xl font-extrabold text-slate-800" id="stat-upcoming">—</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
+        <i class="fas fa-calendar-times text-rose-500"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-400 font-bold uppercase">Đã kết thúc</p>
+        <p class="text-xl font-extrabold text-slate-800" id="stat-ended">—</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Search Controls -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-6">
+    <div class="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+      <!-- Search -->
+      <div class="relative flex-1">
+        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+        <input id="st-search" type="text" placeholder="Tìm theo tên phim, phòng chiếu..." oninput="renderShowtimes()"
+          class="w-full border border-slate-200 bg-slate-50 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+      </div>
+
+      <!-- Date Filter -->
+      <div class="flex items-center gap-2">
+        <label class="text-xs font-bold text-slate-500 whitespace-nowrap">Ngày:</label>
+        <input id="st-date-filter" type="date" onchange="renderShowtimes()"
+          class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand transition">
+        <button onclick="clearDateFilter()" class="text-slate-400 hover:text-slate-600 transition px-2" title="Xóa bộ lọc ngày">
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Format filter -->
+      <div class="flex gap-1.5 items-center flex-wrap">
+        <label class="text-xs font-bold text-slate-500 uppercase whitespace-nowrap">Định dạng:</label>
+        <button onclick="setFormatFilter('all', this)" class="fmt-filter-btn active text-xs font-bold px-3 py-2 rounded-xl border border-brand bg-brand text-white transition">Tất cả</button>
+        <button onclick="setFormatFilter('2D', this)" class="fmt-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">2D</button>
+        <button onclick="setFormatFilter('3D', this)" class="fmt-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">3D</button>
+        <button onclick="setFormatFilter('IMAX', this)" class="fmt-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">IMAX</button>
+      </div>
+
+      <!-- Status filter -->
+      <div class="flex gap-1.5">
+        <button onclick="setStatusFilter('all', this)" class="st-filter-btn active text-xs font-bold px-3 py-2 rounded-xl border border-brand bg-brand text-white transition">Tất cả</button>
+        <button onclick="setStatusFilter('upcoming', this)" class="st-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">🟡 Sắp chiếu</button>
+        <button onclick="setStatusFilter('showing', this)" class="st-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">🟢 Đang chiếu</button>
+        <button onclick="setStatusFilter('ended', this)" class="st-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition">🔴 Kết thúc</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Table Panel -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <!-- Loading state -->
+    <div id="st-loading" class="py-20 text-center">
+      <i class="fas fa-spinner fa-spin text-3xl text-slate-300 mb-3"></i>
+      <p class="text-slate-400 text-sm">Đang tải dữ liệu lịch chiếu...</p>
+    </div>
+
+    <div id="st-table-wrap" class="hidden overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <th class="px-5 py-4">#</th>
+            <th class="px-5 py-4">Bộ Phim</th>
+            <th class="px-5 py-4">Phòng Chiếu</th>
+            <th class="px-5 py-4">Ngày Chiếu</th>
+            <th class="px-5 py-4">Giờ Bắt Đầu</th>
+            <th class="px-5 py-4">Giờ Kết Thúc</th>
+            <th class="px-5 py-4 text-right">Giá Vé</th>
+            <th class="px-5 py-4 text-center">Loại Ngày</th>
+            <th class="px-5 py-4 text-center">Trạng Thái</th>
+            <th class="px-5 py-4 text-center">Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody id="st-tbody" class="divide-y divide-slate-100 text-sm text-slate-700"></tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div id="st-empty" class="hidden py-24 text-center">
+      <i class="fas fa-calendar-times text-5xl text-slate-200 mb-4"></i>
+      <p class="text-slate-400 font-medium">Không tìm thấy suất chiếu nào</p>
+      <p class="text-slate-300 text-xs mt-1">Thử thay đổi bộ lọc hoặc tạo lịch mới</p>
+      <a href="/admin/bulk-showtime" class="inline-flex items-center gap-2 mt-4 bg-brand text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-700 transition">
+        <i class="fas fa-plus"></i> Tạo Lịch Chiếu
+      </a>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div id="st-footer" class="hidden px-6 py-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-medium flex-wrap gap-2">
+      <span id="st-summary">Hiển thị 0 suất chiếu</span>
+      <div class="flex items-center gap-1" id="st-pagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md z-10 overflow-hidden">
+    <div class="p-6">
+      <div class="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-trash text-rose-500 text-lg"></i>
+      </div>
+      <h3 class="font-extrabold text-slate-800 text-center text-base mb-2">Xóa Suất Chiếu?</h3>
+      <p class="text-slate-500 text-sm text-center mb-1" id="delete-modal-movie">Phim: —</p>
+      <p class="text-slate-400 text-xs text-center" id="delete-modal-info">—</p>
+    </div>
+    <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+      <button onclick="closeDeleteModal()" class="flex-1 py-2.5 border border-slate-200 bg-white text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition">Hủy bỏ</button>
+      <button onclick="confirmDelete()" class="flex-1 py-2.5 bg-rose-500 text-white rounded-xl text-sm font-bold hover:bg-rose-600 transition shadow-md">Xóa suất chiếu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let ALL_SHOWTIMES = [];
+let currentFormatFilter = 'all';
+let currentStatusFilter = 'all';
+let deleteTarget = null;
+
+const PAGE_SIZE = 15;
+let currentPage = 1;
+
+// ─── Color mappings ──────────────────────────────────────────────
+const FORMAT_STYLE = {
+  '2D':   'bg-slate-100 text-slate-600',
+  '3D':   'bg-blue-50 text-blue-600 border border-blue-200',
+  'IMAX': 'bg-amber-50 text-amber-700 border border-amber-200'
+};
+
+const DAY_TYPE_STYLE = {
+  'Weekday': 'bg-slate-50 text-slate-500',
+  'Weekend': 'bg-violet-50 text-violet-600 border border-violet-200'
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────
+function getShowtimeStatus(start, end) {
+  const now = new Date();
+  const s = new Date(start);
+  const e = new Date(end);
+  if (now < s) return 'upcoming';
+  if (now >= s && now <= e) return 'showing';
+  return 'ended';
+}
+
+function formatDateVN(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  const days = ['CN','T2','T3','T4','T5','T6','T7'];
+  return `${d.toLocaleDateString('vi-VN')} (${days[d.getDay()]})`;
+}
+
+function formatTimeVN(isoStr) {
+  if (!isoStr) return '—';
+  const d = new Date(isoStr);
+  return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function formatDateISO(isoStr) {
+  if (!isoStr) return '';
+  return new Date(isoStr).toISOString().split('T')[0];
+}
+
+// ─── Load data from API ──────────────────────────────────────────
+async function loadShowtimes() {
+  try {
+    const res = await fetch('http://localhost:8000/showtimes/?limit=500');
+    if (res.ok) {
+      const data = await res.json();
+      const items = data.items || data;
+      // Enrich with movie/room names if needed
+      ALL_SHOWTIMES = items.map((s, i) => ({
+        idx: i + 1,
+        id: s.showtime_id || s.id || i + 1,
+        movie: s.movie_title || s.movie?.title || `Phim #${s.movie_id}`,
+        room: s.room_name || s.room?.name || `Phòng ${s.room_id}`,
+        theater: s.theater_name || s.room?.theater_name || '',
+        format: s.format || '2D',
+        start_time: s.start_time,
+        end_time: s.end_time,
+        price: s.price || s.ticket_price || 0,
+        day_type: s.day_type || 'Weekday'
+      }));
+    } else {
+      useSeedData();
+    }
+  } catch(e) {
+    console.warn('API unavailable, using seed data:', e.message);
+    useSeedData();
+  }
+
+  updateStats();
+  renderShowtimes();
+  document.getElementById('st-loading').classList.add('hidden');
+}
+
+function useSeedData() {
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  
+  const seedMovies = [
+    { title: 'Lật Mặt 7: Một Điều Ước', room: 'Phòng chiếu 1', theater: 'CineBook Nguyễn Du', format: '2D', price: 80000 },
+    { title: 'Avengers: Secret Wars', room: 'Phòng chiếu 2', theater: 'CineBook Nguyễn Du', format: '3D', price: 95000 },
+    { title: 'Dune: Phần Hai', room: 'Phòng chiếu 1', theater: 'CineBook Landmark 81', format: 'IMAX', price: 120000 },
+    { title: 'Mai', room: 'Phòng chiếu 3', theater: 'CineBook Nguyễn Du', format: '2D', price: 75000 },
+    { title: 'Inside Out 2', room: 'Phòng chiếu 2', theater: 'CineBook Landmark 81', format: '3D', price: 90000 },
+  ];
+
+  const times = ['08:30','10:00','13:00','15:30','18:00','20:30'];
+  let idx = 1;
+  ALL_SHOWTIMES = [];
+  
+  for (let d = -1; d <= 3; d++) {
+    const dateObj = new Date(now);
+    dateObj.setDate(dateObj.getDate() + d);
+    const dateStr = dateObj.toISOString().split('T')[0];
+    const dayOfWeek = dateObj.getDay();
+    const dayType = (dayOfWeek === 0 || dayOfWeek === 6) ? 'Weekend' : 'Weekday';
+
+    seedMovies.forEach(m => {
+      times.slice(0, 3).forEach(t => {
+        const startDT = new Date(`${dateStr}T${t}:00`);
+        const endDT = new Date(startDT.getTime() + 135 * 60000);
+        ALL_SHOWTIMES.push({
+          idx: idx,
+          id: idx,
+          movie: m.title,
+          room: m.room,
+          theater: m.theater,
+          format: m.format,
+          start_time: startDT.toISOString(),
+          end_time: endDT.toISOString(),
+          price: m.price,
+          day_type: dayType
+        });
+        idx++;
+      });
+    });
+  }
+}
+
+// ─── Stats ────────────────────────────────────────────────────────
+function updateStats() {
+  const today = new Date().toISOString().split('T')[0];
+  const todayItems = ALL_SHOWTIMES.filter(s => formatDateISO(s.start_time) === today);
+  const showingItems = ALL_SHOWTIMES.filter(s => getShowtimeStatus(s.start_time, s.end_time) === 'showing');
+  const upcomingItems = ALL_SHOWTIMES.filter(s => getShowtimeStatus(s.start_time, s.end_time) === 'upcoming');
+  const endedItems = ALL_SHOWTIMES.filter(s => getShowtimeStatus(s.start_time, s.end_time) === 'ended');
+
+  document.getElementById('stat-today').textContent = todayItems.length;
+  document.getElementById('stat-showing').textContent = showingItems.length;
+  document.getElementById('stat-upcoming').textContent = upcomingItems.length;
+  document.getElementById('stat-ended').textContent = endedItems.length;
+}
+
+// ─── Render ───────────────────────────────────────────────────────
+function renderShowtimes() {
+  const search = document.getElementById('st-search').value.toLowerCase().trim();
+  const dateFilter = document.getElementById('st-date-filter').value;
+
+  const filtered = ALL_SHOWTIMES.filter(s => {
+    const matchSearch = !search ||
+      s.movie.toLowerCase().includes(search) ||
+      s.room.toLowerCase().includes(search) ||
+      s.theater.toLowerCase().includes(search);
+    
+    const matchFormat = currentFormatFilter === 'all' || s.format === currentFormatFilter;
+    const matchStatus = currentStatusFilter === 'all' || getShowtimeStatus(s.start_time, s.end_time) === currentStatusFilter;
+    const matchDate = !dateFilter || formatDateISO(s.start_time) === dateFilter;
+    
+    return matchSearch && matchFormat && matchStatus && matchDate;
+  });
+
+  // Sort by start_time asc
+  filtered.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
+  const tbody = document.getElementById('st-tbody');
+  const empty = document.getElementById('st-empty');
+  const wrap = document.getElementById('st-table-wrap');
+  const footer = document.getElementById('st-footer');
+  const summary = document.getElementById('st-summary');
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = 1;
+
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  summary.textContent = `Hiển thị ${filtered.length} suất chiếu`;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    wrap.classList.add('hidden');
+    empty.classList.remove('hidden');
+    footer.classList.add('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  wrap.classList.remove('hidden');
+  footer.classList.remove('hidden');
+
+  renderPagination(filtered.length, totalPages);
+
+  tbody.innerHTML = paged.map((s, i) => {
+    const status = getShowtimeStatus(s.start_time, s.end_time);
+    let statusBadge = '';
+    if (status === 'showing') {
+      statusBadge = `<span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Đang chiếu</span>`;
+    } else if (status === 'upcoming') {
+      statusBadge = `<span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-200"><i class="fas fa-clock text-[8px]"></i>Sắp chiếu</span>`;
+    } else {
+      statusBadge = `<span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-slate-100 text-slate-400">Kết thúc</span>`;
+    }
+
+    const fmtStyle = FORMAT_STYLE[s.format] || 'bg-slate-100 text-slate-600';
+    const dtStyle = DAY_TYPE_STYLE[s.day_type] || 'bg-slate-50 text-slate-500';
+    const dtLabel = s.day_type === 'Weekend' ? 'Cuối tuần' : 'Ngày thường';
+
+    return `
+      <tr class="hover:bg-slate-50 transition-colors group">
+        <td class="px-5 py-3.5 text-slate-400 text-xs font-mono">${String((currentPage - 1) * PAGE_SIZE + i + 1).padStart(3, '0')}</td>
+        <td class="px-5 py-3.5">
+          <p class="font-bold text-slate-800 text-sm">${s.movie}</p>
+          ${s.theater ? `<p class="text-[10px] text-slate-400 mt-0.5"><i class="fas fa-map-marker-alt mr-1"></i>${s.theater}</p>` : ''}
+        </td>
+        <td class="px-5 py-3.5">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-slate-700 font-medium">${s.room}</span>
+            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full ${fmtStyle}">${s.format}</span>
+          </div>
+        </td>
+        <td class="px-5 py-3.5">
+          <span class="text-sm font-semibold text-slate-700">${formatDateVN(s.start_time)}</span>
+        </td>
+        <td class="px-5 py-3.5">
+          <span class="text-sm font-extrabold text-brand">${formatTimeVN(s.start_time)}</span>
+        </td>
+        <td class="px-5 py-3.5">
+          <span class="text-sm font-semibold text-slate-600">${formatTimeVN(s.end_time)}</span>
+        </td>
+        <td class="px-5 py-3.5 text-right">
+          <span class="font-extrabold text-slate-800 text-sm">${s.price > 0 ? s.price.toLocaleString('vi-VN') + '₫' : '—'}</span>
+        </td>
+        <td class="px-5 py-3.5 text-center">
+          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${dtStyle}">${dtLabel}</span>
+        </td>
+        <td class="px-5 py-3.5 text-center">${statusBadge}</td>
+        <td class="px-5 py-3.5 text-center">
+          <div class="flex items-center gap-2 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="openDeleteModal(${s.id}, '${s.movie.replace(/'/g,"\\'")}', '${formatTimeVN(s.start_time)} ${formatDateVN(s.start_time)}')"
+              class="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition text-xs"
+              title="Xóa suất chiếu">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ─── Pagination ───────────────────────────────────────────────────
+function renderPagination(total, totalPages) {
+  const container = document.getElementById('st-pagination');
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+  let html = `<button onclick="goPage(${currentPage - 1})" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 flex items-center justify-center transition ${currentPage === 1 ? 'opacity-40 pointer-events-none' : ''}"><i class="fas fa-chevron-left text-[10px]"></i></button>`;
+
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)) {
+      html += `<button onclick="goPage(${p})" class="w-8 h-8 rounded-lg ${p === currentPage ? 'bg-brand text-white' : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-500'} font-bold flex items-center justify-center transition text-xs">${p}</button>`;
+    } else if (p === currentPage - 2 || p === currentPage + 2) {
+      html += `<span class="text-slate-400 text-xs px-1">…</span>`;
+    }
+  }
+
+  html += `<button onclick="goPage(${currentPage + 1})" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 flex items-center justify-center transition ${currentPage === totalPages ? 'opacity-40 pointer-events-none' : ''}"><i class="fas fa-chevron-right text-[10px]"></i></button>`;
+  container.innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  renderShowtimes();
+}
+
+// ─── Filters ──────────────────────────────────────────────────────
+function setFormatFilter(fmt, btn) {
+  currentFormatFilter = fmt;
+  document.querySelectorAll('.fmt-filter-btn').forEach(b => {
+    b.className = 'fmt-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition';
+  });
+  btn.className = 'fmt-filter-btn active text-xs font-bold px-3 py-2 rounded-xl border border-brand bg-brand text-white transition';
+  currentPage = 1;
+  renderShowtimes();
+}
+
+function setStatusFilter(status, btn) {
+  currentStatusFilter = status;
+  document.querySelectorAll('.st-filter-btn').forEach(b => {
+    b.className = 'st-filter-btn text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition';
+  });
+  btn.className = 'st-filter-btn active text-xs font-bold px-3 py-2 rounded-xl border border-brand bg-brand text-white transition';
+  currentPage = 1;
+  renderShowtimes();
+}
+
+function clearDateFilter() {
+  document.getElementById('st-date-filter').value = '';
+  renderShowtimes();
+}
+
+// ─── Delete modal ─────────────────────────────────────────────────
+function openDeleteModal(id, movie, info) {
+  deleteTarget = id;
+  document.getElementById('delete-modal-movie').textContent = `Phim: ${movie}`;
+  document.getElementById('delete-modal-info').textContent = `Suất chiếu: ${info}`;
+  document.getElementById('delete-modal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.add('hidden');
+  deleteTarget = null;
+}
+
+async function confirmDelete() {
+  if (!deleteTarget) return;
+  try {
+    const token = localStorage.getItem('access_token') || '';
+    const res = await fetch(`http://localhost:8000/showtimes/${deleteTarget}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok || res.status === 204) {
+      ALL_SHOWTIMES = ALL_SHOWTIMES.filter(s => s.id !== deleteTarget);
+      updateStats();
+      renderShowtimes();
+    }
+  } catch(e) {
+    // Simulated delete for demo
+    ALL_SHOWTIMES = ALL_SHOWTIMES.filter(s => s.id !== deleteTarget);
+    updateStats();
+    renderShowtimes();
+  }
+  closeDeleteModal();
+}
+
+// ─── Init ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('st-date-filter').value = today;
+  loadShowtimes();
+});
+</script>
