@@ -84,6 +84,38 @@ router.get('/movies', async (req, res) => {
     });
 });
 
+// Cinema Locations page
+router.get('/cinemas', (req, res) => {
+    res.render('user/cinemas', {
+        title: 'Rạp Chiếu - CineBook',
+        hideNavbar: false
+    });
+});
+
+// News & Promotions page
+router.get('/news', (req, res) => {
+    res.render('user/news', {
+        title: 'Tin Tức & Khuyến Mãi - CineBook',
+        hideNavbar: false
+    });
+});
+
+// API Proxy: Trả về danh sách tin tức từ backend cho client-side fetch
+router.get('/api/news', async (req, res) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/news/`);
+        if (!response.ok) {
+            return res.status(response.status).json({ error: 'Backend error' });
+        }
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error proxying /api/news:', error);
+        res.status(500).json({ error: 'Không thể kết nối tới backend' });
+    }
+});
+
+
 // API Proxy: Trả về danh sách phim từ backend cho client-side fetch
 router.get('/api/movies', async (req, res) => {
     try {
@@ -200,6 +232,16 @@ router.get('/admin/bulk-showtime', (req, res) => {
         title: 'Tạo Lịch Chiếu Hàng Loạt - CineBook',
         pageTitle: 'Tạo Lịch Chiếu Hàng Loạt',
         currentPage: 'bulk-showtime'
+    });
+});
+
+// Admin Showtimes Management
+router.get('/admin/showtimes', (req, res) => {
+    res.render('admin/showtimes', {
+        layout: 'layouts/admin-layout',
+        title: 'Lịch Chiếu - CineBook',
+        pageTitle: 'Quản lý Lịch Chiếu',
+        currentPage: 'showtimes'
     });
 });
 
