@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     # Ngrok SDK
     NGROK_AUTHTOKEN: str = ""
 
+    # ── AI / Groq + HuggingFace ──────────────────────────────────
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    EMBED_MODEL: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    FAISS_INDEX_PATH: str = "faiss_index"
+
     class Config:
         env_file = ".env"
         extra = "allow"  # Cho phép các biến môi trường khác không khai báo

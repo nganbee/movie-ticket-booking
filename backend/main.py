@@ -9,9 +9,11 @@ from src.models.news import MovieNewsTable, PromotionTable, UserNotificationTabl
 from src.models.user import UserTable  # Auth & User tables
 from src.models.theater import TheaterTable, RoomTable, SeatTable, ShowtimeTable, ShowSeatTable, PricingRuleTable
 from src.models.booking import BookingTable, PaymentTable, BookingItemTable, ETicketTable
+from src.models.ai_chat import AIConversationTable, AIMessageTable  # AI tables
 from src.models.showtime import ShowtimeTable, RoomTable, TheaterTable  # Showtime tables
 from src.routes import movies, news, auth, users, seats, bookings, payments, showtimes, theaters
 from src.routes import analytics
+from src.routes import ai as ai_router
 
 from src.config.settings import settings
 import ngrok
@@ -29,11 +31,12 @@ async def lifespan(app: FastAPI):
             listener = await ngrok.forward(
                 "localhost:8000", 
                 authtoken=settings.NGROK_AUTHTOKEN,
-                domain="gush-unafraid-regain.ngrok-free.dev"
+                domain="gush-unafraid-regain.ngrok-free.dev",
+                response_header_add=["ngrok-skip-browser-warning: true"]
             )
             print(f"Ngrok tunnel opened at: {listener.url()}")
         except Exception as e:
-            print(f"Lỗi khởi tạo ngrok: {e}")
+            print(f"[WARNING] Ngrok init failed: {e}")
             
     # Bật Background Sweeper dọn dẹp ghế quá hạn
     import asyncio
@@ -86,3 +89,6 @@ app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
 
 # ── Theaters routes ──────────────────────────────────────────────────────────
 app.include_router(theaters.router, prefix="/theaters", tags=["Theaters"])
+
+# ── AI Chatbot routes ─────────────────────────────────────────────────────────
+app.include_router(ai_router.router, prefix="/ai", tags=["AI Chatbot"])

@@ -84,6 +84,38 @@ router.get('/movies', async (req, res) => {
     });
 });
 
+// Cinema Locations page
+router.get('/cinemas', (req, res) => {
+    res.render('user/cinemas', {
+        title: 'Rạp Chiếu - CineBook',
+        hideNavbar: false
+    });
+});
+
+// News & Promotions page
+router.get('/news', (req, res) => {
+    res.render('user/news', {
+        title: 'Tin Tức & Khuyến Mãi - CineBook',
+        hideNavbar: false
+    });
+});
+
+// API Proxy: Trả về danh sách tin tức từ backend cho client-side fetch
+router.get('/api/news', async (req, res) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/news/`);
+        if (!response.ok) {
+            return res.status(response.status).json({ error: 'Backend error' });
+        }
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error proxying /api/news:', error);
+        res.status(500).json({ error: 'Không thể kết nối tới backend' });
+    }
+});
+
+
 // API Proxy: Trả về danh sách phim từ backend cho client-side fetch
 router.get('/api/movies', async (req, res) => {
     try {
@@ -106,6 +138,52 @@ router.get('/api/movies', async (req, res) => {
     } catch (error) {
         console.error('Error proxying /api/movies:', error);
         res.status(500).json({ error: 'Không thể kết nối tới backend' });
+    }
+});
+
+// API Proxy: AI chatbot, conversation history, status and admin index rebuild
+router.all('/api/ai*', async (req, res) => {
+    try {
+        const backendPath = req.originalUrl.replace(/^\/api/, '');
+        const headers = { 'Content-Type': 'application/json' };
+        const authHeader = req.headers['authorization'];
+        if (authHeader) headers.Authorization = authHeader;
+
+        const options = {
+            method: req.method,
+            headers
+        };
+
+        if (!['GET', 'HEAD'].includes(req.method) && Object.keys(req.body || {}).length > 0) {
+            options.body = JSON.stringify(req.body);
+        }
+
+        const response = await fetch(`${API_BASE_URL}${backendPath}`, options);
+        if (response.status === 204) return res.status(204).send();
+
+        const data = await response.json().catch(() => ({}));
+        return res.status(response.status).json(data);
+    } catch (error) {
+        console.error('Error proxying AI API:', error);
+        return res.status(503).json({
+            detail: 'AI service hiện không khả dụng. Vui lòng thử lại sau.'
+        });
+    }
+});
+
+// API Proxy: Public showtimes used by chatbot movie recommendations
+router.get('/api/showtimes', async (req, res) => {
+    try {
+        const params = new URLSearchParams();
+        if (req.query.movie_id) params.set('movie_id', req.query.movie_id);
+        if (req.query.date) params.set('date', req.query.date);
+
+        const response = await fetch(`${API_BASE_URL}/showtimes/?${params.toString()}`);
+        const data = await response.json().catch(() => ([]));
+        return res.status(response.status).json(data);
+    } catch (error) {
+        console.error('Error proxying showtimes API:', error);
+        return res.status(503).json({ detail: 'Không thể tải lịch chiếu.' });
     }
 });
 
@@ -200,6 +278,16 @@ router.get('/admin/bulk-showtime', (req, res) => {
         title: 'Tạo Lịch Chiếu Hàng Loạt - CineBook',
         pageTitle: 'Tạo Lịch Chiếu Hàng Loạt',
         currentPage: 'bulk-showtime'
+    });
+});
+
+// Admin Showtimes Management
+router.get('/admin/showtimes', (req, res) => {
+    res.render('admin/showtimes', {
+        layout: 'layouts/admin-layout',
+        title: 'Lịch Chiếu - CineBook',
+        pageTitle: 'Quản lý Lịch Chiếu',
+        currentPage: 'showtimes'
     });
 });
 

@@ -1,0 +1,123 @@
+BUG REPORT - TC12: Sau thanh toán VNPAY bị chặn bởi trang cảnh báo của ngrok
+=============================================================================
+
+## Mô tả hiện tượng
+
+Sau khi thanh toán thành công trên VNPAY Sandbox, trình duyệt hiển thị trang:
+
+  "You are about to visit: gush-unafraid-regain.ngrok-free.dev
+   This website is served for free through ngrok.com..."
+
+Với nút "Visit Site" và không tự redirect về trang Receipt.
+Chạy lại nhiều lần vẫn ra trang này. Dữ liệu vé vẫn đúng (đã thanh toán).
+
+===========================================================================
+## Nguyên nhân
+===========================================================================
+
+Đây KHÔNG phải lỗi frontend hay backend. Đây là tính năng bảo vệ của
+ngrok Free Tier.
+
+Khi trình duyệt người dùng mở một URL ngrok, ngrok hiển thị trang cảnh báo
+interstitial trước khi cho phép truy cập. Trang này xuất hiện với MỌI trình
+duyệt khi truy cập ngrok free URL.
+
+IPN (server-to-server): VNPAY server gọi thẳng → không bị chặn ✅
+Return URL (browser):   Trình duyệt người dùng → bị chặn bởi trang warning ❌
+
+Code ngrok trong main.py thiếu cấu hình bypass:
+
+  # TRƯỚC (bị chặn):
+  listener = await ngrok.forward(
+      "localhost:8000",
+      authtoken=settings.NGROK_AUTHTOKEN,
+      domain="gush-unafraid-regain.ngrok-free.dev"
+  )
+
+  # SAU (đã fix):
+  listener = await ngrok.forward(
+      "localhost:8000",
+      authtoken=settings.NGROK_AUTHTOKEN,
+      domain="gush-unafraid-regain.ngrok-free.dev",
+      response_header_add=["ngrok-skip-browser-warning: true"]  ← đã thêm
+  )
+
+Đã fix trong main.py. Restart backend để áp dụng.
+
+Loại lỗi : Lỗi cấu hình ngrok (Configuration Bug)
+Mức độ   : Trung bình — ảnh hưởng UX sau thanh toán, không mất dữ liệu
+
+
+===========================================================================
+BUG REPORT - TC13: Nhấn "Quay lại" trên VNPAY không hoàn trả ghế về trống
+===========================================================================
+
+## Mô tả hiện tượng
+
+Khi người dùng đang ở trang VNPAY Sandbox và thoát ra bằng 2 cách khác nhau:
+
+  Cách A — Nhấn "Hủy thanh toán":
+    → Hệ thống tự động quay về trang Profile
+    → Ghế được hoàn trả về trạng thái trống ✅
+
+  Cách B — Nhấn "← Quay lại" (back navigation):
+    → Trình duyệt điều hướng ngược lại
+    → Ghế KHÔNG được hoàn trả — vẫn ở trạng thái đã giữ ❌
+    → Người dùng phải chờ đủ 10 phút timeout mới có thể đặt lại ghế đó
+
+===========================================================================
+## Nguyên nhân
+===========================================================================
+
+Hai nút này hoạt động hoàn toàn khác nhau về mặt kỹ thuật:
+
+### Cách A: "Hủy thanh toán" (Cancel chủ động)
+
+  [User click "Hủy thanh toán"]
+      → VNPAY ghi nhận hủy giao dịch
+      → VNPAY gọi redirect về: GET /payments/vnpay-return?vnp_ResponseCode=24&...
+      → Backend nhận được → gọi cancel_booking() → ghế Available ✅
+
+  Code trong payment_controller.py (dòng 124-129):
+      if response_code == "24":
+          await BookingController.cancel_booking(db, booking_id)
+          return RedirectResponse(url=f"{settings.FRONTEND_URL}/profile")
+
+### Cách B: "← Quay lại" (Back navigation)
+
+  [User click "← Quay lại"]
+      → Trình duyệt điều hướng về trang trước (browser history.back())
+      → VNPAY KHÔNG gửi bất kỳ callback hay redirect nào về hệ thống
+      → Backend KHÔNG nhận được tín hiệu gì
+      → Booking vẫn ở trạng thái "pending", ghế vẫn "Sold"
+      → Chỉ sau 10 phút timeout, background task mới tự cancel ❌
+
+Đây là hành vi hoàn toàn của VNPAY — nút "Quay lại" chỉ là điều hướng
+nội bộ trong trang VNPAY, không kích hoạt bất kỳ webhook hay redirect nào
+về phía merchant (backend của chúng ta).
+
+===========================================================================
+## Đây có phải lỗi của hệ thống không?
+===========================================================================
+
+Về mặt kỹ thuật: KHÔNG — backend xử lý đúng với những gì VNPAY gửi về.
+Về mặt UX: CÓ — người dùng kỳ vọng thoát = ghế trống ngay lập tức.
+
+Hệ thống thương mại điện tử thực tế xử lý bằng cách:
+  1. Timeout ngắn hơn (ví dụ 5 phút thay vì 10 phút)
+  2. Frontend polling kiểm tra trạng thái booking định kỳ
+  3. Hoặc chấp nhận: ghế sẽ tự trống sau khi timeout
+
+Trong dự án này, cơ chế timeout 10 phút đã có sẵn (BookingController.
+start_background_cleanup_task) nên ghế sẽ tự trống sau tối đa 10 phút.
+
+===========================================================================
+## Kết luận
+===========================================================================
+
+Trường hợp A ("Hủy thanh toán"): PASSED — hoạt động đúng thiết kế
+Trường hợp B ("Quay lại"):       FAILED — giới hạn của tích hợp VNPAY,
+                                           ghế chỉ trống sau 10 phút timeout
+
+Loại lỗi : Giới hạn thiết kế / UX Gap (không phải lỗi code)
+Mức độ   : Thấp — dữ liệu cuối cùng vẫn đúng sau timeout

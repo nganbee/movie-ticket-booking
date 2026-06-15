@@ -1,0 +1,340 @@
+<!-- Cinema Locations Page -->
+<style>
+  .cinema-card { transition: all 0.3s ease; }
+  .room-row { transition: all 0.2s ease; }
+  .room-row:hover { background: rgba(220,38,38,0.04); }
+  .branch-hero { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
+  .facility-badge { transition: all 0.2s ease; }
+  .facility-badge:hover { transform: scale(1.05); }
+</style>
+
+<!-- ===== HERO SECTION ===== -->
+<div class="branch-hero text-white pt-32 pb-24 relative overflow-hidden">
+  <!-- Decorative circles -->
+  <div class="absolute top-0 right-0 w-96 h-96 bg-brand/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+  <div class="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+  
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="text-center">
+      <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand/20 border border-brand/30 text-brand text-xs font-bold uppercase tracking-widest mb-6">
+        <i class="fas fa-map-marker-alt"></i> Hệ Thống Rạp Chiếu
+      </span>
+      <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+        Cụm Rạp <span class="text-brand">CineBook</span>
+      </h1>
+      <p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+        Trải nghiệm điện ảnh đỉnh cao tại hệ thống cụm rạp hiện đại nhất với công nghệ tiên tiến, phục vụ chuyên nghiệp và không gian sang trọng.
+      </p>
+      <!-- Quick stats -->
+      <div class="flex flex-wrap justify-center gap-8">
+        <div class="text-center">
+          <p class="text-4xl font-extrabold text-white" id="total-branches">2</p>
+          <p class="text-slate-400 text-sm mt-1">Cụm rạp</p>
+        </div>
+        <div class="w-px h-12 bg-slate-700 self-center hidden sm:block"></div>
+        <div class="text-center">
+          <p class="text-4xl font-extrabold text-white" id="total-rooms">—</p>
+          <p class="text-slate-400 text-sm mt-1">Phòng chiếu</p>
+        </div>
+        <div class="w-px h-12 bg-slate-700 self-center hidden sm:block"></div>
+        <div class="text-center">
+          <p class="text-4xl font-extrabold text-brand">24/7</p>
+          <p class="text-slate-400 text-sm mt-1">Đặt vé online</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pb-28">
+  <!-- Loading -->
+  <div id="cinemas-loading" class="text-center py-24">
+    <i class="fas fa-spinner fa-spin text-4xl text-brand mb-4"></i>
+    <p class="text-slate-400">Đang tải thông tin rạp chiếu...</p>
+  </div>
+
+  <!-- Branch Selection Tabs -->
+  <div id="branch-selector-container" class="hidden mb-12">
+    <p class="text-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Chọn cụm rạp xem chi tiết</p>
+    <div id="branch-selector" class="flex flex-wrap justify-center gap-4"></div>
+  </div>
+
+  <!-- Selected Branch Card Container -->
+  <div id="branches-container" class="hidden"></div>
+</div>
+
+<script>
+// ─── Branch data (from API or seed) ──────────────────────────────
+const BRANCH_SEED = [
+  {
+    id: 1,
+    name: 'CineBook Nguyễn Du',
+    address: '116 Nguyễn Du, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
+    phone: '028 3829 6688',
+    hours: '09:00 – 23:30 hàng ngày',
+    mapUrl: 'https://maps.google.com/?q=116+Nguyen+Du,+District+1,+HCMC',
+    image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&auto=format&fit=crop&q=80',
+    facilities: ['IMAX', '3D', '2D', 'Dolby Atmos', 'Ghế VIP', 'Căn tin'],
+    rooms: [
+      { name: 'Phòng chiếu 1', capacity: 180, format: '2D', status: 'active' },
+      { name: 'Phòng chiếu 2', capacity: 220, format: '3D', status: 'active' },
+      { name: 'Phòng chiếu 3', capacity: 120, format: '2D', status: 'active' },
+      { name: 'Phòng chiếu 4', capacity: 80,  format: '3D', status: 'active' },
+      { name: 'Phòng chiếu 5', capacity: 350, format: 'IMAX', status: 'active' },
+    ]
+  },
+  {
+    id: 2,
+    name: 'CineBook Landmark 81',
+    address: 'Tầng B1, Tòa nhà Landmark 81, Vinhomes Central Park, Bình Thạnh, TP. Hồ Chí Minh',
+    phone: '028 3512 7799',
+    hours: '10:00 – 00:00 hàng ngày',
+    mapUrl: 'https://maps.google.com/?q=Landmark+81,+Binh+Thanh,+HCMC',
+    image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1200&auto=format&fit=crop&q=80',
+    facilities: ['IMAX', '3D', '2D', 'Dolby Atmos', 'Gold Class', 'Lounge Bar'],
+    rooms: [
+      { name: 'Phòng chiếu 1', capacity: 200, format: '2D', status: 'active' },
+      { name: 'Phòng chiếu 2', capacity: 160, format: '3D', status: 'active' },
+      { name: 'Phòng chiếu 3', capacity: 400, format: 'IMAX', status: 'active' },
+      { name: 'Phòng chiếu 4', capacity: 60,  format: '3D', status: 'maintenance' },
+      { name: 'Phòng chiếu 5', capacity: 90,  format: '2D', status: 'active' },
+      { name: 'Phòng chiếu 6', capacity: 140, format: '3D', status: 'active' },
+    ]
+  }
+];
+
+const FACILITY_ICONS = {
+  'IMAX': 'fas fa-film',
+  '3D': 'fas fa-glasses',
+  '2D': 'fas fa-desktop',
+  'Dolby Atmos': 'fas fa-volume-up',
+  'Ghế VIP': 'fas fa-couch',
+  'Căn tin': 'fas fa-coffee',
+  'Gold Class': 'fas fa-crown',
+  'Lounge Bar': 'fas fa-cocktail',
+};
+
+let allBranches = [];
+let selectedBranchId = null;
+
+async function loadCinemas() {
+  try {
+    const res = await fetch('http://localhost:8000/theaters/');
+    if (res.ok) {
+      const data = await res.json();
+      allBranches = data.map((t, i) => ({
+        id: t.theater_id || i + 1,
+        name: t.name,
+        address: t.address || 'TP. Hồ Chí Minh',
+        phone: t.phone || '—',
+        hours: t.opening_hours || '09:00 – 23:30 hàng ngày',
+        mapUrl: `https://maps.google.com/?q=${encodeURIComponent(t.address || t.name)}`,
+        image: t.image_url || BRANCH_SEED[i % BRANCH_SEED.length]?.image || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200',
+        facilities: t.facilities || ['2D', '3D', 'IMAX'],
+        rooms: (t.rooms || []).map((r, j) => ({
+          name: r.name || `Phòng chiếu ${j + 1}`,
+          capacity: r.seat_capacity || r.capacity || 150,
+          format: r.format || r.room_type || '2D',
+          status: r.status || 'active'
+        }))
+      }));
+    } else {
+      allBranches = BRANCH_SEED;
+    }
+  } catch(e) {
+    allBranches = BRANCH_SEED;
+  }
+
+  // Update stats
+  const totalRooms = allBranches.reduce((acc, b) => acc + b.rooms.length, 0);
+  document.getElementById('total-rooms').textContent = totalRooms;
+  document.getElementById('total-branches').textContent = allBranches.length;
+
+  if (allBranches.length > 0) {
+    selectedBranchId = allBranches[0].id;
+  }
+
+  renderBranchSelector();
+  renderSelectedBranch();
+  
+  document.getElementById('cinemas-loading').classList.add('hidden');
+  document.getElementById('branch-selector-container').classList.remove('hidden');
+  document.getElementById('branches-container').classList.remove('hidden');
+}
+
+function renderBranchSelector() {
+  const container = document.getElementById('branch-selector');
+  container.innerHTML = allBranches.map(branch => {
+    const isActive = branch.id === selectedBranchId;
+    return `
+      <button onclick="selectBranch(${branch.id})" 
+        class="px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 ${
+          isActive 
+            ? 'bg-brand text-white shadow-lg shadow-brand/20 scale-105 border border-transparent' 
+            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm'
+        }">
+        <i class="fas fa-map-marker-alt mr-2 ${isActive ? 'text-white' : 'text-brand'}"></i>
+        ${branch.name}
+      </button>
+    `;
+  }).join('');
+}
+
+function selectBranch(id) {
+  selectedBranchId = id;
+  renderBranchSelector();
+  renderSelectedBranch();
+}
+
+function renderSelectedBranch() {
+  const container = document.getElementById('branches-container');
+  const branch = allBranches.find(b => b.id === selectedBranchId);
+  if (!branch) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const index = allBranches.findIndex(b => b.id === selectedBranchId);
+
+  const roomsHtml = branch.rooms.map(r => {
+    const isActive = r.status === 'active';
+    
+    // Clean room name from room formats (remove 2D, 3D, IMAX if present in room name text)
+    let cleanName = r.name.replace(/\b(2D|3D|IMAX)\b/gi, '').replace(/\s+/g, ' ').trim();
+
+    return `
+      <div class="room-row flex items-center justify-between px-5 py-4 border-b border-slate-100 last:border-b-0 rounded-xl">
+        <div class="flex items-center gap-4">
+          <div class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+            <i class="fas fa-door-open text-slate-400 text-sm"></i>
+          </div>
+          <div>
+            <p class="font-bold text-slate-800 text-sm">${cleanName}</p>
+            <p class="text-xs text-slate-400 mt-0.5"><i class="fas fa-chair mr-1"></i>${r.capacity} ghế</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          ${isActive 
+            ? `<span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm">
+                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Hoạt động
+               </span>`
+            : `<span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-3 py-1.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 shadow-sm">
+                 Bảo trì
+               </span>`
+          }
+          <a href="/movies" class="bg-brand/10 hover:bg-brand text-brand hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-1">
+            <i class="fas fa-ticket-alt text-[10px]"></i>Đặt vé
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const facilitiesHtml = branch.facilities.map(f => `
+    <span class="facility-badge inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-semibold shadow-sm">
+      <i class="${FACILITY_ICONS[f] || 'fas fa-check'} text-brand text-[10px]"></i> ${f}
+    </span>
+  `).join('');
+
+  const activeRooms = branch.rooms.filter(r => r.status === 'active').length;
+
+  container.innerHTML = `
+    <div class="cinema-card bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+      <!-- Branch Image Header -->
+      <div class="relative h-64 md:h-80 overflow-hidden">
+        <img src="${branch.image}" alt="${branch.name}" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/35 to-transparent"></div>
+        
+        <!-- Branch number badge -->
+        <div class="absolute top-6 left-6 w-12 h-12 rounded-2xl bg-brand flex items-center justify-center text-white font-black text-xl shadow-lg shadow-brand/20">
+          ${index + 1}
+        </div>
+
+        <!-- Open now indicator -->
+        <div class="absolute top-6 right-6 inline-flex items-center gap-2 bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
+          <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Đang mở cửa
+        </div>
+        
+        <!-- Title overlay -->
+        <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+          <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-2 tracking-tight">${branch.name}</h2>
+          <p class="text-slate-300 text-xs md:text-sm flex items-center gap-2">
+            <i class="fas fa-map-marker-alt text-brand"></i> ${branch.address}
+          </p>
+        </div>
+      </div>
+
+      <!-- Branch Info Body -->
+      <div class="p-6 md:p-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 border-b border-slate-100 pb-8">
+          <!-- Contact -->
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-phone text-brand text-base"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Hotline</p>
+              <p class="font-extrabold text-slate-800 text-sm">${branch.phone}</p>
+            </div>
+          </div>
+          <!-- Hours -->
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-clock text-brand text-base"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Giờ mở cửa</p>
+              <p class="font-extrabold text-slate-800 text-sm">${branch.hours}</p>
+            </div>
+          </div>
+          <!-- Rooms count -->
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-door-open text-brand text-base"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Phòng chiếu</p>
+              <p class="font-extrabold text-slate-800 text-sm">${activeRooms}/${branch.rooms.length} đang hoạt động</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facilities -->
+        <div class="mb-8">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Tiện ích tại rạp</p>
+          <div class="flex flex-wrap gap-2.5">${facilitiesHtml}</div>
+        </div>
+
+        <!-- Room List (Opened by default) -->
+        <div class="border border-slate-200 rounded-3xl overflow-hidden shadow-sm bg-slate-50/50">
+          <div class="w-full flex items-center justify-between px-6 py-4.5 bg-slate-50 text-sm font-extrabold text-slate-700 border-b border-slate-200">
+            <span class="flex items-center gap-2">
+              <i class="fas fa-film text-brand"></i>
+              Danh sách phòng chiếu (${branch.rooms.length} phòng)
+            </span>
+          </div>
+          <div class="accordion-rooms open" id="rooms-${branch.id}">
+            <div class="divide-y divide-slate-100 bg-white">
+              ${roomsHtml}
+            </div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 mt-8">
+          <a href="/movies" class="flex-1 bg-brand text-white py-4 rounded-2xl font-bold hover:bg-brandHover transition shadow-lg shadow-brand/20 text-center flex items-center justify-center gap-2">
+            <i class="fas fa-ticket-alt"></i> Đặt Vé Tại Rạp Này
+          </a>
+          <a href="${branch.mapUrl}" target="_blank" rel="noopener"
+            class="flex-1 border border-slate-200 bg-white text-slate-700 py-4 rounded-2xl font-bold hover:bg-slate-50 transition text-center flex items-center justify-center gap-2 shadow-sm">
+            <i class="fas fa-map-marked-alt text-brand"></i> Xem Bản Đồ Đường Đi
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+document.addEventListener('DOMContentLoaded', loadCinemas);
+</script>
