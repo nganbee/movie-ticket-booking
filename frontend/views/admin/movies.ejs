@@ -6,9 +6,14 @@
       <h2 class="text-2xl font-extrabold text-slate-800">Quản lý Phim</h2>
       <p class="text-slate-400 text-sm mt-1">Thêm mới, cập nhật thông tin chi tiết của phim và hiển thị lên giao diện người dùng.</p>
     </div>
-    <button onclick="openAddModal()" class="flex items-center gap-2 bg-brand text-white px-5 py-2.5 rounded-xl font-bold hover:bg-brandHover transition shadow-md shadow-brand/20">
-      <i class="fas fa-plus"></i> Thêm phim mới
-    </button>
+    <div class="flex flex-wrap gap-3">
+      <button id="rebuild-ai-button" onclick="rebuildAIIndex()" class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-md shadow-blue-600/20">
+        <i class="fas fa-brain"></i> Cập nhật dữ liệu AI
+      </button>
+      <button onclick="openAddModal()" class="flex items-center gap-2 bg-brand text-white px-5 py-2.5 rounded-xl font-bold hover:bg-brandHover transition shadow-md shadow-brand/20">
+        <i class="fas fa-plus"></i> Thêm phim mới
+      </button>
+    </div>
   </div>
 
   <!-- Filter & Search Bar -->
@@ -580,6 +585,31 @@ function confirmDelete() {
   showToast("Đã xóa phim thành công!");
   closeDeleteModal();
   renderMovies();
+}
+
+async function rebuildAIIndex() {
+  const button = document.getElementById('rebuild-ai-button');
+  const token = localStorage.getItem('access_token') || '';
+  const originalContent = button.innerHTML;
+
+  button.disabled = true;
+  button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang cập nhật AI...';
+
+  try {
+    const response = await fetch('/api/ai/rebuild-index', {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || 'Không thể cập nhật dữ liệu AI.');
+
+    showToast(`AI đã lập chỉ mục ${data.documents_indexed ?? 0} phim trong ${data.time_taken_seconds ?? 0} giây.`);
+  } catch (error) {
+    showToast(error.message);
+  } finally {
+    button.disabled = false;
+    button.innerHTML = originalContent;
+  }
 }
 
 function showToast(text) {
