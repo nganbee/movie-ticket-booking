@@ -11,3 +11,11 @@ uvicorn
 python-jose[cryptography]
 bcrypt
 httpx
+# ── AI / RAG ──────────────────────────────────────────────────
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-community>=0.3.0
+langchain-groq>=0.2.0
+langchain-huggingface>=0.1.0
+sentence-transformers>=3.0.0
+faiss-cpu>=1.8.0

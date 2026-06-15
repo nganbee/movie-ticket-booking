@@ -1,0 +1,848 @@
+================================================================================
+   KẾ HOẠCH TRIỂN KHAI RAG CHATBOT – CINEBOOK
+   Framework : LangChain
+   LLM       : Groq API  |  llama-3.3-70b-versatile  (cloud, siêu nhanh ~500 tokens/s)
+   Embedding : HuggingFace  |  paraphrase-multilingual-MiniLM-L12-v2 (local, miễn phí, hỗ trợ tiếng Việt)
+   Vector DB : FAISS   (local, không cần server)
+   Backend   : FastAPI (Python)
+   Mục tiêu  : Gợi ý phim theo tâm trạng người dùng (mood-based)
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TỔNG QUAN LUỒNG RAG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [PostgreSQL DB]
+       │
+       │ Query movies + showtimes
+       ▼
+  [1] LOAD DATA  ──►  [2] CHUNKING  ──►  [3] EMBEDDING  ──►  [4] FAISS Index
+                                                                     │
+  User gửi câu hỏi:                                                  │
+  "Tôi đang buồn, xem phim gì?"                                      │
+       │                                                              │
+       ▼                                                              ▼
+  [5] RETRIEVER  ◄──────────────────── Tìm top-k Document liên quan ──┘
+       │
+       ▼
+  [6] PROMPT TEMPLATE  ◄── context (phim retrieved) + question (user)
+       │
+       ▼
+  [7] LLM (Groq API – llama-3.3-70b-versatile)
+       │
+       ▼
+  [8] RAG CHAIN  ──►  Response trả về JSON
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BƯỚC 1: LOAD DỮ LIỆU ĐẦU VÀO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NGUỒN DỮ LIỆU: PostgreSQL (Supabase) – KHÔNG dùng file tĩnh vì cần dữ liệu thật
+               (phim đang chiếu, suất chiếu hôm nay, giá vé thực tế)
+
+THÔNG TIN QUERY từ bảng `movies` JOIN `showtimes` JOIN `rooms` JOIN `theaters`:
+  - movie_id, title, genre, description, director, language, duration
+  - status (now_showing / coming_soon), imdb_rating
+  - start_time, end_time, format (2D/3D/IMAX)
+  - room_name, theater_name, theater_address
+
+MỖI BẢN GHI PHIM được chuyển thành LangChain Document với:
+  - page_content : Chuỗi văn bản mô tả phim (sẽ được embedding)
+  - metadata     : Dict chứa movie_id, poster_url, status, genre (dùng để filter)
+
+VÍ DỤ page_content cho một phim:
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │ Tên phim: Inside Out 2                                                 │
+  │ Thể loại: Hoạt hình, Hài, Gia đình                                     │
+  │ Đạo diễn: Kelsey Mann                                                  │
+  │ Ngôn ngữ: Lồng tiếng Việt                                              │
+  │ Thời lượng: 100 phút                                                   │
+  │ IMDb: 7.8/10                                                           │
+  │ Trạng thái: Đang chiếu                                                 │
+  │ Nội dung: Riley bước vào tuổi teen với những cảm xúc mới phức tạp...  │
+  │ Suất chiếu: 09:30, 14:00, 19:30 tại CineBook Nguyễn Du (Phòng 1-2D)  │
+  │             10:00, 16:30 tại CineBook Landmark 81 (Phòng 3-IMAX)      │
+  │ Tâm trạng phù hợp: vui, gia đình, chill, cảm xúc, động lực           │
+  └────────────────────────────────────────────────────────────────────────┘
+
+LÝ DO CHỌN CÁCH NÀY:
+  - Dữ liệu luôn mới (real-time từ DB) thay vì file JSON cứng
+  - Gộp suất chiếu vào cùng document giúp AI biết "phim này chiếu lúc nào, ở đâu"
+  - Trường "Tâm trạng phù hợp" được sinh tự động từ genre để tăng độ chính xác
+    khi user hỏi theo cảm xúc thay vì tên phim
+
+CODE (ai_service.py):
+  async def load_movie_documents(db: AsyncSession) -> List[Document]:
+      stmt = (
+          select(
+              MovieTable,
+              func.string_agg(
+                  ShowtimeTable.start_time.cast(Text) + " tại " +
+                  TheaterTable.name + " (" + RoomTable.name + "-" + ShowtimeTable.format + ")",
+                  ", "
+              ).label("showtime_info")
+          )
+          .outerjoin(ShowtimeTable, ShowtimeTable.movie_id == MovieTable.movie_id)
+          .outerjoin(RoomTable, RoomTable.room_id == ShowtimeTable.room_id)
+          .outerjoin(TheaterTable, TheaterTable.theater_id == RoomTable.theater_id)
+          .where(MovieTable.status == "now_showing")  # Chỉ lấy phim đang chiếu
+          .group_by(MovieTable.movie_id)
+      )
+      result = await db.execute(stmt)
+      rows = result.all()
+
+      documents = []
+      for movie, showtime_info in rows:
+          mood_tags = genre_to_mood(movie.genre)  # Hàm map genre -> tâm trạng
+          content = f"""
+  Tên phim: {movie.title}
+  Thể loại: {movie.genre}
+  Đạo diễn: {movie.director}
+  Ngôn ngữ: {movie.language}
+  Thời lượng: {movie.duration} phút
+  IMDb: {movie.imdb_rating or 'Chưa có'}/10
+  Trạng thái: {'Đang chiếu' if movie.status == 'now_showing' else 'Sắp chiếu'}
+  Nội dung: {movie.description}
+  Suất chiếu: {showtime_info or 'Chưa có lịch chiếu'}
+  Tâm trạng phù hợp: {mood_tags}
+          """.strip()
+
+          doc = Document(
+              page_content=content,
+              metadata={
+                  "movie_id": movie.movie_id,
+                  "title": movie.title,
+                  "genre": movie.genre,
+                  "poster_url": movie.poster_url or "",
+                  "status": movie.status,
+                  "imdb_rating": movie.imdb_rating or 0,
+              }
+          )
+          documents.append(doc)
+      return documents
+
+HÀM genre_to_mood (ánh xạ thể loại → từ khóa tâm trạng):
+  def genre_to_mood(genre: str) -> str:
+      mapping = {
+          "Hành động": "hào hứng, kịch tính, mạo hiểm, phấn khích",
+          "Hài":       "vui, cười, chill, thư giãn, nhẹ nhàng",
+          "Tình cảm":  "lãng mạn, nhớ người yêu, muốn khóc, cảm xúc",
+          "Kinh dị":   "hồi hộp, sợ, mạo hiểm, kịch tính",
+          "Hoạt hình": "vui, gia đình, trẻ em, chill",
+          "Gia đình":  "ấm áp, gia đình, vui, cảm xúc",
+          "Tâm lý":    "suy nghĩ, triết lý, trầm, tĩnh tâm",
+          "Khoa học viễn tưởng": "mạo hiểm, kỳ diệu, sáng tạo",
+          "Chiến tranh": "hào hùng, cảm động, kịch tính",
+          "Tài liệu":  "học hỏi, tĩnh tâm, suy nghĩ",
+      }
+      tags = []
+      for key, val in mapping.items():
+          if key.lower() in genre.lower():
+              tags.append(val)
+      return ", ".join(tags) if tags else "giải trí chung"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BƯỚC 2: CHUNKING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+QUYẾT ĐỊNH: KHÔNG chunking (1 Document = 1 phim)
+
+LÝ DO:
+  - Mỗi phim đã là một đơn vị thông tin độc lập, khoảng 200–400 tokens
+  - Nếu chunk nhỏ hơn, có thể tách rời "tên phim" khỏi "suất chiếu",
+    khiến AI không biết phim đó chiếu lúc mấy giờ
+  - Với ~20 phim (quy mô demo), tổng document nhỏ, không cần chunk thêm
+
+NẾU SAU NÀY CÓ MÔ TẢ PHIM DÀI (>800 tokens):
+  from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+  splitter = RecursiveCharacterTextSplitter(
+      chunk_size=500,          # ~500 tokens mỗi chunk
+      chunk_overlap=50,        # 50 token overlap để không mất ngữ cảnh ranh giới
+      separators=["\n\n", "\n", ". ", " "]  # Ưu tiên tách theo đoạn văn
+  )
+  chunks = splitter.split_documents(documents)
+
+HIỆN TẠI: Bỏ qua bước chunking, dùng thẳng documents từ Bước 1.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BƯỚC 3: MODEL EMBEDDING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MODEL CHỌN: paraphrase-multilingual-MiniLM-L12-v2  (HuggingFace, chạy local)
+KHÔNG CẦN API KEY – chạy hoàn toàn local, miễn phí
+
+TẠI SAO KHÔNG DÙNG openai/google embedding:
+  - OpenAI text-embedding-3: cần API key, tốn tiền
+  - Google embedding: cần API key
+  - paraphrase-multilingual-MiniLM-L12-v2: chạy local qua sentence-transformers, miễn phí, hỗ trợ 50+ ngôn ngữ kể cả tiếng Việt,
+    đặc biệt hỗ trợ đa ngôn ngữ bao gồm tiếng Việt
+
+CÀI ĐẶT:
+  ollama pull nomic-embed-text     # Khoảng 274MB
+
+KÍCH THƯỚC VECTOR: 768 chiều (dimensions)
+ĐẶC ĐIỂM: Tối ưu cho semantic search – hiểu được
+  "buồn" ↔ "tâm trạng không vui" ↔ "muốn khóc"
+  "chill" ↔ "nhẹ nhàng" ↔ "thư giãn"
+
+CODE:
+  from langchain_huggingface import HuggingFaceEmbeddings
+
+  embedding_model = HuggingFaceEmbeddings(
+      model="nomic-embed-text",
+      model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"  # local, hỗ trợ tiếng Việt
+  )
+
+PACKAGE CẦN CÀI:
+  pip install langchain-ollama
+
+MÔ HÌNH BACKUP (nếu máy không đủ RAM cho cả qwen2.5:7b + nomic-embed-text):
+  - Dùng "mxbai-embed-large" (~670MB, 1024 dims, hiệu năng cao hơn)
+    hoặc "all-minilm" (~46MB, 384 dims, rất nhẹ, đủ dùng cho demo)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BƯỚC 4: VECTOR DATABASE – FAISS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CHỌN FAISS: Facebook AI Similarity Search
+  - Không cần server riêng (khác ChromaDB server mode)
+  - Chạy trong RAM của FastAPI process
+  - Phù hợp với ~20-100 phim (quy mô demo)
+  - Tìm kiếm vector cực nhanh (microseconds)
+
+CẤU TRÚC LƯU TRỮ:
+  backend/
+  └── faiss_index/
+      ├── index.faiss     ← Vector index (binary file)
+      └── index.pkl       ← Document store + metadata
+
+CHIẾN LƯỢC REBUILD INDEX:
+  - Index được build khi server khởi động (hoặc khi admin trigger rebuild)
+  - Tự động rebuild sau 30 phút (background task) để cập nhật phim mới/suất mới
+  - Dùng biến global `vectorstore` trong memory để tránh rebuild mỗi request
+
+CODE – Build FAISS Index:
+  from langchain_community.vectorstores import FAISS
+  import os, pickle
+
+  FAISS_INDEX_PATH = "faiss_index"
+
+  async def build_or_load_vectorstore(db: AsyncSession) -> FAISS:
+      """
+      Nếu đã có index trên disk → load lại (nhanh).
+      Nếu chưa có → build từ DB (chậm hơn, ~5-10 giây).
+      """
+      if os.path.exists(f"{FAISS_INDEX_PATH}/index.faiss"):
+          # Load index đã có
+          vectorstore = FAISS.load_local(
+              FAISS_INDEX_PATH,
+              embedding_model,
+              allow_dangerous_deserialization=True
+          )
+      else:
+          # Build mới từ DB
+          documents = await load_movie_documents(db)
+          vectorstore = FAISS.from_documents(documents, embedding_model)
+          vectorstore.save_local(FAISS_INDEX_PATH)  # Lưu xuống disk
+
+      return vectorstore
+
+CODE – Rebuild Index (dùng cho background task hoặc admin API):
+  async def rebuild_vectorstore(db: AsyncSession) -> FAISS:
+      documents = await load_movie_documents(db)
+      vectorstore = FAISS.from_documents(documents, embedding_model)
+      vectorstore.save_local(FAISS_INDEX_PATH)
+      return vectorstore
+
+PACKAGE CẦN CÀI:
+  pip install faiss-cpu langchain-community
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BƯỚC 5: RETRIEVER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+LOẠI RETRIEVER: Similarity Search (cosine similarity)
+
+NGUYÊN LÝ:
+  1. Câu hỏi của user được embed thành vector (dùng nomic-embed-text)
+  2. So sánh cosine similarity giữa query vector và tất cả document vectors trong FAISS
+  3. Trả về top-k document có độ tương đồng cao nhất
+
+VÍ DỤ:
+  User hỏi: "Tôi đang buồn, muốn xem phim gì?"
+  → Embed câu hỏi → vector [0.12, -0.34, 0.89, ...]
+  → So sánh với tất cả document vectors
+  → Document "Inside Out 2" (có "tâm trạng phù hợp: cảm xúc, gia đình") có
+    cosine similarity = 0.87 → được retrieve
+  → Document "Fast & Furious 11" (hành động) cosine similarity = 0.41 → không được retrieve
+
+CODE:
+  retriever = vectorstore.as_retriever(
+      search_type="similarity",    # Dùng cosine similarity (mặc định với FAISS)
+      search_kwargs={
+          "k": 4                   # Lấy top 4 phim phù hợp nhất
+      }
+  )
+
+TẠI SAO k=4?
+  - Quá ít (k=1): AI chỉ thấy 1 phim → gợi ý nghèo nàn
+  - Quá nhiều (k=8): prompt quá dài → LLM bị "overwhelmed", chậm
+  - k=4: cân bằng – đủ để AI có lựa chọn gợi ý, prompt vừa phải
+
+NÂNG CẤP NẾU CẦN (MMR – Maximum Marginal Relevance):
+  Tránh trả về 4 phim giống nhau cùng thể loại:
+  retriever = vectorstore.as_retriever(
+      search_type="mmr",
+      search_kwargs={"k": 4, "fetch_k": 10, "lambda_mult": 0.7}
+  )
+  # lambda_mult: 1.0 = chỉ quan tâm relevance, 0.0 = chỉ quan tâm diversity
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BƯỚC 6: THIẾT KẾ TEMPLATE / PROMPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+KIẾN TRÚC PROMPT GỒM 3 PHẦN:
+  [SYSTEM PROMPT] – Định nghĩa vai trò AI, rules, tone giọng
+  [CONTEXT]       – Danh sách phim được retrieve từ FAISS
+  [CONVERSATION]  – Lịch sử chat + câu hỏi hiện tại
+
+━━━━━━━━━━━━━━━━━━━━
+
+SYSTEM PROMPT (cố định, không thay đổi):
+  Bạn là trợ lý ảo CineBook – hệ thống đặt vé xem phim trực tuyến tại TP.HCM.
+
+  NHIỆM VỤ CHÍNH:
+  - Gợi ý phim phù hợp dựa trên TÂM TRẠNG, sở thích, và hoàn cảnh của người dùng.
+  - Cung cấp thông tin lịch chiếu, giá vé, địa điểm rạp chính xác.
+  - Hỗ trợ hướng dẫn đặt vé trên website CineBook.
+
+  NGUYÊN TẮC BẮT BUỘC:
+  1. Chỉ gợi ý phim CÓ TRONG danh sách [DỮ LIỆU PHIM] bên dưới. KHÔNG tự bịa phim.
+  2. Nếu không có phim phù hợp trong context, thành thật nói: "Hiện tại CineBook
+     chưa có phim phù hợp với yêu cầu của bạn."
+  3. Luôn trả lời bằng TIẾNG VIỆT, thân thiện, gần gũi.
+  4. Khi gợi ý phim, luôn kèm theo: tên phim, thể loại, suất chiếu gần nhất.
+  5. Nếu người dùng hỏi ngoài chủ đề phim/rạp chiếu, nhẹ nhàng hướng về chủ đề chính.
+
+━━━━━━━━━━━━━━━━━━━━
+
+CONTEXT TEMPLATE (động – thay đổi theo retrieved documents):
+  [DỮ LIỆU PHIM ĐANG CHIẾU TẠI CINEBOOK]:
+  {context}
+
+━━━━━━━━━━━━━━━━━━━━
+
+CONVERSATION TEMPLATE:
+  Lịch sử trò chuyện:
+  {chat_history}
+
+  Khách hàng: {question}
+  Trợ lý CineBook:
+
+━━━━━━━━━━━━━━━━━━━━
+
+CODE – Tạo ChatPromptTemplate (LangChain):
+  from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+  from langchain_core.messages import SystemMessage
+
+  SYSTEM_TEMPLATE = """Bạn là trợ lý ảo CineBook – hệ thống đặt vé xem phim trực tuyến tại TP.HCM.
+
+  NHIỆM VỤ CHÍNH:
+  - Gợi ý phim phù hợp dựa trên TÂM TRẠNG, sở thích, và hoàn cảnh của người dùng.
+  - Cung cấp thông tin lịch chiếu, giá vé, địa điểm rạp chính xác.
+  - Hỗ trợ hướng dẫn đặt vé trên website CineBook.
+
+  NGUYÊN TẮC BẮT BUỘC:
+  1. Chỉ gợi ý phim CÓ TRONG danh sách [DỮ LIỆU PHIM] bên dưới. KHÔNG tự bịa phim.
+  2. Nếu không có phim phù hợp trong context, thành thật nói không có phim phù hợp.
+  3. Luôn trả lời bằng TIẾNG VIỆT, thân thiện, gần gũi.
+  4. Khi gợi ý phim, luôn kèm: tên phim, thể loại, suất chiếu gần nhất.
+  5. Nếu người dùng hỏi ngoài chủ đề phim/rạp, nhẹ nhàng hướng về chủ đề chính.
+
+  [DỮ LIỆU PHIM ĐANG CHIẾU TẠI CINEBOOK]:
+  {context}
+  """
+
+  prompt = ChatPromptTemplate.from_messages([
+      ("system", SYSTEM_TEMPLATE),
+      MessagesPlaceholder(variable_name="chat_history"),  # Lịch sử chat
+      ("human", "{question}"),                            # Câu hỏi hiện tại
+  ])
+
+VÍ DỤ PROMPT HOÀN CHỈNH KHI CHẠY:
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ [SYSTEM]: Bạn là trợ lý ảo CineBook...                                  │
+  │           [DỮ LIỆU PHIM]:                                               │
+  │           Tên phim: Inside Out 2 | Thể loại: Hoạt hình, Gia đình...    │
+  │           Tên phim: Deadpool & Wolverine | Thể loại: Hành động, Hài... │
+  │           Tên phim: Longlegs | Thể loại: Kinh dị, Tâm lý...            │
+  │           Tên phim: Alien: Romulus | Thể loại: Kinh dị, Sci-fi...      │
+  │                                                                         │
+  │ [USER]:   Tôi đang buồn, muốn xem gì chill chill?                      │
+  │ [AI]:     ← LLM sinh ra câu trả lời tại đây                            │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BƯỚC 7: MÔ HÌNH LLM – OLLAMA QWEN2.5:7B, SETUP TEMPERATURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MODEL: qwen2.5:7b
+  - Kích thước: ~4.7GB (sau quantization Q4)
+  - RAM cần: ~6–8GB (cần ít nhất 8GB RAM hệ thống)
+  - Tiếng Việt: Xuất sắc (top 1 trong các model local cùng kích thước)
+  - Hiểu cảm xúc: Rất tốt với các biểu đạt như "chill", "buồn buồn", "hào hứng"
+
+CÀI ĐẶT OLLAMA:
+  # Bước 1: Download Ollama tại https://ollama.com/download
+  # Bước 2: Pull model
+  ollama pull qwen2.5:7b          # Model chính (~4.7GB)
+  ollama pull nomic-embed-text    # Embedding model (~274MB)
+
+  # Kiểm tra Ollama đang chạy:
+  curl http://localhost:11434/api/tags
+
+SETUP TEMPERATURE:
+  temperature = 0.7  (ĐỀ XUẤT CHO MOVIE RECOMMENDATION)
+
+  Giải thích thang temperature:
+  ┌───────────────────────────────────────────────────────────────────────┐
+  │  0.0 → Deterministic: Luôn trả lời giống nhau, máy móc, ít sáng tạo  │
+  │  0.3 → Chính xác: Tốt cho Q&A factual (giờ chiếu, giá vé cụ thể)    │
+  │  0.7 → Cân bằng: Vừa chính xác vừa tự nhiên, thân thiện ✓ ĐỀ XUẤT  │
+  │  1.0 → Sáng tạo: Câu trả lời đa dạng nhưng có thể "hallucinate"     │
+  │  1.5+→ Ngẫu nhiên: Không kiểm soát được, dễ bịa thông tin           │
+  └───────────────────────────────────────────────────────────────────────┘
+
+  TẠI SAO 0.7?
+  - Đủ sáng tạo để viết câu trả lời tự nhiên, không nhàm chán
+  - Không quá cao để AI bịa tên phim không tồn tại
+  - Phù hợp với tone thân thiện của chatbot tư vấn
+
+CODE:
+  from langchain_groq import ChatGroq
+
+  llm = ChatGroq(
+      model="qwen2.5:7b",
+      base_url="http://localhost:11434",
+      temperature=0.7,
+      num_predict=512,          # Giới hạn độ dài phản hồi (~512 tokens)
+      top_p=0.9,                # Nucleus sampling: cân bằng sáng tạo/ổn định
+      repeat_penalty=1.1,       # Tránh lặp câu trong cùng 1 phản hồi
+  )
+
+  # Giải thích các params:
+  # num_predict=512  → Đủ để viết 3-4 gợi ý phim chi tiết, không quá dài
+  # top_p=0.9        → Chọn token trong top 90% xác suất (loại bỏ outlier)
+  # repeat_penalty=1.1 → Phạt token bị lặp, giúp văn phong tự nhiên hơn
+
+PACKAGE CẦN CÀI:
+  pip install langchain-ollama
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BƯỚC 8: RAG CHAIN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DÙNG LCEL (LangChain Expression Language) – Cú pháp pipe (|)
+
+LUỒNG XỬ LÝ:
+  Input: { question, chat_history }
+      │
+      ├─► retriever.invoke(question)  → List[Document]  (top 4 phim)
+      │   │
+      │   └─► format_docs(docs)       → context string (nối page_content)
+      │
+      ▼
+  prompt.format(context, chat_history, question)
+      │
+      ▼
+  llm.invoke(prompt_value)
+      │
+      ▼
+  StrOutputParser()                   → String phản hồi thuần túy
+
+CODE HOÀN CHỈNH (ai_service.py):
+  from langchain_core.output_parsers import StrOutputParser
+  from langchain_core.runnables import RunnableParallel, RunnablePassthrough
+  from langchain_core.messages import HumanMessage, AIMessage
+
+  def format_docs(docs: list) -> str:
+      """Nối nội dung các Document thành 1 chuỗi context"""
+      return "\n\n---\n\n".join([doc.page_content for doc in docs])
+
+  def build_rag_chain(vectorstore: FAISS):
+      retriever = vectorstore.as_retriever(
+          search_type="similarity",
+          search_kwargs={"k": 4}
+      )
+
+      # LCEL Chain
+      rag_chain = (
+          RunnableParallel({
+              "context":      retriever | format_docs,  # Retrieve → format
+              "question":     RunnablePassthrough(),     # Pass question thẳng
+              "chat_history": RunnablePassthrough(),     # Pass history thẳng
+          })
+          | prompt         # Điền vào template
+          | llm            # Gọi Ollama
+          | StrOutputParser()  # Parse output thành string
+      )
+      return rag_chain
+
+CÁCH GỌI CHAIN:
+  from langchain_core.messages import HumanMessage, AIMessage
+
+  async def chat(
+      question: str,
+      history: list[dict],     # [{"role": "user", "content": "..."}, ...]
+      vectorstore: FAISS,
+      db: AsyncSession
+  ) -> dict:
+
+      # Convert history sang LangChain message format
+      chat_history = []
+      for msg in history:
+          if msg["role"] == "user":
+              chat_history.append(HumanMessage(content=msg["content"]))
+          elif msg["role"] == "assistant":
+              chat_history.append(AIMessage(content=msg["content"]))
+
+      # Build chain và invoke
+      chain = build_rag_chain(vectorstore)
+      reply = await chain.ainvoke({
+          "question": question,
+          "chat_history": chat_history,
+      })
+
+      # Lấy metadata của các phim được retrieve để trả suggested_movies
+      retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+      retrieved_docs = retriever.invoke(question)
+      suggested_movies = [
+          {
+              "movie_id":   doc.metadata["movie_id"],
+              "title":      doc.metadata["title"],
+              "poster_url": doc.metadata["poster_url"],
+              "genre":      doc.metadata["genre"],
+          }
+          for doc in retrieved_docs
+          if doc.metadata.get("status") == "now_showing"
+      ]
+
+      return {
+          "reply": reply,
+          "suggested_movies": suggested_movies
+      }
+
+QUAN TRỌNG – QUẢN LÝ VECTORSTORE:
+  Khai báo biến global trong ai_service.py:
+      _vectorstore: FAISS | None = None
+
+  Hàm get_vectorstore() – lazy init, dùng cache:
+      async def get_vectorstore(db: AsyncSession) -> FAISS:
+          global _vectorstore
+          if _vectorstore is None:
+              _vectorstore = await build_or_load_vectorstore(db)
+          return _vectorstore
+
+  → Chỉ build index 1 lần khi server khởi động, các request sau dùng lại
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BƯỚC 9: DANH SÁCH API CẦN THIẾT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TỔNG QUAN 6 ENDPOINTS:
+
+┌─────┬────────┬──────────────────────────────────────┬──────────────┬──────────────────────────────────────────┐
+│  #  │ Method │ Endpoint                             │ Auth         │ Mô tả                                    │
+├─────┼────────┼──────────────────────────────────────┼──────────────┼──────────────────────────────────────────┤
+│  1  │ POST   │ /ai/chat                             │ ❌ Không cần │ API chính: gửi tin nhắn, nhận AI reply   │
+│  2  │ GET    │ /ai/conversations                    │ ✅ JWT       │ Lấy danh sách phiên chat của user        │
+│  3  │ GET    │ /ai/conversations/{id}/messages      │ ✅ JWT       │ Lấy lịch sử tin nhắn một phiên           │
+│  4  │ DELETE │ /ai/conversations/{id}               │ ✅ JWT       │ Xóa một phiên chat                       │
+│  5  │ GET    │ /ai/status                           │ ❌ Không cần │ Health check: Ollama đang chạy không     │
+│  6  │ POST   │ /ai/rebuild-index                    │ ✅ Admin JWT  │ Rebuild FAISS index sau khi thêm phim    │
+└─────┴────────┴──────────────────────────────────────┴──────────────┴──────────────────────────────────────────┘
+
+LƯU Ý VỀ DB:
+  - API #2, #3, #4 cần bảng ai_conversations và ai_messages trong PostgreSQL
+  - Bảng này CHƯA CÓ trong DB hiện tại → phải tạo qua model ai_chat.py
+  - Khi server khởi động, SQLAlchemy tự tạo bảng qua Base.metadata.create_all()
+
+──────────────────────────────────────────────────────────────────────────────
+
+API #1 – POST /ai/chat  (QUAN TRỌNG NHẤT)
+──────────────────────────────────────────────────────────────────────────────
+  Mục đích : Chat với AI, nhận gợi ý phim theo tâm trạng
+  Auth     : Không cần đăng nhập (Guest OK)
+  Nếu user đã đăng nhập → truyền JWT → tin nhắn được lưu vào DB
+  Nếu là Guest            → không lưu DB, trả lời bình thường
+
+  REQUEST BODY (ChatRequest schema):
+  {
+      "message":         "Tôi đang buồn, muốn xem phim gì vui vui?",
+      "history": [
+          { "role": "user",      "content": "Xin chào" },
+          { "role": "assistant", "content": "Chào bạn! Tôi có thể giúp gì?" }
+      ],
+      "conversation_id": null    ← null = tạo phiên mới | số = tiếp tục phiên cũ
+  }
+  → history        : Tối đa 6 cặp (12 entries) để tiết kiệm token
+  → message        : Câu hỏi hiện tại
+  → conversation_id: Nếu user đăng nhập và muốn tiếp tục phiên cũ
+
+  RESPONSE (ChatResponse schema):
+  200 OK:
+  {
+      "reply": "Bạn đang cần chút vui vẻ hả? Mình gợi ý bạn...",
+      "suggested_movies": [
+          {
+              "movie_id":   5,
+              "title":      "Inside Out 2",
+              "poster_url": "https://...",
+              "genre":      "Hoạt hình, Gia đình"
+          },
+          {
+              "movie_id":   12,
+              "title":      "Deadpool & Wolverine",
+              "poster_url": "https://...",
+              "genre":      "Hành động, Hài"
+          }
+      ],
+      "conversation_id": 42      ← ID phiên chat (null nếu Guest)
+  }
+
+  503 Service Unavailable (Ollama chưa chạy):
+  { "detail": "AI service hiện không khả dụng. Vui lòng thử lại sau." }
+
+  422 Unprocessable Entity (message rỗng):
+  { "detail": "Tin nhắn không được để trống." }
+
+  LOGIC XỬ LÝ TRONG CONTROLLER:
+  1. Lấy vectorstore (lazy load từ FAISS)
+  2. Gọi ai_service.chat(question, history) → nhận reply + suggested_movies
+  3. Nếu user đã đăng nhập (JWT hợp lệ):
+     a. Nếu conversation_id = null → tạo bản ghi AIConversation mới
+     b. Lưu message user vào AIMessage (sender_type = "user")
+     c. Lưu reply AI vào AIMessage (sender_type = "ai")
+  4. Trả về ChatResponse
+
+──────────────────────────────────────────────────────────────────────────────
+
+API #2 – GET /ai/conversations  (CONVERSATION LIST)
+──────────────────────────────────────────────────────────────────────────────
+  Mục đích : Lấy toàn bộ phiên chat của user đang đăng nhập
+  Auth     : JWT Required (lấy user_id từ token)
+
+  RESPONSE:
+  200 OK:
+  {
+      "conversations": [
+          {
+              "conversation_id": 42,
+              "started_at":       "2026-06-14T10:30:00Z",
+              "preview":          "Tôi đang buồn, muốn xem phim gì...",
+              "message_count":    6
+          },
+          {
+              "conversation_id": 38,
+              "started_at":       "2026-06-12T15:00:00Z",
+              "preview":          "Phim hành động nào hay nhất?",
+              "message_count":    4
+          }
+      ]
+  }
+  → preview: Nội dung tin nhắn đầu tiên của user trong phiên (để user nhận ra)
+  → Sắp xếp theo started_at DESC (phiên mới nhất lên trước)
+
+  DB QUERY:
+  SELECT c.conversation_id, c.started_at,
+         (SELECT content FROM ai_messages
+          WHERE conversation_id = c.conversation_id
+            AND sender_type = 'user'
+          ORDER BY sent_at LIMIT 1) AS preview,
+         COUNT(m.message_id) AS message_count
+  FROM ai_conversations c
+  LEFT JOIN ai_messages m ON m.conversation_id = c.conversation_id
+  WHERE c.customer_id = <user_id>
+  GROUP BY c.conversation_id
+  ORDER BY c.started_at DESC;
+
+──────────────────────────────────────────────────────────────────────────────
+
+API #3 – GET /ai/conversations/{id}/messages  (MESSAGE HISTORY)
+──────────────────────────────────────────────────────────────────────────────
+  Mục đích : Lấy toàn bộ lịch sử tin nhắn trong một phiên chat
+  Auth     : JWT Required
+  Kiểm tra : conversation phải thuộc về user đang đăng nhập
+
+  PATH PARAM: id = conversation_id (integer)
+
+  RESPONSE:
+  200 OK:
+  {
+      "conversation_id": 42,
+      "started_at":       "2026-06-14T10:30:00Z",
+      "messages": [
+          {
+              "message_id":  1,
+              "sender_type": "user",
+              "content":     "Tôi đang buồn, muốn xem phim gì?",
+              "sent_at":     "2026-06-14T10:30:05Z"
+          },
+          {
+              "message_id":  2,
+              "sender_type": "ai",
+              "content":     "Bạn đang cần chút vui vẻ hả? Mình gợi ý...",
+              "sent_at":     "2026-06-14T10:30:08Z"
+          }
+      ]
+  }
+
+  404 Not Found (conversation không tồn tại hoặc không thuộc user):
+  { "detail": "Không tìm thấy phiên chat này." }
+
+  DB QUERY:
+  SELECT m.message_id, m.sender_type, m.content, m.sent_at
+  FROM ai_messages m
+  JOIN ai_conversations c ON c.conversation_id = m.conversation_id
+  WHERE m.conversation_id = <id>
+    AND c.customer_id = <user_id>   ← Kiểm tra ownership
+  ORDER BY m.sent_at ASC;
+
+──────────────────────────────────────────────────────────────────────────────
+
+API #4 – DELETE /ai/conversations/{id}  (DELETE CONVERSATION)
+──────────────────────────────────────────────────────────────────────────────
+  Mục đích : Xóa một phiên chat và toàn bộ tin nhắn trong đó
+  Auth     : JWT Required
+  Kiểm tra : conversation phải thuộc về user đang đăng nhập
+
+  PATH PARAM: id = conversation_id (integer)
+
+  RESPONSE:
+  204 No Content (Xóa thành công, không trả body)
+
+  404 Not Found:
+  { "detail": "Không tìm thấy phiên chat này." }
+
+  DB OPERATION:
+  -- Xóa messages trước (do FK constraint)
+  DELETE FROM ai_messages WHERE conversation_id = <id>;
+  -- Rồi xóa conversation
+  DELETE FROM ai_conversations
+  WHERE conversation_id = <id> AND customer_id = <user_id>;
+
+  Hoặc dùng ON DELETE CASCADE trong model để tự động xóa messages
+  khi conversation bị xóa.
+
+──────────────────────────────────────────────────────────────────────────────
+
+API #5 – GET /ai/status  (HEALTH CHECK)
+──────────────────────────────────────────────────────────────────────────────
+  Mục đích: Frontend gọi khi load chatbot để biết AI có hoạt động không,
+             hiển thị badge "AI đang online" hay "AI đang bảo trì"
+
+  RESPONSE:
+  200 OK (Ollama running):
+  {
+      "status":      "online",
+      "model":       "qwen2.5:7b",
+      "index_size":  18,      ← Số phim trong FAISS index
+      "message":     "AI service is ready."
+  }
+
+  503 Service Unavailable:
+  {
+      "status":  "offline",
+      "message": "Ollama is not running. Please start Ollama first."
+  }
+
+──────────────────────────────────────────────────────────────────────────────
+
+API #6 – POST /ai/rebuild-index  (ADMIN ONLY)
+──────────────────────────────────────────────────────────────────────────────
+  Mục đích: Sau khi Admin thêm phim mới hoặc cập nhật suất chiếu,
+             rebuild FAISS index để chatbot biết phim mới
+
+  HEADER: Authorization: Bearer <admin_jwt_token>
+
+  RESPONSE:
+  200 OK:
+  {
+      "message":             "FAISS index rebuilt successfully.",
+      "documents_indexed":   20,
+      "time_taken_seconds":  8.3
+  }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CÁC PACKAGE CẦN CÀI (requirements.txt additions)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  langchain>=0.3.0
+  langchain-core>=0.3.0
+  langchain-community>=0.3.0
+  langchain-ollama>=0.2.0
+  faiss-cpu>=1.8.0
+
+  # Cài tất cả 1 lần:
+  pip install langchain langchain-core langchain-community langchain-ollama faiss-cpu
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CẤU TRÚC FILE SẼ TẠO MỚI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  backend/
+  ├── faiss_index/                  [TẠO TỰ ĐỘNG khi server chạy lần đầu]
+  │   ├── index.faiss
+  │   └── index.pkl
+  │
+  ├── src/
+  │   ├── models/
+  │   │   └── ai_chat.py            [NEW] Model + Pydantic schemas
+  │   ├── services/
+  │   │   └── ai_service.py         [NEW] Load data, build index, RAG chain
+  │   ├── controllers/
+  │   │   └── ai_controller.py      [NEW] HTTP handlers
+  │   └── routes/
+  │       └── ai.py                 [NEW] Router + endpoint registration
+  │
+  ├── main.py                       [MODIFY] Import model AI, register router
+  ├── requirements.txt              [MODIFY] Thêm langchain packages
+  └── .env                         [MODIFY] Thêm OLLAMA_BASE_URL, OLLAMA_MODEL
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TÓM TẮT TECH STACK ĐÃ CHỐT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Thành phần       Công nghệ              Ghi chú
+  ──────────────── ────────────────────── ────────────────────────────────────
+  Framework RAG    LangChain (LCEL)       Pipe syntax |
+  LLM              Groq API + llama-3.3-70b-versatile    Cloud, cần API key, cực nhanh ~500 tokens/s
+  Embedding        HuggingFace + paraphrase-multilingual-MiniLM-L12-v2    Local, miễn phí, 384 dims, hỗ trợ tiếng Việt
+  Vector DB        FAISS (CPU)            Trong memory + lưu disk
+  Data Source      PostgreSQL (Supabase)  Query trực tiếp từ DB thật
+  Chunking         Không cần (1 doc=1 phim)
+  Temperature      0.7                    Cân bằng sáng tạo & chính xác
+  top_k retrieval  4 documents            Đủ gợi ý, prompt không quá dài
+  Backend          FastAPI (async)        Nhất quán với dự án hiện tại
+  APIs cần thiết   6 endpoints            Xem chi tiết Bước 9
+                   - POST /ai/chat                        (public)
+                   - GET  /ai/conversations               (JWT)
+                   - GET  /ai/conversations/{id}/messages (JWT)
+                   - DELETE /ai/conversations/{id}        (JWT)
+                   - GET  /ai/status                      (public)
+                   - POST /ai/rebuild-index               (admin)
+
+================================================================================
