@@ -96,7 +96,7 @@ CineBook được phân rã thành bốn thành phần chính:
 - **Presentation Tier**: Bao gồm toàn bộ giao diện tương tác với người dùng như trang chủ, đăng nhập/đăng ký, chi tiết phim, chọn ghế, thanh toán, chatbot và dashboard quản trị.
 - **Logic Tier**: Chứa các module xử lý nghiệp vụ như xác thực người dùng, quản lý phim và suất chiếu, đặt vé, thanh toán VietQR, recommendation AI, báo cáo doanh thu và tài liệu API.
 - **Data Tier**: Bao gồm các thành phần lưu trữ dữ liệu như PostgreSQL Database, ChromaDB vector store và media storage.
-- **External / Runtime Services**: Bao gồm các dịch vụ ngoài hệ thống như Ollama Local LLM, VietQR Banking App và môi trường trình duyệt web.
+- **External / Runtime Services**: Bao gồm các dịch vụ ngoài hệ thống như GroqAPI, VietQR Banking App và môi trường trình duyệt web.
 
 Việc phân rã theo module giúp hệ thống giảm coupling giữa các thành phần, đồng thời hỗ trợ phát triển độc lập và dễ dàng mở rộng chức năng trong tương lai.
 
@@ -123,7 +123,7 @@ Trong kiến trúc này:
 - Backend được phát triển bằng FastAPI, xử lý toàn bộ nghiệp vụ hệ thống như authentication, booking flow, payment processing, admin operations và AI recommendation.
 - PostgreSQL được sử dụng để lưu trữ dữ liệu quan hệ và dữ liệu giao dịch.
 - ChromaDB đóng vai trò vector database phục vụ semantic retrieval cho chatbot recommendation.
-- Ollama Local LLM được tích hợp để sinh phản hồi hội thoại và recommendation bằng ngôn ngữ tự nhiên.
+- LLM của GroqAPI được tích hợp để sinh phản hồi hội thoại và recommendation bằng ngôn ngữ tự nhiên.
 - VietQR được sử dụng để xử lý thanh toán QR-code và callback giao dịch.
 
 Kiến trúc này cho phép tách biệt rõ ràng giữa giao diện, xử lý nghiệp vụ và lưu trữ dữ liệu, từ đó giúp hệ thống dễ mở rộng và dễ triển khai hơn.
@@ -163,7 +163,7 @@ Frontend và backend giao tiếp với nhau thông qua REST API sử dụng dữ
 Hệ thống recommendation sử dụng kiến trúc RAG (Retrieval-Augmented Generation), kết hợp:
 - PostgreSQL để truy xuất dữ liệu phim
 - ChromaDB để semantic retrieval
-- Ollama Local LLM để sinh phản hồi hội thoại
+- GroqAPI để sinh phản hồi hội thoại
 
 Kiến trúc này giúp chatbot có khả năng hỗ trợ recommendation theo ngữ cảnh và tương tác tự nhiên với người dùng.
 

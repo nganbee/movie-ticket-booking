@@ -54,12 +54,12 @@ CineBook được thiết kế dưới dạng **ứng dụng web**, có thể tr
 | **Giao tiếp API** | RESTful API qua HTTPS; định dạng trao đổi dữ liệu JSON |
 | **Cơ sở dữ liệu** | PostgreSQL (lưu trữ quan hệ cho người dùng, phim, lịch chiếu, giao dịch) |
 | **Vector Database** | ChromaDB (phục vụ truy xuất ngữ nghĩa trong pipeline RAG của AI) |
-| **AI Runtime** | Ollama (engine chạy LLM cục bộ, triển khai mô hình ngôn ngữ lớn on-premises) |
+| **AI Runtime** | GroqAPI (gọi API đến những mô hình ngôn ngữ lớn, để nhận được phản hồi chính xác hơn)|
 | **Tài liệu API** | Swagger UI (tự động sinh bởi FastAPI, dùng để đặc tả và kiểm thử API) |
 
 **Yêu cầu phần cứng phía server:**
 - CPU: Tối thiểu 4 cores (đáp ứng xử lý đồng thời API và LLM inference)
-- RAM: Tối thiểu 16 GB (cần thiết để chạy Ollama/LLM ổn định)
+- RAM: Tối thiểu 16 GB
 - Lưu trữ: Tối thiểu 20 GB SSD trống (cho model weights, database và tài nguyên media)
 
 **Yêu cầu phía client:**
@@ -87,7 +87,7 @@ Xác thực người dùng phải được triển khai theo cơ chế chuẩn (
 Tất cả endpoint backend phải được mô tả đầy đủ và có thể kiểm thử qua **Swagger UI**, được tự động sinh bởi FastAPI. Đặc tả endpoint phải bao gồm schema request/response, yêu cầu xác thực và mã lỗi.
 
 **Thành phần AI**
-Trợ lý AI phải được triển khai bằng **Ollama** để chạy LLM cục bộ, theo kiến trúc **RAG**: câu hỏi của người dùng được xử lý bằng cách truy xuất ngữ cảnh liên quan từ dữ liệu nội bộ của hệ thống (qua ChromaDB) trước khi đưa vào mô hình ngôn ngữ. Thiết kế này đảm bảo độ chính xác của phản hồi và ngăn dữ liệu nghiệp vụ nhạy cảm bị gửi ra các dịch vụ AI bên ngoài.
+Trợ lý AI phải được triển khai bằng **GroqAPI** để tối ưu tốc độ, theo kiến trúc **RAG**: câu hỏi của người dùng được xử lý bằng cách truy xuất ngữ cảnh liên quan từ dữ liệu nội bộ của hệ thống (qua ChromaDB) trước khi đưa vào mô hình ngôn ngữ. Thiết kế này đảm bảo độ chính xác của phản hồi và ngăn dữ liệu nghiệp vụ nhạy cảm bị gửi ra các dịch vụ AI bên ngoài.
 
 **Kiến trúc module hóa**
 Hệ thống phải được thiết kế theo kiến trúc phân tầng, module hóa (3-Tier: Presentation → Logic → Data) để cho phép thay thế hoặc mở rộng độc lập từng thành phần (ví dụ: đổi module thanh toán, nâng cấp mô hình AI, hoặc chuyển sang cloud database) mà không cần viết lại toàn bộ hệ thống.
@@ -137,7 +137,7 @@ Bảng dưới đây liệt kê các yêu cầu chức năng của hệ thống 
 | FR-13 | Thanh toán | Hệ thống xác nhận thanh toán thành công và cấp vé điện tử (e-ticket) kèm mã QR nhận vé. | User |
 | FR-14 | Lịch sử & Tài khoản | Hệ thống cho phép người dùng xem toàn bộ lịch sử đặt vé, trạng thái thanh toán và mã QR của từng vé. | User |
 | FR-15 | Lịch sử & Tài khoản | Hệ thống cho phép người dùng thực hiện thanh toán cho các đơn vé chưa hoàn tất trực tiếp từ màn hình lịch sử. | User |
-| FR-16 | Trợ lý AI | Hệ thống tích hợp chatbot AI (kiến trúc RAG + Ollama) cho phép người dùng hỏi và nhận gợi ý phim, suất chiếu phù hợp. | User / Guest |
+| FR-16 | Trợ lý AI | Hệ thống tích hợp chatbot AI (kiến trúc RAG + GroqAPI) cho phép người dùng hỏi và nhận gợi ý phim, suất chiếu phù hợp. | User / Guest |
 | FR-17 | Quản trị - Phim | Admin có thể thêm, sửa, xoá thông tin phim trong hệ thống. | Admin |
 | FR-18 | Quản trị - Lịch chiếu | Admin có thể tạo, chỉnh sửa và xoá suất chiếu; hệ thống kiểm tra và cảnh báo nếu trùng phòng/giờ. | Admin |
 | FR-19 | Quản trị - Báo cáo | Admin có thể xem báo cáo doanh thu và số vé bán theo ngày/tuần/tháng, theo từng phim; xuất file Excel/CSV. | Admin |
@@ -164,7 +164,7 @@ Các yêu cầu phi chức năng xác định những tiêu chí chất lượng
 | NFR-09 | Khả năng mở rộng (Scalability) | Backend FastAPI phải hỗ trợ xử lý đồng thời (ASGI) và có thể scale ngang khi tải tăng. | Không có bottleneck đơn điểm tại API layer trong kiểm thử tải 500 req/s. |
 | NFR-10 | Tính dễ sử dụng (Usability) | Giao diện người dùng phải responsive và hiển thị đúng trên các trình duyệt hiện đại (Chrome, Edge, Firefox) và các thiết bị có màn hình từ 360px trở lên. | Kiểm thử cross-browser trên 3 trình duyệt; responsive test trên mobile (360px) và desktop (1920px). |
 | NFR-11 | Chuẩn tài liệu (Documentability) | Toàn bộ API endpoint phải được mô tả đầy đủ và kiểm thử được qua Swagger UI (tự động sinh bởi FastAPI). | 100% endpoint có schema request/response, mã lỗi và yêu cầu xác thực trong Swagger. |
-| NFR-12 | Tính riêng tư AI (AI Privacy) | Dữ liệu nghiệp vụ nội bộ (lịch chiếu, thông tin phim, dữ liệu người dùng) không được gửi ra các dịch vụ AI bên ngoài. LLM phải chạy cục bộ qua Ollama. | Kiểm tra network traffic: không có request đến external AI API trong quá trình chatbot hoạt động. |
+| NFR-12 | Tính riêng tư AI (AI Privacy) | Dữ liệu nghiệp vụ nội bộ (như dữ liệu người dùng) không được gửi ra các dịch vụ AI bên ngoài. Thiết lập các guardrails để không cung cấp dữ liệu người dùng cho API. | Kiểm tra network traffic: không có request đến external AI API trong quá trình chatbot hoạt động. |
 
 ---
 
@@ -466,8 +466,8 @@ Reviewed by: 23120047 - Nguyễn Gia Huy
 | **Actor**                      | Người dùng (User / Guest)                                                                                                                                                                                                                                                                                                                                                                         |
 | **Pre-Condition**              | Người dùng truy cập vào hệ thống (không bắt buộc đăng nhập).                                                                                                                                                                                                                                                                                                                                      |
 | **Result**                     | Chatbot trả lời bằng ngôn ngữ tự nhiên kèm theo các gợi ý phim/suất chiếu phù hợp.                                                                                                                                                                                                                                                                                                                |
-| **Main Scenario**              | 1. Người dùng nhập nội dung cần tư vấn *(ví dụ: "Tìm phim hành động chiếu tối nay")*.<br>2. Backend (FastAPI) nhận request và kích hoạt pipeline **RAG**.<br>3. Hệ thống truy vấn **Vector DB (ChromaDB)** để lấy dữ liệu phim và lịch chiếu.<br>4. **Ollama (LLM)** tổng hợp thông tin và sinh câu trả lời.<br>5. Hệ thống hiển thị phản hồi kèm các **movie cards** để người dùng đặt vé nhanh. |
-| **Alternative Scenarios**      | **A1. Không tìm thấy phim phù hợp:** AI xin lỗi và gợi ý phim đang hot.<br>**A2. Lỗi hệ thống AI:** Nếu Ollama không phản hồi, hệ thống chuyển sang fallback hoặc hiển thị thông báo *"Chatbot đang bảo trì"*.                                                                                                                                                                                    |
+| **Main Scenario**              | 1. Người dùng nhập nội dung cần tư vấn *(ví dụ: "Tìm phim hành động chiếu tối nay")*.<br>2. Backend (FastAPI) nhận request và kích hoạt pipeline **RAG**.<br>3. Hệ thống truy vấn **Vector DB (ChromaDB)** để lấy dữ liệu phim và lịch chiếu.<br>4. **LLM** tổng hợp thông tin và sinh câu trả lời.<br>5. Hệ thống hiển thị phản hồi kèm các **movie cards** để người dùng đặt vé nhanh. |
+| **Alternative Scenarios**      | **A1. Không tìm thấy phim phù hợp:** AI xin lỗi và gợi ý phim đang hot.<br>**A2. Lỗi hệ thống AI:** Nếu API không phản hồi, hệ thống chuyển sang fallback hoặc hiển thị thông báo *"Chatbot đang bảo trì"*.                                                                                                                                                                                    |
 | **Non-Functional Constraints** | - Đảm bảo tính chính xác (không hallucinate dữ liệu lịch chiếu).<br>- Thời gian phản hồi < 3 giây.<br>- Giao diện chat thân thiện, hỗ trợ tiếng Việt tốt.                                                                                                                                                                                                                                         |
 
 ---
@@ -510,7 +510,7 @@ Trường hợp người dùng nhập yêu cầu không phù hợp với dữ li
 
 **2.4 Kịch bản A2: Lỗi hệ thống AI**
 
-Khi hệ thống AI (Ollama) không phản hồi, chatbot chuyển sang chế độ fallback và thông báo cho người dùng.
+Khi hệ thống AI không phản hồi, chatbot chuyển sang chế độ fallback và thông báo cho người dùng.
 
 <p align="center">
   <img src="data/image_template_1/4_2_6/error_system.png" width="100%"/>
@@ -661,7 +661,7 @@ Video thuyết trình: [LINK](https://youtu.be/ric8wiL8aKo)
 ### Những phần hữu ích nhất cho quá trình triển khai
 Dựa trên quá trình làm việc, nhóm nhận thấy các phần sau đây đóng vai trò là "kim chỉ nam" cho việc lập trình và thiết kế hệ thống:
 
-- Ràng buộc thiết kế & triển khai (Mục 2.3): Phần này cực kỳ hữu ích vì nó xác định rõ khung công nghệ (Tech Stack) bao gồm FastAPI, React.js, PostgreSQL và Ollama. Việc chốt phương án sử dụng  kiến trúc 3 tầng (3-Tier) giúp các thành viên Backend, Frontend và AI phối hợp nhịp nhàng mà không bị chồng chéo.
+- Ràng buộc thiết kế & triển khai (Mục 2.3): Phần này cực kỳ hữu ích vì nó xác định rõ khung công nghệ (Tech Stack) bao gồm FastAPI, React.js, PostgreSQL. Việc chốt phương án sử dụng  kiến trúc 3 tầng (3-Tier) giúp các thành viên Backend, Frontend và AI phối hợp nhịp nhàng mà không bị chồng chéo.
 
 - Đặc tả yêu cầu phi chức năng (Mục 3.2.2): Các chỉ số như thời gian phản hồi API < 2 giây (NFR-01) hay tính toàn vẹn dữ liệu ghế ngồi (NFR-05) cung cấp tiêu chuẩn cụ thể để nhóm thực hiện kiểm thử. Ví dụ: yêu cầu về Optimistic Locking trong đặc tả là căn cứ kỹ thuật bắt buộc để xử lý vấn đề đặt trùng ghế.
 

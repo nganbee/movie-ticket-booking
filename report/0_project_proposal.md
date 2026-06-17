@@ -52,7 +52,7 @@ Hệ thống được xây dựng theo mô hình **web-based**:
 - **Frontend:** React.js, Tailwind CSS  
 - **Backend:** FastAPI (Python), hỗ trợ Swagger API Documentation  
 - **Database:** PostgreSQL (có thể tích hợp Supabase)  
-- **AI Assistant:** Áp dụng mô hình RAG (Retrieval-Augmented Generation), kết hợp truy xuất dữ liệu từ hệ thống và sử dụng Ollama để triển khai mô hình AI (LLM) chạy cục bộ, giúp tăng độ chính xác và đảm bảo tính bảo mật dữ liệu  
+- **AI Assistant:** Áp dụng mô hình RAG (Retrieval-Augmented Generation), kết hợp truy xuất dữ liệu từ hệ thống và sử dụng API của Groq để triển khai mô hình AI (LLM) chạy cục bộ, giúp tăng độ chính xác và đảm bảo tính bảo mật dữ liệu  
 
 Hệ thống giao tiếp thông qua **RESTful API** giữa frontend và backend.
 
@@ -100,7 +100,7 @@ Hệ thống được thiết kế theo kiến trúc Client-Server hiện đại
 
 - **Database:** Sử dụng PostgreSQL để lưu trữ dữ liệu có cấu trúc (thông tin phim, người dùng, giao dịch vé).
 
-- **AI Component:** Triển khai theo mô hình RAG (Retrieval-Augmented Generation). Sử dụng Ollama để chạy các mô hình LLM cục bộ, kết hợp với dữ liệu truy xuất từ PostgreSQL để phản hồi các yêu cầu tư vấn của người dùng một cách chính xác và bảo mật.
+- **AI Component:** Triển khai theo mô hình RAG (Retrieval-Augmented Generation). Sử dụng GroqAPI để chạy các mô hình LLM để tối ưu tốc độ, kết hợp với dữ liệu truy xuất từ PostgreSQL để phản hồi các yêu cầu tư vấn của người dùng một cách chính xác.
 ### 3.2 Hardware  
 > Written by: 23120049 - Nguyễn Thanh Huyền    
 Reviewed by: 23120047 - Nguyễn Gia Huy  
@@ -109,7 +109,7 @@ Reviewed by: 23120047 - Nguyễn Gia Huy
 
 **Server Side:**  
 - CPU: Tối thiểu 4 Cores  
-- RAM: Tối thiểu 16GB (Để chạy mô hình LLM qua Ollama ổn định).  
+- RAM: Tối thiểu 16GB.  
 - Lưu trữ: SSD với dung lượng trống tối thiểu 20GB.   
 
 **Client Side:** 
@@ -160,7 +160,7 @@ Reviewed by: 23120038 - Lê Hoàng Mỹ Hạ
 | **Backend** | Python (FastAPI) | Tối ưu, dễ tích hợp các thư viện AI. |
 | **Database** | PostgreSQL | Đảm bảo tính toàn vẹn dữ liệu cho các giao dịch đặt vé, thanh toán và phân quyền Admin. |
 | **Vector DB** | ChromaDB | Lưu trữ dữ liệu phim dưới dạng Vector để Chatbot (RAG) truy vấn thông tin chính xác. |
-| **AI Model** | Ollama | Chạy local giúp bảo mật dữ liệu và không tốn chi phí API. |
+| **AI Model** | Groq API | Gọi API model giúp tiết kiệm chi phí hosting model. |
 | **DevOps** | Docker | Đóng gói hệ thống |
 | **Version Control** | Git / GitHub | Quản lý mã nguồn, chia nhánh tính năng và phối hợp làm việc nhóm hiệu quả. |
 
@@ -370,7 +370,7 @@ Video thuyết trình: [LINK ](https://youtu.be/AqJ8dXVRyVs)
 
 **Phần 2 – Preliminary Problem Statement** là nền tảng quan trọng nhất của toàn bộ tài liệu. Việc phải mô tả rõ bài toán ngay từ đầu — bao gồm môi trường hoạt động (React, FastAPI, PostgreSQL) và các ràng buộc thiết kế (bảo mật, hiệu năng, mở rộng) — buộc nhóm thống nhất phạm vi dự án trước khi bắt tay viết code. Nếu không có phần này, nhóm dễ bị phân tán khi mỗi thành viên hiểu khác nhau về "hệ thống đặt vé rạp chiếu phim". Ví dụ cụ thể: chính nhờ ràng buộc *"tránh trùng ghế khi nhiều người đặt đồng thời"* được nêu ở đây mà nhóm đã sớm xác định cần xử lý concurrency ở tầng Backend, tránh phát sinh vấn đề này muộn trong giai đoạn kiểm thử.
 
-**Phần 3 – Proposed Solution (đặc biệt 3.1.1 Features và 3.1.2 Software Architecture)** rất thiết thực. Bảng user story mapping giúp mỗi thành viên biết chính xác tính năng nào mình phụ trách có giá trị gì cho người dùng, thay vì chỉ thấy một danh sách chức năng trừu tượng. Ví dụ: yêu cầu *"Trợ lý AI tư vấn phim dựa trên sở thích cá nhân"* được ánh xạ rõ thành quyết định kiến trúc RAG + Ollama, tạo cơ sở thống nhất giữa Frontend (hiển thị chatbox) và AI Developer (xây pipeline retrieval).
+**Phần 3 – Proposed Solution (đặc biệt 3.1.1 Features và 3.1.2 Software Architecture)** rất thiết thực. Bảng user story mapping giúp mỗi thành viên biết chính xác tính năng nào mình phụ trách có giá trị gì cho người dùng, thay vì chỉ thấy một danh sách chức năng trừu tượng. Ví dụ: yêu cầu *"Trợ lý AI tư vấn phim dựa trên sở thích cá nhân"* được ánh xạ rõ thành quyết định kiến trúc RAG + GroqAPI, tạo cơ sở thống nhất giữa Frontend (hiển thị chatbox) và AI Developer (xây pipeline retrieval).
 
 **Phần 4 – Development Plan** buộc nhóm phải nghĩ đến cả chu kỳ sống của phần mềm — từ phân tích, thiết kế, lập trình, kiểm thử đến triển khai — ngay từ giai đoạn đề xuất. Việc định nghĩa các milestone theo sprint (Sprint 1: Docker + Auth, Sprint 2: Core Logic,...) giúp nhóm phát hiện sớm nếu một sprint bị chậm, thay vì nhận ra toàn bộ dự án trễ hạn vào tuần cuối.
 
