@@ -15,6 +15,7 @@ Embedding: HuggingFace – paraphrase-multilingual-MiniLM-L12-v2 (local, hỗ tr
 import os
 import logging
 from typing import Optional
+from datetime import datetime, timezone, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, text
@@ -252,11 +253,14 @@ NHIỆM VỤ CHÍNH:
 - Hỗ trợ hướng dẫn đặt vé trên website CineBook.
 
 NGUYÊN TẮC BẮT BUỘC:
-1. Chỉ gợi ý phim CÓ TRONG danh sách [DỮ LIỆU PHIM] bên dưới. KHÔNG tự bịa phim.
-2. Nếu không có phim phù hợp, thành thật nói: "Hiện tại CineBook chưa có phim phù hợp với yêu cầu của bạn."
-3. Luôn trả lời bằng TIẾNG VIỆT, thân thiện, gần gũi.
-4. Khi gợi ý phim, luôn kèm: tên phim, thể loại, và suất chiếu gần nhất.
-5. Nếu người dùng hỏi ngoài chủ đề phim/rạp chiếu, nhẹ nhàng hướng về chủ đề chính.
+1. Chỉ gợi ý phim CÓ TRONG danh sách [DỮ LIỆU PHIM] hoặc [THÔNG TIN THỜI GIAN THỰC] bên dưới. KHÔNG tự bịa phim.
+2. TUYỆT ĐỐI TÔN TRỌNG THỂ LOẠI. Nếu người dùng yêu cầu phim "gia đình", KHÔNG ĐƯỢC gợi ý phim "kinh dị" hay thể loại không phù hợp khác dù chúng xuất hiện trong [DỮ LIỆU PHIM]. Bạn phải chủ động lọc phim đúng yêu cầu.
+3. Nếu không có phim phù hợp, thành thật nói: "Hiện tại CineBook chưa có phim phù hợp với yêu cầu của bạn."
+4. Luôn trả lời bằng TIẾNG VIỆT, thân thiện, gần gũi.
+5. Khi gợi ý phim, luôn kèm: tên phim, thể loại, và suất chiếu gần nhất.
+6. Nếu người dùng hỏi ngoài chủ đề phim/rạp chiếu, nhẹ nhàng hướng về chủ đề chính.
+
+{realtime_context}
 
 [DỮ LIỆU PHIM ĐANG CHIẾU TẠI CINEBOOK]:
 {context}"""
@@ -296,6 +300,7 @@ def _build_rag_chain(vectorstore: FAISS):
             "context":      itemgetter("question") | retriever | _format_docs,
             "question":     itemgetter("question"),
             "chat_history": itemgetter("chat_history"),
+            "realtime_context": itemgetter("realtime_context"),
         }
         | _prompt
         | llm
@@ -331,23 +336,59 @@ async def chat(
         elif msg["role"] == "assistant":
             chat_history.append(AIMessage(content=msg["content"]))
 
+    # Thêm real-time context cho lịch chiếu hôm nay
+    message_lower = message.lower()
+    realtime_context = ""
+    vntime = timezone(timedelta(hours=7))
+    now = datetime.now(vntime)
+    
+    if "hôm nay" in message_lower or "nay" in message_lower:
+        start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_of_day = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+        
+        stmt = (
+            select(ShowtimeTable, MovieTable.title, TheaterTable.name.label("theater_name"), RoomTable.name.label("room_name"))
+            .join(MovieTable, ShowtimeTable.movie_id == MovieTable.movie_id)
+            .join(RoomTable, ShowtimeTable.room_id == RoomTable.room_id)
+            .join(TheaterTable, RoomTable.theater_id == TheaterTable.theater_id)
+            .where(ShowtimeTable.start_time >= start_of_day)
+            .where(ShowtimeTable.start_time <= end_of_day)
+        )
+        result = await db.execute(stmt)
+        rows = result.all()
+        if rows:
+            showtime_list_str = "\n".join([f"- Phim '{row.title}' [lúc {row.ShowtimeTable.start_time.astimezone(vntime).strftime('%H:%M')}](/booking/{row.ShowtimeTable.showtime_id}) tại {row.theater_name} ({row.room_name} - {row.ShowtimeTable.format})" for row in rows])
+            realtime_context = f"\n[THÔNG TIN THỜI GIAN THỰC - LỊCH CHIẾU HÔM NAY ({now.strftime('%d/%m/%Y')})]:\n{showtime_list_str}\n\n*HƯỚNG DẪN DÀNH CHO AI: Khi nhắc đến suất chiếu, BẮT BUỘC giữ nguyên định dạng link Markdown như [lúc HH:MM](/booking/ID) để người dùng có thể click chọn chỗ ngồi.*\n"
+        else:
+            realtime_context = f"\n[THÔNG TIN THỜI GIAN THỰC - LỊCH CHIẾU HÔM NAY ({now.strftime('%d/%m/%Y')})]: Không có suất chiếu nào.\n"
+    else:
+        realtime_context = f"\n[THÔNG TIN THỜI GIAN THỰC]: Hôm nay là {now.strftime('%d/%m/%Y %H:%M')}.\n"
+
     # Invoke chain (async)
     reply: str = await chain.ainvoke({
-        "question":     message,
-        "chat_history": chat_history,
+        "question":         message,
+        "chat_history":     chat_history,
+        "realtime_context": realtime_context,
     })
 
     # Lấy danh sách phim được retrieve (để trả suggested_movies)
     retrieved_docs: list[Document] = retriever.invoke(message)
-    suggested_movies = [
-        {
-            "movie_id":   doc.metadata["movie_id"],
-            "title":      doc.metadata["title"],
-            "poster_url": doc.metadata["poster_url"],
-            "genre":      doc.metadata["genre"],
-        }
-        for doc in retrieved_docs
-    ]
+    
+    # Chỉ trả về những phim mà AI THỰC SỰ nhắc tới trong câu trả lời
+    suggested_movies = []
+    reply_lower = reply.lower()
+    seen_ids = set()
+    
+    for doc in retrieved_docs:
+        title_lower = doc.metadata["title"].lower()
+        if title_lower in reply_lower and doc.metadata["movie_id"] not in seen_ids:
+            seen_ids.add(doc.metadata["movie_id"])
+            suggested_movies.append({
+                "movie_id":   doc.metadata["movie_id"],
+                "title":      doc.metadata["title"],
+                "poster_url": doc.metadata["poster_url"],
+                "genre":      doc.metadata["genre"],
+            })
 
     return {
         "reply":            reply,
