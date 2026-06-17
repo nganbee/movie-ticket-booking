@@ -18,7 +18,7 @@
     <!-- Search -->
     <div class="relative flex-1">
       <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-      <input id="trans-search" type="text" placeholder="Tìm theo Mã giao dịch, Tên khách hàng, Tên phim..." oninput="renderTransactions()"
+      <input id="trans-search" type="text" placeholder="Tìm theo Mã giao dịch, Tên khách hàng, Tên phim..." oninput="debounceSearch()"
         class="w-full border border-slate-200 bg-slate-50 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
     </div>
 
@@ -63,9 +63,9 @@
     <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-medium flex-wrap gap-2">
       <span id="trans-summary-text">Hiển thị 0 đơn hàng</span>
       <div class="flex items-center gap-1">
-        <button class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 flex items-center justify-center transition disabled:opacity-40" disabled><i class="fas fa-chevron-left text-[10px]"></i></button>
-        <button class="w-8 h-8 rounded-lg bg-brand text-white font-bold flex items-center justify-center">1</button>
-        <button class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 flex items-center justify-center transition disabled:opacity-40" disabled><i class="fas fa-chevron-right text-[10px]"></i></button>
+        <button id="prev-page-btn" onclick="prevPage()" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 flex items-center justify-center transition disabled:opacity-40" disabled><i class="fas fa-chevron-left text-[10px]"></i></button>
+        <button id="current-page-label" class="w-8 h-8 rounded-lg bg-brand text-white font-bold flex items-center justify-center">1</button>
+        <button id="next-page-btn" onclick="nextPage()" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 flex items-center justify-center transition disabled:opacity-40" disabled><i class="fas fa-chevron-right text-[10px]"></i></button>
       </div>
     </div>
   </div>
@@ -168,112 +168,88 @@
 </div>
 
 <script>
-let TRANSACTION_DATA = [];
+let totalTransactions = 0;
+let TRANSACTION_DATA = []; // Keep it for modal to find transaction by id
 let currentFilterStatus = 'all';
+let currentPage = 1;
+const ITEMS_PER_PAGE = 12;
 
-// Seed Transaction Data
-const SEED_TRANSACTIONS = [
-  {
-    id: "CB-773829",
-    customerName: "Nguyễn Hoàng Nam",
-    customerEmail: "nam.nguyen@gmail.com",
-    movieTitle: "Lật Mặt 7: Một Điều Ước",
-    movieGenre: "Gia đình, Kịch tính",
-    poster: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=80",
-    showtime: "09:30 - Thứ 5, 04/06/2026",
-    room: "Phòng Chiếu 1 (Standard)",
-    seats: "D6, D7",
-    amount: 190000,
-    status: "Paid", // 'Paid', 'Cancelled', 'Pending'
-    time: "10:24 - 04/06/2026",
-    method: "VNPAY (Thẻ nội địa)"
-  },
-  {
-    id: "CB-129847",
-    customerName: "Trần Thị Lan",
-    customerEmail: "lan.tran@yahoo.com",
-    movieTitle: "Mai",
-    movieGenre: "Tâm lý, Tình cảm",
-    poster: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=80",
-    showtime: "15:30 - Thứ 5, 04/06/2026",
-    room: "Phòng Chiếu 2 (IMAX)",
-    seats: "F4",
-    amount: 120000,
-    status: "Paid",
-    time: "08:15 - 04/06/2026",
-    method: "VNPAY (Thẻ nội địa)"
-  },
-  {
-    id: "CB-449301",
-    customerName: "Phạm Minh Quân",
-    customerEmail: "quan.pm@gmail.com",
-    movieTitle: "Dune: Phần Hai",
-    movieGenre: "Khoa học viễn tưởng, Hành động",
-    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80",
-    showtime: "20:00 - Thứ 6, 05/06/2026",
-    room: "Phòng Chiếu 3 (Gold Class)",
-    seats: "C3, C4",
-    amount: 320000,
-    status: "Cancelled",
-    time: "11:05 - 04/06/2026",
-    method: "Đã hết hạn phiên giao dịch"
-  },
-  {
-    id: "CB-902174",
-    customerName: "Lê Thu Thảo",
-    customerEmail: "thao.le98@hotmail.com",
-    movieTitle: "Lật Mặt 7: Một Điều Ước",
-    movieGenre: "Gia đình, Kịch tính",
-    poster: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=80",
-    showtime: "12:15 - Thứ 5, 04/06/2026",
-    room: "Phòng Chiếu 1 (Standard)",
-    seats: "E8, E9, E10",
-    amount: 300000,
-    status: "Pending",
-    time: "12:11 - 04/06/2026",
-    method: "Đang chờ VNPAY phản hồi..."
-  }
-];
+const API_URL = 'http://localhost:8000/bookings/admin';
+function getAuthHeader() {
+  const token = localStorage.getItem('access_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-  const stored = localStorage.getItem('cinebook_transactions');
-  if (stored) {
-    TRANSACTION_DATA = JSON.parse(stored);
-  } else {
-    TRANSACTION_DATA = SEED_TRANSACTIONS;
-    localStorage.setItem('cinebook_transactions', JSON.stringify(TRANSACTION_DATA));
-  }
-  
-  renderTransactions();
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadTransactions();
 });
 
-// Render table
-function renderTransactions() {
-  const search = document.getElementById('trans-search').value.toLowerCase();
-  
-  const filtered = TRANSACTION_DATA.filter(t => {
-    const matchSearch = t.id.toLowerCase().includes(search) ||
-                        t.customerName.toLowerCase().includes(search) ||
-                        t.movieTitle.toLowerCase().includes(search);
-    const matchStatus = currentFilterStatus === 'all' || t.status === currentFilterStatus;
-    
-    return matchSearch && matchStatus;
-  });
+async function loadTransactions() {
+  try {
+    const search = document.getElementById('trans-search').value;
+    const query = new URLSearchParams({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+      search: search,
+      status: currentFilterStatus
+    });
 
+    const res = await fetch(`${API_URL}?${query.toString()}`, {
+      headers: getAuthHeader()
+    });
+    if (!res.ok) throw new Error('Failed to load transactions');
+    const data = await res.json();
+    
+    totalTransactions = data.total;
+    TRANSACTION_DATA = data.items; // Store for modal access
+    renderTransactions(data.items);
+  } catch (err) {
+    console.error(err);
+    alert('Không thể tải dữ liệu giao dịch từ máy chủ.');
+  }
+}
+
+// Debounce for search
+let searchTimeout;
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    currentPage = 1;
+    loadTransactions();
+  }, 500);
+}
+
+// Render table
+function renderTransactions(items) {
   const tbody = document.getElementById('trans-tbody');
   const empty = document.getElementById('trans-empty');
   const summary = document.getElementById('trans-summary-text');
 
-  summary.textContent = `Hiển thị ${filtered.length} đơn hàng trong danh sách`;
+  const totalPages = Math.ceil(totalTransactions / ITEMS_PER_PAGE) || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
 
-  if (filtered.length === 0) {
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIdx = startIdx + items.length;
+
+  if (totalTransactions === 0) {
+    summary.textContent = `Hiển thị 0 đơn hàng`;
+  } else {
+    summary.textContent = `Hiển thị ${startIdx + 1} - ${endIdx} trên tổng ${totalTransactions} đơn hàng`;
+  }
+
+  // Update pagination UI
+  document.getElementById('current-page-label').textContent = currentPage;
+  document.getElementById('prev-page-btn').disabled = currentPage === 1;
+  document.getElementById('next-page-btn').disabled = currentPage === totalPages;
+
+  if (items.length === 0) {
     tbody.innerHTML = '';
     empty.classList.remove('hidden');
     return;
   }
   empty.classList.add('hidden');
 
-  tbody.innerHTML = filtered.map(t => {
+  tbody.innerHTML = items.map(t => {
     let statusClass = 'bg-slate-100 text-slate-600';
     let statusLabel = 'Không rõ';
     
@@ -317,11 +293,12 @@ function renderTransactions() {
 // Filter configuration
 function setStatusFilter(status, btn) {
   currentFilterStatus = status;
+  currentPage = 1;
   document.querySelectorAll('.trans-filter-btn').forEach(b => {
     b.className = 'trans-filter-btn text-xs font-bold px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:border-brand hover:text-brand transition';
   });
   btn.className = 'trans-filter-btn active text-xs font-bold px-3.5 py-2 rounded-xl border border-brand bg-brand text-white transition';
-  renderTransactions();
+  loadTransactions();
 }
 
 // Receipt Modal Controls
@@ -369,11 +346,63 @@ function openReceiptModal(id) {
     label.textContent = "Chờ Thanh Toán";
   }
 
+  // Set action button based on status
+  const actionsDiv = document.getElementById('receipt-actions') || (() => {
+    const div = document.createElement('div');
+    div.id = 'receipt-actions';
+    div.className = 'w-full flex gap-2';
+    document.querySelector('#receipt-modal .px-6.py-4.border-t').prepend(div);
+    return div;
+  })();
+  
+  if (t.status === 'Pending') {
+    actionsDiv.innerHTML = `
+      <button onclick="updateBookingStatus(${t.booking_id}, 'paid')" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition shadow-md">Xác nhận thanh toán</button>
+      <button onclick="updateBookingStatus(${t.booking_id}, 'cancelled')" class="w-full py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition shadow-md">Hủy đơn</button>
+    `;
+  } else {
+    actionsDiv.innerHTML = ''; // No actions for paid or cancelled
+  }
+
   document.getElementById('receipt-modal').classList.remove('hidden');
+}
+
+async function updateBookingStatus(bookingId, status) {
+  try {
+    const res = await fetch(`${API_URL}/${bookingId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify({ status })
+    });
+    if (!res.ok) throw new Error('Cập nhật trạng thái thất bại');
+    
+    alert(`Đã cập nhật trạng thái thành: ${status}`);
+    closeReceiptModal();
+    await loadTransactions();
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
 }
 
 function closeReceiptModal() {
   document.getElementById('receipt-modal').classList.add('hidden');
+}
+
+// Pagination Controls
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    loadTransactions();
+  }
+}
+
+function nextPage() {
+  currentPage++;
+  loadTransactions();
 }
 
 // Export excel simulation

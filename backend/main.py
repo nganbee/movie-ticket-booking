@@ -43,6 +43,13 @@ async def lifespan(app: FastAPI):
     from src.controllers.booking_controller import BookingController
     cleanup_task = asyncio.create_task(BookingController.start_background_cleanup_task())
             
+    # Khởi động trước các mô hình AI (HuggingFace, Groq) để tránh delay ở request đầu tiên
+    from src.services.ai_service import _get_embedding_model, _get_llm
+    print("[AI] Preloading AI models...")
+    _get_embedding_model()
+    _get_llm()
+    print("[AI] AI models preloaded successfully!")
+
     yield
     # Khi ứng dụng tắt
     cleanup_task.cancel()

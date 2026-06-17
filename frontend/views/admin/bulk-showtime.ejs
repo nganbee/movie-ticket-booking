@@ -318,9 +318,10 @@ async function loadRooms() {
         const group = document.createElement('optgroup');
         group.label = t.name;
         t.rooms.forEach(r => {
-          roomData[r.room_id] = { name: r.name, theaterName: t.name };
+          const roomId = r.id || r.room_id;
+          roomData[roomId] = { name: r.name, theaterName: t.name };
           const option = document.createElement('option');
-          option.value = r.room_id;
+          option.value = roomId;
           option.textContent = `${r.name} (${r.seat_capacity} ghế)`;
           group.appendChild(option);
         });

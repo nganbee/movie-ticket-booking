@@ -139,10 +139,10 @@
           <div class="flex flex-wrap items-center gap-3">
             <span>CÔNG CỤ VẼ:</span>
             <div class="flex flex-wrap gap-2">
-              <button onclick="selectPaintTool('normal', this)" class="paint-tool active border-2 border-brand bg-white text-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+              <button onclick="selectPaintTool('Standard', this)" class="paint-tool active border-2 border-brand bg-white text-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
                 <span class="w-3.5 h-3.5 bg-white border border-slate-400 rounded-sm"></span> Ghế Thường
               </button>
-              <button onclick="selectPaintTool('vip', this)" class="paint-tool border border-slate-200 hover:border-amber-500 px-3 py-1.5 rounded-lg flex items-center gap-1.5 bg-white transition">
+              <button onclick="selectPaintTool('VIP', this)" class="paint-tool border border-slate-200 hover:border-amber-500 px-3 py-1.5 rounded-lg flex items-center gap-1.5 bg-white transition">
                 <span class="w-3.5 h-3.5 bg-amber-100 border border-amber-500 rounded-sm"></span> Ghế VIP
               </button>
               <button onclick="selectPaintTool('sold', this)" class="paint-tool border border-slate-200 hover:border-slate-400 px-3 py-1.5 rounded-lg flex items-center gap-1.5 bg-white transition">
@@ -306,104 +306,22 @@
 </div>
 
 <script>
-// Seed Data (if localStorage is empty)
-const SEED_BRANCHES = [
-  { id: 1, name: "CineBook Nguyễn Du" },
-  { id: 2, name: "CineBook Landmark 81" }
-];
-
-const SEED_ROOMS = [
-  {
-    id: 1,
-    branchId: 1,
-    name: "Phòng chiếu 1",
-    rows: 8,
-    cols: 12,
-    layout: {}
-  },
-  {
-    id: 2,
-    branchId: 1,
-    name: "Phòng chiếu 2",
-    rows: 10,
-    cols: 14,
-    layout: {}
-  },
-  {
-    id: 3,
-    branchId: 2,
-    name: "Phòng chiếu 1",
-    rows: 8,
-    cols: 12,
-    layout: {}
-  },
-  {
-    id: 4,
-    branchId: 2,
-    name: "Phòng chiếu 2",
-    rows: 6,
-    cols: 10,
-    layout: {}
-  }
-];
-
-// Generate seed layouts
-SEED_ROOMS.forEach(room => {
-  for (let r = 0; r < room.rows; r++) {
-    const rowChar = String.fromCharCode(65 + r);
-    for (let c = 1; c <= room.cols; c++) {
-      const key = `${rowChar}:${c}`;
-      if (r >= 3 && r <= 5) {
-        room.layout[key] = 'vip';
-      } else {
-        room.layout[key] = 'normal';
-      }
-      // Seed some sold seats
-      if (c === 4 && r === 2) room.layout[key] = 'sold';
-      if (c === 5 && r === 2) room.layout[key] = 'sold';
-      // Seed some empty spaces/aisles
-      if (room.cols > 8 && (c === 4 || c === room.cols - 3)) {
-        room.layout[key] = 'empty';
-      }
-    }
-  }
-});
-
 let BRANCH_DATA = [];
 let ROOMS_DATA = [];
 let currentActiveBranchId = null;
 let currentActiveRoomId = null;
-let currentPaintTool = 'normal';
+let currentPaintTool = 'Standard';
 let isDragMode = true; // Default drag selector mode
 let isMousedown = false; // Mouse down state tracker
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Load branches
-  const storedBranches = localStorage.getItem('cinebook_branches');
-  if (storedBranches) {
-    BRANCH_DATA = JSON.parse(storedBranches);
-  } else {
-    BRANCH_DATA = SEED_BRANCHES;
-    localStorage.setItem('cinebook_branches', JSON.stringify(BRANCH_DATA));
-  }
+const API_URL = 'http://localhost:8000/theaters/';
+function getAuthHeader() {
+  const token = localStorage.getItem('access_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
 
-  // Load rooms
-  const storedRooms = localStorage.getItem('cinebook_rooms');
-  if (storedRooms) {
-    ROOMS_DATA = JSON.parse(storedRooms);
-  } else {
-    ROOMS_DATA = SEED_ROOMS;
-    localStorage.setItem('cinebook_rooms', JSON.stringify(ROOMS_DATA));
-  }
-
-  // Select first branch and first room
-  if (BRANCH_DATA.length > 0) {
-    currentActiveBranchId = BRANCH_DATA[0].id;
-    const branchRooms = ROOMS_DATA.filter(r => r.branchId === currentActiveBranchId);
-    if (branchRooms.length > 0) {
-      currentActiveRoomId = branchRooms[0].id;
-    }
-  }
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadTheaters();
 
   // Mouse selection event listeners
   document.addEventListener('mouseup', (e) => {
@@ -417,11 +335,59 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas.addEventListener('mousedown', (e) => {
     startSelection(e);
   });
-
-  populateBranchSelect();
-  renderRoomList();
-  renderGridEditor();
 });
+
+async function loadTheaters() {
+  try {
+    const res = await fetch(API_URL, {
+      headers: getAuthHeader()
+    });
+    if (!res.ok) throw new Error('Failed to fetch theaters');
+    
+    BRANCH_DATA = await res.json();
+    
+    ROOMS_DATA = [];
+    BRANCH_DATA.forEach(b => {
+      if (b.rooms) {
+        b.rooms.forEach(r => {
+          // Normalize legacy seat types from database
+          if (r.layout) {
+            Object.keys(r.layout).forEach(key => {
+              if (r.layout[key] === 'vip') r.layout[key] = 'VIP';
+              if (r.layout[key] === 'normal') r.layout[key] = 'Standard';
+            });
+          }
+          ROOMS_DATA.push(r);
+        });
+      }
+    });
+
+    if (BRANCH_DATA.length > 0) {
+      if (!currentActiveBranchId || !BRANCH_DATA.find(b => b.id === currentActiveBranchId)) {
+        currentActiveBranchId = BRANCH_DATA[0].id;
+      }
+      
+      const branchRooms = ROOMS_DATA.filter(r => r.branchId === currentActiveBranchId);
+      if (branchRooms.length > 0 && !branchRooms.find(r => r.id === currentActiveRoomId)) {
+        currentActiveRoomId = branchRooms[0].id;
+      } else if (branchRooms.length === 0) {
+        currentActiveRoomId = null;
+      }
+    } else {
+      currentActiveBranchId = null;
+      currentActiveRoomId = null;
+    }
+
+    populateBranchSelect();
+    renderRoomList();
+    renderGridEditor();
+  } catch (err) {
+    console.error(err);
+    alert('Không thể tải dữ liệu rạp từ máy chủ.');
+  }
+}
+
+
 
 // Selection Box State
 let selectionBox = null;
@@ -602,7 +568,7 @@ function selectPaintTool(tool, btn) {
   });
   
   let borderClass = 'border-brand';
-  if(tool === 'vip') borderClass = 'border-amber-500';
+  if(tool === 'VIP') borderClass = 'border-amber-500';
   if(tool === 'sold') borderClass = 'border-slate-500';
   if(tool === 'empty') borderClass = 'border-slate-300';
   
@@ -673,16 +639,16 @@ function renderGridEditor() {
     
     for (let c = 1; c <= room.cols; c++) {
       const key = `${rowChar}:${c}`;
-      const seatType = room.layout[key] || 'normal';
+      const seatType = room.layout[key] || 'Standard';
       
       const seatBtn = document.createElement('button');
       seatBtn.dataset.key = key;
       seatBtn.dataset.type = seatType;
       
       let seatClass = 'seat-available';
-      if (seatType === 'vip') seatClass = 'seat-vip-available';
-      if (seatType === 'sold') seatClass = 'seat-sold';
-      if (seatType === 'empty') seatClass = 'seat-empty';
+      if (seatType === 'VIP' || seatType === 'vip') seatClass = 'seat-vip-available';
+      else if (seatType === 'sold') seatClass = 'seat-sold';
+      else if (seatType === 'empty') seatClass = 'seat-empty';
       
       seatBtn.className = `w-7 h-7 rounded text-[9px] font-bold font-mono flex items-center justify-center transition-all duration-150 ${seatClass}`;
       
@@ -735,7 +701,7 @@ function applyPaint(btn) {
   btn.innerHTML = '';
   
   let newClass = 'seat-available';
-  if (nextType === 'vip') newClass = 'seat-vip-available';
+  if (nextType === 'VIP') newClass = 'seat-vip-available';
   if (nextType === 'sold') newClass = 'seat-sold';
   if (nextType === 'empty') newClass = 'seat-empty';
   
@@ -779,10 +745,10 @@ function updateStats(room) {
     const rowChar = String.fromCharCode(65 + r);
     for (let c = 1; c <= room.cols; c++) {
       const key = `${rowChar}:${c}`;
-      const type = room.layout[key] || 'normal';
+      const type = room.layout[key] || 'Standard';
       
-      if (type === 'normal') { total++; normal++; }
-      else if (type === 'vip') { total++; vip++; }
+      if (type === 'Standard') { total++; normal++; }
+      else if (type === 'VIP') { total++; vip++; }
       else if (type === 'sold') { total++; sold++; }
       else if (type === 'empty') { empty++; }
     }
@@ -807,31 +773,34 @@ function closeAddBranchModal() {
 }
 
 // Action: Create Branch
-function createBranch(e) {
+async function createBranch(e) {
   e.preventDefault();
   const name = document.getElementById('new-branch-name').value.trim();
   
   if (!name) return;
 
-  // Check unique branch name
-  const exists = BRANCH_DATA.some(b => b.name.toLowerCase() === name.toLowerCase());
-  if (exists) {
-    document.getElementById('add-branch-error-msg').textContent = "Tên cơ sở chiếu này đã tồn tại.";
+  // Assume address is same as name for simplicity, or hardcoded for now since UI doesn't have address input
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify({ name, address: name })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Lỗi khi tạo cơ sở');
+    }
+    
+    showToast(`Đã thêm cơ sở: ${name}`);
+    closeAddBranchModal();
+    await loadTheaters(); // Reload to get new branch
+  } catch (err) {
+    document.getElementById('add-branch-error-msg').textContent = err.message;
     document.getElementById('add-branch-error').classList.remove('hidden');
-    return;
   }
-
-  const newId = BRANCH_DATA.length > 0 ? Math.max(...BRANCH_DATA.map(b => b.id)) + 1 : 1;
-  const newBranch = { id: newId, name };
-  
-  BRANCH_DATA.push(newBranch);
-  localStorage.setItem('cinebook_branches', JSON.stringify(BRANCH_DATA));
-  
-  showToast(`Đã thêm cơ sở: ${name}`);
-  currentActiveBranchId = newId;
-  closeAddBranchModal();
-  populateBranchSelect();
-  onBranchChange();
 }
 
 // Room management modal open/close
@@ -858,7 +827,7 @@ function closeAddRoomModal() {
 }
 
 // Action: Create new room
-function createRoom(e) {
+async function createRoom(e) {
   e.preventDefault();
   const roomNum = parseInt(document.getElementById('new-room-number').value);
   const rows = parseInt(document.getElementById('new-room-rows').value);
@@ -866,64 +835,64 @@ function createRoom(e) {
   
   if (!roomNum) return;
 
-  const roomName = `Phòng chiếu ${roomNum}`;
-
-  // Check unique room number in this branch
-  const exists = ROOMS_DATA.some(r => r.branchId === currentActiveBranchId && r.name === roomName);
-  if (exists) {
-    document.getElementById('add-room-error-msg').textContent = `Số phòng chiếu ${roomNum} đã tồn tại ở cơ sở này.`;
-    document.getElementById('add-room-error').classList.remove('hidden');
-    return;
-  }
-
-  const newId = ROOMS_DATA.length > 0 ? Math.max(...ROOMS_DATA.map(r => r.id)) + 1 : 1;
-  const newRoom = {
-    id: newId,
-    branchId: currentActiveBranchId,
-    name: roomName,
-    rows,
-    cols,
-    layout: {}
-  };
+  const roomName = `Cinema ${roomNum}`;
 
   // Seed default seats (Center rows are VIP)
+  const layout = {};
   for (let r = 0; r < rows; r++) {
     const rowChar = String.fromCharCode(65 + r);
     for (let c = 1; c <= cols; c++) {
       const key = `${rowChar}:${c}`;
       if (rows > 5 && r >= Math.floor(rows/2 - 1) && r <= Math.floor(rows/2 + 1)) {
-        newRoom.layout[key] = 'vip';
+        layout[key] = 'VIP';
       } else {
-        newRoom.layout[key] = 'normal';
+        layout[key] = 'Standard';
       }
     }
   }
 
-  ROOMS_DATA.push(newRoom);
-  localStorage.setItem('cinebook_rooms', JSON.stringify(ROOMS_DATA));
-
-  showToast(`Tạo thành công ${roomName}!`);
-  currentActiveRoomId = newId;
-  closeAddRoomModal();
-  renderRoomList();
-  renderGridEditor();
+  try {
+    const res = await fetch(`${API_URL}${currentActiveBranchId}/rooms`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify({ name: roomName, rows, cols, layout })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Lỗi khi tạo phòng');
+    }
+    
+    showToast(`Tạo thành công ${roomName}!`);
+    closeAddRoomModal();
+    await loadTheaters();
+  } catch (err) {
+    document.getElementById('add-room-error-msg').textContent = err.message;
+    document.getElementById('add-room-error').classList.remove('hidden');
+  }
 }
 
 // Action: Delete room
-function deleteRoom(e, id) {
+async function deleteRoom(e, id) {
   e.stopPropagation();
   if (confirm("Bạn có chắc chắn muốn xóa phòng chiếu này vĩnh viễn?")) {
-    ROOMS_DATA = ROOMS_DATA.filter(r => r.id !== id);
-    localStorage.setItem('cinebook_rooms', JSON.stringify(ROOMS_DATA));
-    showToast("Đã xóa phòng chiếu!");
-    
-    if (currentActiveRoomId === id) {
-      const branchRooms = ROOMS_DATA.filter(r => r.branchId === currentActiveBranchId);
-      currentActiveRoomId = branchRooms.length > 0 ? branchRooms[0].id : null;
+    try {
+      const res = await fetch(`${API_URL}rooms/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader()
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Không thể xoá phòng');
+      }
+      showToast("Đã xóa phòng chiếu!");
+      await loadTheaters();
+    } catch (err) {
+      alert(err.message);
     }
-    
-    renderRoomList();
-    renderGridEditor();
   }
 }
 
@@ -963,7 +932,7 @@ function resizeCurrentRoom(e) {
       if (room.layout[key]) {
         newLayout[key] = room.layout[key];
       } else {
-        newLayout[key] = (r >= 3 && r <= 5) ? 'vip' : 'normal';
+        newLayout[key] = (r >= 3 && r <= 5) ? 'VIP' : 'Standard';
       }
     }
   }
@@ -978,12 +947,30 @@ function resizeCurrentRoom(e) {
 }
 
 // Save layout configuration
-function saveLayout() {
+async function saveLayout() {
   const room = ROOMS_DATA.find(r => r.id === currentActiveRoomId);
   if (!room) return;
 
-  localStorage.setItem('cinebook_rooms', JSON.stringify(ROOMS_DATA));
-  showToast("Đã lưu sơ đồ ghế thành công!");
+  try {
+    const res = await fetch(`${API_URL}rooms/${room.id}/layout`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify({ rows: room.rows, cols: room.cols, layout: room.layout })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Lỗi lưu sơ đồ');
+    }
+    
+    showToast("Đã lưu sơ đồ ghế thành công!");
+    await loadTheaters();
+  } catch(err) {
+    alert(err.message);
+  }
 }
 
 function showToast(text) {
