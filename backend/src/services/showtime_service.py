@@ -69,7 +69,7 @@ class ShowtimeService:
             stmt = stmt.where(ShowtimeTable.showtime_id != exclude_showtime_id)
 
         result = await db.execute(stmt)
-        return result.scalar_one_or_none()
+        return result.scalars().first()
 
     @staticmethod
     async def check_movie_conflict_in_theater(
@@ -99,7 +99,7 @@ class ShowtimeService:
             )
         )
         result = await db.execute(stmt)
-        return result.scalar_one_or_none()
+        return result.scalars().first()
 
     @staticmethod
     async def bulk_create(
@@ -168,6 +168,8 @@ class ShowtimeService:
         # Hệ thống sẽ ngầm hiểu các ghế không có dữ liệu là 'Available'.
 
         await db.commit()
+        for row in new_showtimes:
+            await db.refresh(row)
         return new_showtimes
 
     @staticmethod
