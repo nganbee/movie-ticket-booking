@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 const mapMovie = (m) => ({
     id: m.movie_id,
