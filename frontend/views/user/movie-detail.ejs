@@ -20,28 +20,36 @@
                 <div class="w-full md:w-2/3 lg:w-3/4 pt-4 md:pt-8">
                     <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-4 tracking-tight"><%= movie.title %></h1>
                     
-                    <div class="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-700 mb-6">
-                        <span class="flex items-center bg-yellow-50 text-yellow-600 px-3 py-1 rounded-md border border-yellow-200">
-                            <i class="fas fa-star mr-1.5"></i> <%= movie.rating %>
+                    <div class="flex flex-wrap items-center gap-4 text-sm font-bold text-slate-900 mb-6">
+                        <span class="flex items-center bg-yellow-50 text-slate-900 px-3 py-1 rounded-md border border-yellow-200">
+                            <i class="fas fa-star mr-1.5 text-yellow-500"></i> <%= movie.rating %>
                         </span>
-                        <span class="flex items-center"><i class="far fa-clock mr-2 text-slate-500"></i> <%= movie.duration || 'N/A' %></span>
-                        <span class="flex items-center"><i class="fas fa-film mr-2 text-slate-500"></i> <%= movie.genre %></span>
+                        <span class="flex items-center"><i class="far fa-clock mr-2 text-slate-900"></i> <%= movie.duration || 'N/A' %></span>
+                        <span class="flex items-center"><i class="fas fa-film mr-2 text-slate-900"></i> <%= movie.genre %></span>
                     </div>
                     
-                    <p class="text-slate-600 text-lg leading-relaxed mb-8 max-w-3xl">
+                    <p class="text-slate-900 font-medium text-lg leading-relaxed mb-8 max-w-3xl">
                         <%= movie.description || 'Chưa có thông tin mô tả cho bộ phim này.' %>
                     </p>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 max-w-2xl">
                         <div>
-                            <h4 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Đạo Diễn</h4>
-                            <p class="text-slate-800 font-medium"><%= movie.director || 'Đang cập nhật' %></p>
+                            <h4 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-1">Đạo Diễn</h4>
+                            <p class="text-slate-900 font-bold text-lg"><%= movie.director || 'Đang cập nhật' %></p>
                         </div>
                         <div>
-                            <h4 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Diễn Viên</h4>
-                            <p class="text-slate-800 font-medium"><%= movie.cast || 'Đang cập nhật' %></p>
+                            <h4 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-1">Diễn Viên</h4>
+                            <p class="text-slate-900 font-bold text-lg"><%= movie.cast || 'Đang cập nhật' %></p>
                         </div>
                     </div>
+                    
+                    <% if (movie.trailer) { %>
+                    <div class="mt-4">
+                        <a href="<%= movie.trailer %>" target="_blank" class="inline-flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold px-6 py-3 rounded-xl transition shadow-sm border border-red-100">
+                            <i class="fab fa-youtube text-lg"></i> Xem Trailer Phim
+                        </a>
+                    </div>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -109,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const DAY_NAMES_VI = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
     const today = new Date();
     
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 7; i++) {
         const d = new Date(today);
         d.setDate(today.getDate() + i);
         
@@ -144,7 +152,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (!res.ok) throw new Error('Lỗi khi tải lịch chiếu');
             
             const showtimes = await res.json();
-            renderShowtimes(showtimes);
+            
+            // Lọc các suất chiếu đã qua trong ngày hôm nay (chỉ giữ lại suất có giờ chiếu lớn hơn hiện tại)
+            const now = new Date();
+            const validShowtimes = showtimes.filter(st => {
+                const startTime = new Date(st.start_time);
+                return startTime > now;
+            });
+            
+            renderShowtimes(validShowtimes);
         } catch (error) {
             console.error(error);
             showtimesContainer.innerHTML = '<p class="text-center text-red-500 my-8">Lỗi tải dữ liệu. Vui lòng thử lại sau.</p>';

@@ -292,7 +292,7 @@ function renderGenreChart(movies) {
 // ===== LOAD DATA FROM API =====
 async function loadDashboard() {
   // Lấy JWT token admin từ localStorage (được lưu lúc login)
-  const token = localStorage.getItem('access_token') || '';
+  const token = localStorage.getItem('admin_access_token') || '';
 
   try {
     const res = await fetch('/api/admin/dashboard', {

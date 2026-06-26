@@ -316,7 +316,7 @@ let isMousedown = false; // Mouse down state tracker
 
 const API_URL = 'http://localhost:8000/theaters/';
 function getAuthHeader() {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('admin_access_token');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 

@@ -29,6 +29,7 @@
         <option value="all">Tất cả</option>
         <option value="now_showing">🎬 Đang chiếu</option>
         <option value="coming_soon">📅 Sắp chiếu</option>
+        <option value="stopped_showing">❌ Hết chiếu</option>
       </select>
     </div>
   </div>
@@ -102,8 +103,8 @@
       <!-- Ratings & Duration & Director -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Điểm đánh giá (IMDB) <span class="text-brand">*</span></label>
-          <input id="form-rating" type="number" step="0.1" min="0" max="10" required placeholder="VD: 8.5"
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Điểm đánh giá (IMDB)</label>
+          <input id="form-rating" type="number" step="0.1" min="0" max="10" placeholder="VD: 8.5"
             class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
         </div>
         <div>
@@ -121,8 +122,8 @@
       <!-- Trailer & Status -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Link Video Trailer <span class="text-brand">*</span></label>
-          <input id="form-trailer" type="url" required placeholder="VD: https://www.youtube.com/watch?v=..."
+          <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Link Video Trailer</label>
+          <input id="form-trailer" type="url" placeholder="VD: https://www.youtube.com/... "
             class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
         </div>
         <div>
@@ -130,14 +131,15 @@
           <select id="form-status" required class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand transition appearance-none bg-white font-medium">
             <option value="now_showing">🎬 Đang chiếu (Now Showing)</option>
             <option value="coming_soon">📅 Sắp chiếu (Coming Soon)</option>
+            <option value="stopped_showing">❌ Hết chiếu (Stopped Showing)</option>
           </select>
         </div>
       </div>
 
       <!-- Cast -->
       <div>
-        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Diễn viên <span class="text-brand">*</span></label>
-        <textarea id="form-cast" required rows="2" placeholder="Nhập danh sách diễn viên chính, cách nhau bằng dấu phẩy..."
+        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Diễn viên</label>
+        <textarea id="form-cast" rows="2" placeholder="Nhập danh sách diễn viên chính, cách nhau bằng dấu phẩy..."
           class="form-input w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition resize-none"></textarea>
       </div>
 
@@ -235,7 +237,7 @@ let deleteTargetId = null;
 // API Helpers
 const API_URL = 'http://localhost:8000/movies';
 function getAuthHeader() {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('admin_access_token');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
@@ -247,7 +249,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadMovies() {
   try {
-    const res = await fetch(`${API_URL}/?limit=100`);
+    const res = await fetch(`${API_URL}/?limit=100&status=all`);
     if (!res.ok) throw new Error('Failed to load movies');
     const data = await res.json();
     // Assuming data is { items: [...], total: ... }
@@ -260,7 +262,7 @@ async function loadMovies() {
       director: m.director,
       cast: 'Đang cập nhật...', // Tạm thời
       description: m.description,
-      trailer: 'https://youtube.com', // Tạm thời
+      trailer: m.trailer_url || 'https://youtube.com',
       poster: m.poster_url,
       backdrop: m.backdrop_url || m.poster_url,
       status: m.status,
@@ -372,9 +374,9 @@ function renderMovies() {
         <img src="${m.backdrop || m.poster}" alt="backdrop" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500">
         <!-- Floating overlay tags -->
         <span class="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-xl ${
-          m.status === 'now_showing' ? 'bg-emerald-500 text-white' : 'bg-blue-500 text-white'
+          m.status === 'now_showing' ? 'bg-emerald-500 text-white' : (m.status === 'stopped_showing' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white')
         }">
-          ${m.status === 'now_showing' ? '🎬 Đang chiếu' : '📅 Sắp chiếu'}
+          ${m.status === 'now_showing' ? '🎬 Đang chiếu' : (m.status === 'stopped_showing' ? '❌ Hết chiếu' : '📅 Sắp chiếu')}
         </span>
         <span class="absolute top-4 right-4 text-xs font-bold bg-slate-900/80 text-yellow-400 border border-yellow-400/30 px-2 py-1 rounded-lg flex items-center gap-1">
           <i class="fas fa-star text-[10px]"></i> ${m.rating}
@@ -531,6 +533,7 @@ async function syncMovieData() {
     if (data.imdb_rating) document.getElementById('form-rating').value = data.imdb_rating;
     if (data.language) document.getElementById('form-language').value = data.language;
     if (data.release_date) document.getElementById('form-release-date').value = data.release_date;
+    if (data.trailer_url) document.getElementById('form-trailer').value = data.trailer_url;
     
     if (data.poster_url) {
       document.getElementById('form-poster-url').value = data.poster_url;
@@ -564,12 +567,13 @@ async function saveMovie(e) {
     description: document.getElementById('form-description').value.trim(),
     director: document.getElementById('form-director').value.trim(),
     duration: parseInt(document.getElementById('form-duration').value),
-    imdb_rating: parseFloat(document.getElementById('form-rating').value),
+    imdb_rating: parseFloat(document.getElementById('form-rating').value) || 0.0,
     status: document.getElementById('form-status').value,
     language: document.getElementById('form-language').value.trim(),
     release_date: document.getElementById('form-release-date').value,
     poster_url: document.getElementById('form-poster-url').value,
-    backdrop_url: document.getElementById('form-backdrop-url').value
+    backdrop_url: document.getElementById('form-backdrop-url').value,
+    trailer_url: document.getElementById('form-trailer').value.trim()
   };
 
   // Validation
@@ -674,7 +678,7 @@ async function confirmDelete() {
 
 async function rebuildAIIndex() {
   const button = document.getElementById('rebuild-ai-button');
-  const token = localStorage.getItem('access_token') || '';
+  const token = localStorage.getItem('admin_access_token') || '';
   const originalContent = button.innerHTML;
 
   button.disabled = true;

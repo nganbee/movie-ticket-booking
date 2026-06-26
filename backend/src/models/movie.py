@@ -17,6 +17,7 @@ class MovieTable(Base):
     language: Mapped[str] = mapped_column(Text, nullable=False)
     release_date: Mapped[date] = mapped_column(Date, nullable=False)
     poster_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    trailer_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     director: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
@@ -32,6 +33,7 @@ class MovieBase(BaseModel):
     language: str
     release_date: date
     poster_url: Optional[str] = None
+    trailer_url: Optional[str] = None
     director: str
     status: str
     description: str

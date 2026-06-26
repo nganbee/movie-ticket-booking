@@ -579,7 +579,7 @@ async function saveSchedule() {
   };
 
   try {
-    const token = localStorage.getItem('access_token') || '';
+    const token = localStorage.getItem('admin_access_token') || '';
     const res = await fetch('http://localhost:8000/showtimes/bulk', {
       method: 'POST',
       headers: {

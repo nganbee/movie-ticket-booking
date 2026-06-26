@@ -21,8 +21,14 @@ class MovieService:
         """
         # --- Base condition ---
         base_stmt = select(MovieTable)
-        if status:
+        if status == "all":
+            pass  # Trả về tất cả
+        elif status:
             base_stmt = base_stmt.where(MovieTable.status == status)
+        else:
+            # Mặc định chỉ trả về phim đang chiếu và sắp chiếu
+            base_stmt = base_stmt.where(MovieTable.status.in_(["now_showing", "coming_soon"]))
+            
         if genre:
             base_stmt = base_stmt.where(MovieTable.genre.ilike(f"%{genre}%"))
 
@@ -104,6 +110,6 @@ class MovieService:
         if not movie:
             return False
             
-        await db.delete(movie)
+        movie.status = "stopped_showing"
         await db.flush()
         return True

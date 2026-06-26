@@ -232,22 +232,20 @@
     document.getElementById('pagination-container').innerHTML = '';
 
     try {
-      const params = new URLSearchParams({ page, limit: PAGE_LIMIT });
+      // Fetch TẤT CẢ phim (limit lớn) để client tự phân trang
+      const params = new URLSearchParams({ page: 1, limit: 100 });
       if (status !== 'all') params.append('status', status);
 
       const response = await fetch(`/api/movies?${params.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const data = await response.json();
-      currentPage = data.page;
-      totalPages  = data.total_pages;
-      totalMovies = data.total;
-
-      // Lưu cache — genre/search/format/date sẽ lọc trên mảng này
+      
+      // Lưu cache toàn bộ dữ liệu
       ALL_MOVIES = data.items.map(mapMovie);
 
-      // Sau khi fetch xong, lọc client-side rồi render
-      applyFilters();
+      // Gọi applyFilters (sẽ tự tính toán lại trang và render)
+      applyFilters(1);
     } catch (err) {
       console.error('Lỗi tải phim:', err);
       container.innerHTML = `
@@ -257,7 +255,7 @@
           </div>
           <h3 class="text-lg font-bold text-slate-700 mb-1">Không thể tải danh sách phim</h3>
           <p class="text-slate-400 text-sm mb-4">Vui lòng kiểm tra kết nối hoặc thử lại sau.</p>
-          <button onclick="loadMovies(currentPage)" class="bg-brand text-white px-5 py-2 rounded-xl font-bold hover:bg-red-700 transition">
+          <button onclick="loadMovies()" class="bg-brand text-white px-5 py-2 rounded-xl font-bold hover:bg-red-700 transition">
             <i class="fas fa-redo mr-2"></i>Thử lại
           </button>
         </div>`;
@@ -440,15 +438,29 @@
 
   function goToPage(p) {
     if (p < 1 || p > totalPages || p === currentPage) return;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    loadMovies(p);
+    window.scrollTo({ top: document.querySelector('.max-w-7xl').offsetTop - 20, behavior: 'smooth' });
+    applyFilters(p);
   }
 
   // ========== FILTERS ==========
-  // applyFilters: chỉ lọc client-side trên cache, KHÔNG gọi backend
-  function applyFilters() {
-    const filtered = clientFilter(ALL_MOVIES);
-    renderMovies(filtered);
+  // applyFilters: Lọc trên client và phân trang
+  function applyFilters(page = 1) {
+    const filteredMovies = clientFilter(ALL_MOVIES);
+    
+    // Tính toán lại phân trang
+    totalMovies = filteredMovies.length;
+    totalPages = Math.ceil(totalMovies / PAGE_LIMIT) || 1;
+    
+    // Đảm bảo page hiện tại hợp lệ
+    currentPage = page;
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    // Cắt mảng lấy phần tử của trang hiện hành
+    const startIndex = (currentPage - 1) * PAGE_LIMIT;
+    const paginatedMovies = filteredMovies.slice(startIndex, startIndex + PAGE_LIMIT);
+
+    renderMovies(paginatedMovies);
     renderPagination();
   }
 
@@ -506,6 +518,16 @@
 
   // ========== INIT ==========
   document.addEventListener('DOMContentLoaded', () => {
+    // Đọc URL parameter để set filter (ví dụ: ?status=coming_soon)
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusParam = urlParams.get('status');
+    if (statusParam) {
+      const radio = document.querySelector(`input[name="status"][value="${statusParam}"]`);
+      if (radio) {
+        radio.checked = true;
+      }
+    }
+
     // Gắn event cho các checkbox genre
     document.querySelectorAll('.genre-check').forEach(cb => {
       cb.addEventListener('change', (e) => {

@@ -1,123 +1,142 @@
-<!-- Hero Banner -->
-<% if (nowShowing && nowShowing.length > 0) { 
-    const featured = nowShowing[0];
-%>
-<div class="relative min-h-[85vh] w-full bg-slate-900 pb-20">
-    <!-- Banner Background Image with Gradient Overlay -->
-    <div class="absolute inset-0">
-        <img src="<%= featured.poster %>" alt="Banner"
-            class="w-full h-full object-cover object-top opacity-50 blur-sm" />
-        <div class="absolute inset-0 bg-gradient-to-t from-bgLight via-bgLight/20 to-transparent"></div>
-        <div class="absolute inset-0 bg-gradient-to-r from-bgLight via-bgLight/40 to-transparent"></div>
-    </div>
-
-    <!-- Banner Content -->
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[85vh] flex items-center pt-24 pb-20">
-        <!-- Left: Text Content -->
-        <div class="flex-1 pr-0 md:pr-12 z-10">
-            <div class="flex items-center gap-3 mb-6">
-                <span
-                    class="inline-flex items-center px-3 py-1 rounded-full bg-brand/10 text-brand text-xs font-bold uppercase tracking-wider border border-brand/20">
-                    <span class="w-2 h-2 rounded-full bg-brand mr-2 animate-pulse"></span> Phim Đang Chiếu
-                </span>
-                <span
-                    class="text-sm font-medium text-textMain border border-borderSubtle bg-white/50 backdrop-blur-sm rounded px-2 py-0.5"><%= featured.genre.split(',')[0] %></span>
-            </div>
-
-            <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 leading-[1.1] tracking-tight">
-                <%= featured.title %>
-            </h1>
-
-            <div class="flex flex-wrap items-center gap-4 text-sm md:text-base font-medium text-slate-700 mb-6">
-                <span
-                    class="flex items-center bg-yellow-50 text-yellow-600 px-3 py-1 rounded-md border border-yellow-200">
-                    <i class="fas fa-star mr-1.5"></i> <%= featured.rating %>
-                </span>
-                <span class="flex items-center"><i class="far fa-clock mr-2 text-slate-400"></i> <%= featured.duration %></span>
-                <span class="flex items-center"><i class="fas fa-film mr-2 text-slate-400"></i> <%= featured.genre %></span>
-                <span class="flex items-center"><i class="fas fa-calendar-alt mr-2 text-slate-400"></i>
-                    <%= featured.releaseDate %></span>
-            </div>
-
-            <p class="text-slate-600 max-w-xl text-base md:text-lg mb-10 line-clamp-3 leading-relaxed">
-                <%= featured.description %>
-            </p>
-
-            <div class="flex flex-col sm:flex-row gap-4">
-                <a href="/movie/<%= featured.id %>"
-                    class="bg-brand text-white px-8 py-4 rounded-xl font-bold hover:bg-brandHover transition duration-300 shadow-lg shadow-brand/30 flex items-center justify-center group">
-                    <i class="fas fa-ticket-alt mr-3 group-hover:scale-110 transition-transform"></i> Đặt Vé Ngay
-                </a>
-                <a href="/movie/<%= featured.id %>"
-                    class="bg-white/80 backdrop-blur-md border border-slate-200 text-slate-800 px-8 py-4 rounded-xl font-bold hover:bg-white transition duration-300 flex items-center justify-center group shadow-sm">
-                    <i class="fas fa-play mr-3 text-brand group-hover:scale-110 transition-transform"></i> Xem Thông Tin
-                </a>
-            </div>
+<!-- Hero Banner Carousel -->
+<% if (nowShowing && nowShowing.length > 0) { %>
+<div class="relative min-h-[85vh] w-full bg-slate-900 pb-20 overflow-hidden" id="hero-carousel">
+    <% nowShowing.slice(0, 5).forEach((featured, index) => { %>
+    <div class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-in-out <%= index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' %>">
+        <!-- Banner Background Image with Gradient Overlay -->
+        <div class="absolute inset-0">
+            <img src="<%= featured.poster %>" alt="Banner"
+                class="w-full h-full object-cover object-top opacity-50 blur-sm" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/40 to-transparent"></div>
         </div>
 
-        <!-- Right: Movie Poster -->
-        <div class="hidden md:flex flex-shrink-0 items-center justify-end w-72 lg:w-80 z-10">
-            <div class="relative group">
-                <!-- Glow Effect -->
-                <div
-                    class="absolute -inset-3 bg-brand/20 rounded-3xl blur-2xl opacity-60 group-hover:opacity-90 transition-opacity duration-500">
+        <!-- Banner Content -->
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[85vh] flex items-center pt-24 pb-20">
+            <!-- Left: Text Content -->
+            <div class="flex-1 pr-0 md:pr-12 z-10">
+                <div class="flex items-center gap-3 mb-6">
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full bg-brand/10 text-brand text-xs font-bold uppercase tracking-wider border border-brand/20">
+                        <span class="w-2 h-2 rounded-full bg-brand mr-2 animate-pulse"></span> Phim Đang Chiếu
+                    </span>
+                    <span
+                        class="text-sm font-medium text-textMain border border-borderSubtle bg-white/50 backdrop-blur-sm rounded px-2 py-0.5"><%= featured.genre.split(',')[0] %></span>
                 </div>
-                <!-- Poster Image -->
-                <img src="<%= featured.poster %>" alt="<%= featured.title %> Poster"
-                    class="relative w-64 lg:w-72 rounded-2xl shadow-2xl border-4 border-white/80 transform -rotate-2 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500 ease-out">
-                <!-- Rating Badge on Poster -->
-                <div
-                    class="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl px-4 py-2 flex items-center gap-2 border border-slate-100">
-                    <i class="fas fa-star text-yellow-500 text-lg"></i>
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium leading-none">IMDb</p>
-                        <p class="text-slate-800 font-extrabold text-lg leading-none"><%= featured.rating %></p>
+
+                <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
+                    <%= featured.title %>
+                </h1>
+
+                <div class="flex flex-wrap items-center gap-4 text-sm md:text-base font-medium text-slate-200 mb-6 drop-shadow-md">
+                    <span
+                        class="flex items-center bg-yellow-500/90 text-slate-900 px-3 py-1 rounded-md border border-yellow-400 font-bold">
+                        <i class="fas fa-star mr-1.5"></i> <%= featured.rating %>
+                    </span>
+                    <span class="flex items-center"><i class="far fa-clock mr-2 text-slate-300"></i> <%= featured.duration %></span>
+                    <span class="flex items-center"><i class="fas fa-film mr-2 text-slate-300"></i> <%= featured.genre %></span>
+                    <span class="flex items-center"><i class="fas fa-calendar-alt mr-2 text-slate-300"></i>
+                        <%= featured.releaseDate %></span>
+                </div>
+
+                <p class="text-slate-300 max-w-xl text-base md:text-lg mb-10 line-clamp-3 leading-relaxed drop-shadow">
+                    <%= featured.description %>
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="/movie/<%= featured.id %>"
+                        class="bg-brand text-white px-8 py-4 rounded-xl font-bold hover:bg-brandHover transition duration-300 shadow-lg shadow-brand/30 flex items-center justify-center group">
+                        <i class="fas fa-ticket-alt mr-3 group-hover:scale-110 transition-transform"></i> Đặt Vé Ngay
+                    </a>
+                    <a href="/movie/<%= featured.id %>"
+                        class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/20 transition duration-300 flex items-center justify-center group shadow-sm">
+                        <i class="fas fa-play mr-3 text-brand group-hover:scale-110 transition-transform"></i> Xem Thông Tin
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Movie Poster -->
+            <div class="hidden md:flex flex-shrink-0 items-center justify-end w-72 lg:w-80 z-10">
+                <div class="relative group">
+                    <!-- Glow Effect -->
+                    <div
+                        class="absolute -inset-3 bg-brand/20 rounded-3xl blur-2xl opacity-60 group-hover:opacity-90 transition-opacity duration-500">
+                    </div>
+                    <!-- Poster Image -->
+                    <img src="<%= featured.poster %>" alt="<%= featured.title %> Poster"
+                        class="relative w-64 lg:w-72 rounded-2xl shadow-2xl border-4 border-white/80 transform -rotate-2 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500 ease-out">
+                    <!-- Rating Badge on Poster -->
+                    <div
+                        class="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl px-4 py-2 flex items-center gap-2 border border-slate-100">
+                        <i class="fas fa-star text-yellow-500 text-lg"></i>
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium leading-none">IMDb</p>
+                            <p class="text-slate-800 font-extrabold text-lg leading-none"><%= featured.rating %></p>
+                        </div>
+                    </div>
+                    <!-- Now Showing Badge -->
+                    <div
+                        class="absolute -top-3 -right-3 bg-brand text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-brand/40">
+                        <i class="fas fa-circle text-[6px] mr-1 animate-pulse"></i>Đang Chiếu
                     </div>
                 </div>
-                <!-- Now Showing Badge -->
-                <div
-                    class="absolute -top-3 -right-3 bg-brand text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-brand/40">
-                    <i class="fas fa-circle text-[6px] mr-1 animate-pulse"></i>Đang Chiếu
-                </div>
             </div>
         </div>
     </div>
+    <% }) %>
+    
+    <!-- Carousel Indicators -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+        <% nowShowing.slice(0, 5).forEach((_, index) => { %>
+            <button class="carousel-dot w-2 h-2 rounded-full transition-all duration-300 <%= index === 0 ? 'bg-brand w-6' : 'bg-white/50 hover:bg-white/80' %>" data-index="<%= index %>"></button>
+        <% }) %>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        if (slides.length <= 1) return;
+        
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+        
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.remove('opacity-0', 'z-0', 'pointer-events-none');
+                    slide.classList.add('opacity-100', 'z-10');
+                    dots[i].classList.remove('bg-white/50', 'w-2');
+                    dots[i].classList.add('bg-brand', 'w-6');
+                } else {
+                    slide.classList.remove('opacity-100', 'z-10');
+                    slide.classList.add('opacity-0', 'z-0', 'pointer-events-none');
+                    dots[i].classList.remove('bg-brand', 'w-6');
+                    dots[i].classList.add('bg-white/50', 'w-2');
+                }
+            });
+            currentSlide = index;
+        }
+        
+        function nextSlide() {
+            showSlide((currentSlide + 1) % totalSlides);
+        }
+        
+        let slideInterval = setInterval(nextSlide, 5000);
+        
+        dots.forEach((dot, idx) => {
+            dot.addEventListener('click', () => {
+                clearInterval(slideInterval);
+                showSlide(idx);
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+        });
+    });
+</script>
 <% } %>
 
-<!-- Search & Filter Section -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10 mb-16">
-    <div class="bg-white border border-borderSubtle rounded-2xl p-4 shadow-xl shadow-slate-200/50">
-        <div class="flex flex-col md:flex-row gap-4 items-center">
-            <div class="flex-grow relative w-full">
-                <i class="fas fa-search absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                <input type="text" placeholder="Tìm kiếm phim, rạp chiếu..."
-                    class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-brand transition focus:ring-1 focus:ring-brand">
-            </div>
-            <div class="w-full md:w-48">
-                <div class="relative">
-                    <i class="fas fa-layer-group absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                    <select
-                        class="w-full bg-slate-50 border border-slate-200 text-slate-600 rounded-xl pl-10 pr-10 py-4 focus:outline-none focus:border-brand transition appearance-none cursor-pointer">
-                        <option value="">Tất cả thể loại</option>
-                        <option value="action">Hành Động</option>
-                        <option value="comedy">Hài Hước</option>
-                        <option value="drama">Tâm Lý</option>
-                        <option value="scifi">Viễn Tưởng</option>
-                    </select>
-                    <i
-                        class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none text-sm"></i>
-                </div>
-            </div>
-            <div class="w-full md:w-auto">
-                <button
-                    class="w-full bg-slate-800 text-white font-semibold rounded-xl px-8 py-4 hover:bg-slate-700 transition duration-300 flex items-center justify-center shadow-md">
-                    <i class="fas fa-sliders-h mr-2"></i> Lọc
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Movie Lists -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
@@ -207,7 +226,7 @@
                             class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center backdrop-blur-sm p-4">
                             <button
                                 class="bg-white/90 text-slate-800 w-full py-3 rounded-xl font-bold hover:bg-white transition transform translate-y-4 group-hover:translate-y-0 duration-300 flex items-center justify-center shadow-md">
-                                <i class="fas fa-bell mr-2 text-brand"></i> Nhận Thông Báo
+                                <i class="fas fa-info-circle mr-2 text-brand"></i> Thông tin phim
                             </button>
                         </div>
 

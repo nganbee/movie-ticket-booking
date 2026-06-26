@@ -262,7 +262,7 @@ Hãy đến với chúng tôi để trải nghiệm điện ảnh đỉnh cao! �
       </div>
     </div>
     <div class="px-5 py-3 border-t border-slate-100 flex gap-3 flex-shrink-0">
-      <button onclick="closeViewModal(); openEditModal(currentViewId)" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-brand border border-brand hover:bg-red-50 transition">
+      <button onclick="closeViewModal(); openEditModal(currentViewId, currentViewType)" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-brand border border-brand hover:bg-red-50 transition">
         <i class="fas fa-edit mr-1"></i> Chỉnh sửa
       </button>
       <button onclick="closeViewModal()" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-700 hover:bg-slate-800 transition">Đóng</button>
@@ -298,6 +298,7 @@ let currentTypeFilter = 'all';
 let deleteTargetId = null;
 let deleteTargetType = null;
 let currentViewId = null;
+let currentViewType = null;
 
 // ===== HELPERS =====
 // ===== HELPERS =====
@@ -323,7 +324,7 @@ async function loadMoviesForSelect() {
 }
 
 async function loadNewsFromAPI() {
-  const token = localStorage.getItem('access_token') || '';
+  const token = localStorage.getItem('admin_access_token') || '';
   try {
     const res = await fetch('/api/admin/news', {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -413,11 +414,11 @@ function renderNews() {
 
         <!-- Actions -->
         <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
-          <button onclick="openViewModal(${n.id})" class="text-xs font-semibold text-brand hover:text-red-700 transition flex items-center gap-1">
+          <button onclick="openViewModal(${n.id}, '${n.type}')" class="text-xs font-semibold text-brand hover:text-red-700 transition flex items-center gap-1">
             <i class="fas fa-eye text-[10px]"></i> Xem toàn bộ
           </button>
           <div class="flex gap-1">
-            <button onclick="openEditModal(${n.id})" class="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Chỉnh sửa">
+            <button onclick="openEditModal(${n.id}, '${n.type}')" class="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Chỉnh sửa">
               <i class="fas fa-edit text-xs"></i>
             </button>
             <button onclick="openDeleteModal(${n.id}, '${n.type}')" class="p-2 text-slate-400 hover:text-brand hover:bg-red-50 rounded-lg transition" title="Xóa">
@@ -455,8 +456,8 @@ function openAddModal() {
   setTimeout(() => document.getElementById('form-title').focus(), 100);
 }
 
-function openEditModal(id) {
-  const n = NEWS_DATA.find(x => x.id === id);
+function openEditModal(id, type) {
+  const n = NEWS_DATA.find(x => x.id === id && x.type === type);
   if (!n) return;
   document.getElementById('modal-title').textContent = '✏️ Chỉnh sửa bài viết';
   document.getElementById('form-id').value = n.id;
@@ -500,7 +501,7 @@ async function saveNews(e) {
     movieId: movieId ? parseInt(movieId) : null
   };
 
-  const token = localStorage.getItem('access_token') || '';
+  const token = localStorage.getItem('admin_access_token') || '';
   const btn = document.querySelector('#news-form button[type="submit"]') || e.submitter;
   const oldText = btn ? btn.innerHTML : '';
   if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
@@ -553,10 +554,11 @@ function previewPost() {
 function closePreview() { document.getElementById('preview-modal').classList.add('hidden'); }
 
 // ===== VIEW MODAL =====
-function openViewModal(id) {
-  const n = NEWS_DATA.find(x => x.id === id);
+function openViewModal(id, type) {
+  const n = NEWS_DATA.find(x => x.id === id && x.type === type);
   if (!n) return;
   currentViewId = id;
+  currentViewType = type;
   document.getElementById('view-title').textContent = n.title;
   document.getElementById('view-content').textContent = n.content || '(Không có nội dung)';
   document.getElementById('view-date').innerHTML = `<i class="fas fa-globe-asia"></i> ${formatDate(n.publishDate)}`;
@@ -583,7 +585,7 @@ function closeDeleteModal() {
 }
 async function confirmDelete() { 
   if (!deleteTargetId || !deleteTargetType) return;
-  const token = localStorage.getItem('access_token') || '';
+  const token = localStorage.getItem('admin_access_token') || '';
   
   try {
     const res = await fetch(`/api/admin/news/${deleteTargetId}?type=${encodeURIComponent(deleteTargetType)}`, {

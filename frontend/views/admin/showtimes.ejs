@@ -110,7 +110,6 @@
             <th class="px-5 py-4">Ngày Chiếu</th>
             <th class="px-5 py-4">Giờ Bắt Đầu</th>
             <th class="px-5 py-4">Giờ Kết Thúc</th>
-            <th class="px-5 py-4 text-right">Giá Vé</th>
             <th class="px-5 py-4 text-center">Loại Ngày</th>
             <th class="px-5 py-4 text-center">Trạng Thái</th>
             <th class="px-5 py-4 text-center">Thao Tác</th>
@@ -209,21 +208,29 @@ function formatDateISO(isoStr) {
 // ─── Load data from API ──────────────────────────────────────────
 async function loadShowtimes() {
   try {
-    const res = await fetch('http://localhost:8000/showtimes/?limit=500');
-    if (res.ok) {
-      const data = await res.json();
-      const items = data.items || data;
+    const [stRes, moviesRes] = await Promise.all([
+      fetch('http://localhost:8000/showtimes/?limit=500'),
+      fetch('http://localhost:8000/movies/?limit=100&status=all')
+    ]);
+    if (stRes.ok && moviesRes.ok) {
+      const stData = await stRes.json();
+      const moviesData = await moviesRes.json();
+      
+      const moviesList = moviesData.items || moviesData;
+      const movieMap = {};
+      moviesList.forEach(m => movieMap[m.movie_id || m.id] = m.title);
+
+      const items = stData.items || stData;
       // Enrich with movie/room names if needed
       ALL_SHOWTIMES = items.map((s, i) => ({
         idx: i + 1,
         id: s.showtime_id || s.id || i + 1,
-        movie: s.movie_title || s.movie?.title || `Phim #${s.movie_id}`,
+        movie: movieMap[s.movie_id] || s.movie_title || s.movie?.title || `Phim #${s.movie_id}`,
         room: s.room_name || s.room?.name || `Phòng ${s.room_id}`,
         theater: s.theater_name || s.room?.theater_name || '',
         format: s.format || '2D',
         start_time: s.start_time,
         end_time: s.end_time,
-        price: s.price || s.ticket_price || 0,
         day_type: s.day_type || 'Weekday'
       }));
     } else {
@@ -383,9 +390,6 @@ function renderShowtimes() {
         <td class="px-5 py-3.5">
           <span class="text-sm font-semibold text-slate-600">${formatTimeVN(s.end_time)}</span>
         </td>
-        <td class="px-5 py-3.5 text-right">
-          <span class="font-extrabold text-slate-800 text-sm">${s.price > 0 ? s.price.toLocaleString('vi-VN') + '₫' : '—'}</span>
-        </td>
         <td class="px-5 py-3.5 text-center">
           <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${dtStyle}">${dtLabel}</span>
         </td>
@@ -470,7 +474,7 @@ function closeDeleteModal() {
 async function confirmDelete() {
   if (!deleteTarget) return;
   try {
-    const token = localStorage.getItem('access_token') || '';
+    const token = localStorage.getItem('admin_access_token') || '';
     const res = await fetch(`http://localhost:8000/showtimes/${deleteTarget}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }

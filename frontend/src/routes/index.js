@@ -12,6 +12,7 @@ const mapMovie = (m) => ({
     director: m.director,
     cast: 'Đang cập nhật...',
     description: m.description,
+    trailer: m.trailer_url || null,
     releaseDate: m.release_date ? new Date(m.release_date).toLocaleDateString('vi-VN') : 'Đang cập nhật'
 });
 
@@ -87,6 +88,15 @@ router.get('/movies', async (req, res) => {
 router.get('/cinemas', (req, res) => {
     res.render('user/cinemas', {
         title: 'Rạp Chiếu - CineBook',
+        hideNavbar: false
+    });
+});
+
+// Cinema Detail page
+router.get('/cinemas/:id', (req, res) => {
+    res.render('user/cinema-detail', {
+        title: 'Lịch Chiếu Rạp - CineBook',
+        theaterId: req.params.id,
         hideNavbar: false
     });
 });

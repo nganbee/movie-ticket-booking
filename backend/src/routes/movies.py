@@ -63,6 +63,7 @@ async def sync_movie_data(title: str = Query(..., description="Tên phim cần l
         "imdb_rating": 0.0,
         "language": details.get("original_language", "vi").upper(),
         "release_date": details.get("release_date", ""),
+        "trailer_url": "",
     }
     
     # Get director
@@ -70,6 +71,13 @@ async def sync_movie_data(title: str = Query(..., description="Tên phim cần l
     for crew in credits:
         if crew.get("job") == "Director":
             result["director"] = crew.get("name", "")
+            break
+            
+    # Get trailer
+    videos = details.get("videos", {}).get("results", [])
+    for video in videos:
+        if video.get("site") == "YouTube" and video.get("type") == "Trailer":
+            result["trailer_url"] = f"https://www.youtube.com/watch?v={video.get('key')}"
             break
             
     # Get OMDB info if imdb_id exists
